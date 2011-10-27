@@ -1,0 +1,41 @@
+MEItoVexFlow
+============
+
+A JavaScript library which provides a function for converting MEI
+<http://music-encoding.org/> encoded music notation into drawing
+instructions for the VexFlow <http://vexflow.com/> music notation
+rendering library.
+
+Usage
+-----
+
+The library provides the function `render_notation` which takes four
+arguments:
+
+ - `score` should be a markup fragment containing the MEI
+
+ - `target` should be an HTML <canvas> element onto which the notation
+   will be drawn
+
+ - `width` should be the width of the canvas (optional)
+
+ - `height` should be the height of the canvas (optional)
+
+The function has been tested using an MEI fragment embedded within an
+HTML document. See:
+http://igor.gold.ac.uk/~map01rl/pocac/prokofiev-op-36.html
+
+Dependencies
+------------
+
+Any browser in which this code is used must have the VexFlow and
+jQuery libraries loaded.
+
+Limitations
+-----------
+
+Only a small subset of MEI has so far been implemented. Many
+conventional aspects of common practice notation have been igonred
+(such as repeat accidentals, stem directions). It's also important to
+remember that VexFlow is a moving target, it's in constant development
+and so this code could break at any time.
