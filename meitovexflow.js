@@ -252,11 +252,11 @@ var render_notation = function(score, target, width, height) {
 
     var make_ties = function(i, tie){
         //find first and last note
-        f_note = null;
-        l_note = null;
+        var f_note = null;
+        var l_note = null;
         $(notes).each(function(i, note) {
-            if (note.id==$(tie).attr('startid')){f_note=note.vexNote;}
-            else if (note.id==$(tie).attr('endid')){l_note=note.vexNote;}
+            if (note.id === $(tie).attr('startid')) { f_note = note.vexNote; }
+            else if (note.id === $(tie).attr('endid')) { l_note = note.vexNote; }
         });
         new Vex.Flow.StaveTie({
             first_note: f_note,
@@ -312,24 +312,29 @@ var render_notation = function(score, target, width, height) {
 	// map(extract_events).get() which will flatten the arrays
 	// returned. Therefore, we wrap them up in an object to
 	// protect them.
-	return {layer: i, events: $(layer).children().map(function(i, element) {return process_element(i, element, layer, parent_staff_element, parent_measure);}).get()};
+	return {layer: i, events: $(layer).children().map(function(i, element) { return process_element(i, element, layer, parent_staff_element, parent_measure); }).get()};
     };
 
     var make_note = function(element, parent_layer, parent_staff_element, parent_measure) {
     
-    //Support for annotations (lyrics, directions, etc.)
-    function newAnnotationBottom(text) {
-    return (new Vex.Flow.Annotation(text)).setFont("Times").setBottom(true); }
-    function newAnnotationAbove(text) {
-    return (new Vex.Flow.Annotation(text)).setFont("Times"); }
+	//Support for annotations (lyrics, directions, etc.)
+	var make_annot_below = function(text) {
+	    return (new Vex.Flow.Annotation(text)).setFont("Times").setBottom(true);
+	};
+
+	var make_annot_above = function(text) {
+	    return (new Vex.Flow.Annotation(text)).setFont("Times");
+	};
     
 	try {
 	    var note = new Vex.Flow.StaveNote({keys: [mei_note2vex_key(element)],
 					       clef: staff_clef($(parent_staff_element).attr('n')),
 					       duration: mei_note2vex_dur(element),
 					       stem_direction: mei_note_stem_dir(element, parent_staff_element)});
-	    note.addAnnotation(2, newAnnotationBottom(mei_syl2vex_annot(element)));
-	    note.addAnnotation(2, newAnnotationAbove(mei_dir2vex_annot(parent_measure, element)));
+
+	    note.addAnnotation(2, make_annot_below(mei_syl2vex_annot(element)));
+	    note.addAnnotation(2, make_annot_above(mei_dir2vex_annot(parent_measure, element)));
+
 	    if ($(element).attr('dots') === '1') {
 		note.addDotToAll();
 	    }
@@ -341,10 +346,13 @@ var render_notation = function(score, target, width, height) {
 	    $.each($(element).children(), function(i, child) { $(child).remove(); });
 
 	    //Build a note object that keeps the xml:id
-        // Sanity check
-        if (!$(element).attr('xml:id')) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
-        var note_object = {vexNote: note, id: $(element).attr('xml:id')};
-        notes.push(note_object);
+
+            // Sanity check
+            if (!$(element).attr('xml:id')) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
+
+            var note_object = {vexNote: note, id: $(element).attr('xml:id')};
+            notes.push(note_object);
+
 	    return note_object;
 
 	} catch (x) {
@@ -379,12 +387,14 @@ var render_notation = function(score, target, width, height) {
 
 
     var make_beam = function(element, parent_layer, parent_staff_element, parent_measure) {
-	   var elements = $(element).children().map(function(i, note) { 
+	var elements = $(element).children().map(function(i, note) { 
 	   //make sure to get vexNote out of wrapped note objects
 	   var proc_element = process_element(i, note, parent_layer, parent_staff_element, parent_measure);
 	   return proc_element.vexNote ? proc_element.vexNote : proc_element;
 	}).get();
+	
 	beams.push(new Vex.Flow.Beam(elements));
+	
 	return elements;
     };
 
@@ -433,7 +443,7 @@ var render_notation = function(score, target, width, height) {
     var make_voice = function(i, voice_contents) {
 	if (!$.isArray(voice_contents)) { throw new Vex.RuntimeError('BadArguments', 'make_voice() voice_contents argument must be an array.');  }
 
-		var voice = new Vex.Flow.Voice({num_beats: Number($(score).find('mei\\:staffDef').attr('meter.count')),
+	var voice = new Vex.Flow.Voice({num_beats: Number($(score).find('mei\\:staffDef').attr('meter.count')),
 					beat_value: Number($(score).find('mei\\:staffDef').attr('meter.unit')),
 					resolution: Vex.Flow.RESOLUTION});
 
