@@ -248,6 +248,7 @@ var render_notation = function(score, target, width, height) {
 	$.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     	//do ties now!
 	$(score).find('mei\\:tie').each(make_ties);
+	$(score).find('mei\\:slur').each(make_ties);
     };
 
     var make_ties = function(i, tie){
