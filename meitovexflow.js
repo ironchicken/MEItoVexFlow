@@ -336,8 +336,13 @@ var render_notation = function(score, target, width, height) {
 	    note.addAnnotation(2, make_annot_below(mei_syl2vex_annot(element)));
 	    note.addAnnotation(2, make_annot_above(mei_dir2vex_annot(parent_measure, element)));
 
-	    if ($(element).attr('dots') === '1') {
-		note.addDotToAll();
+	    try {
+	       for (i=0;i<parseInt($(element).attr('dots'));i++){
+	           note.addDotToAll();
+	       }
+	    } catch (x){
+	       throw new Vex.RuntimeError('BadArguments',
+				       'A problem occurred processing the dots of <mei:note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
 	    }
 	    if ($(element).attr('accid')) {
 		note.addAccidental(0, new Vex.Flow.Accidental(mei_note2vex_accid(element)));
