@@ -44,24 +44,30 @@ var render_notation = function(score, target, width, height) {
 	return $(mei_note).attr('pname') + '/' + $(mei_note).attr('oct');
     };
 
-        
-    //Add annotation (lyrics)
+     //Add annotation (lyrics)
     var mei_syl2vex_annot = function(mei_note) {
         var syl = $(mei_note).find('mei\\:syl'); 
+        var full_syl = '';
+        $(syl).each(function(i,s){ 
+            var dash = ($(s).attr('wordpos')=='i' || $(s).attr('wordpos')=='m') ? '-' : '';
+            full_syl += (i>0 ? '\n' : '')+$(s).text()+dash;
+        });
         var dash = (syl.attr('wordpos')=='i' || syl.attr('wordpos')=='m') ? '-' : '';
-        return syl.text()+dash; 
+        return full_syl; 
     }
     
-    //Add annotation (above directions) TODO: generalize for bottom
+    //Add annotation (directions)
     var mei_dir2vex_annot = function(parent_measure, mei_note) {
-        var dir = $(parent_measure).find('mei\\:dir');
+        var dir = $(parent_measure).find('mei\\:dir')
         var dir_text = '';
+        var pos = '';
         $(dir).each(function(){
             if ($(this).attr('startid') == $(mei_note).attr('xml:id')){
                 dir_text += $(this).text().trim();
+                pos = $(this).attr('place');
             }
         });
-        return dir_text;
+        return [dir_text, pos];
     }
 
     var vex_key_cmp = function(key1, key2) {
@@ -90,7 +96,7 @@ var render_notation = function(score, target, width, height) {
 	if (mei_dur === '8') return '8';
 	if (mei_dur === '16') return '16';
 	if (mei_dur === '32') return '32';
-	//if (mei_dur === '64') return ;
+	if (mei_dur === '64') return '64';
 	//if (mei_dur === '128') return ;
 	//if (mei_dur === '256') return ;
 	//if (mei_dur === '512') return ;
@@ -249,6 +255,7 @@ var render_notation = function(score, target, width, height) {
     	//do ties now!
 	$(score).find('mei\\:tie').each(make_ties);
 	$(score).find('mei\\:slur').each(make_ties);
+    $(score).find('mei\\:hairpin').each(make_hairpins);
     };
 
     var make_ties = function(i, tie){
@@ -267,6 +274,26 @@ var render_notation = function(score, target, width, height) {
         }).setContext(context).draw();
     }
 
+    var make_hairpins = function(i, hp){
+        //find first and last note
+        var f_note = null;
+        var l_note = null;
+        $(notes).each(function(i, note) {
+            if (note.id === $(hp).attr('startid')){ f_note = note.vexNote; }
+            if (note.id === $(hp).attr('endid')){ l_note = note.vexNote; }
+        });
+        var place = mei2vexflowTables.positions[$(hp).attr('place')];
+        var type = mei2vexflowTables.hairpins[$(hp).attr('form')];        
+        var l_ho = 0;
+        var r_ho = 0;
+        var hairpin_options = {height: 10, y_shift:0, left_shift_px:l_ho, r_shift_px:r_ho};
+                
+        new Vex.Flow.StaveHairpin({
+            first_note: f_note,
+            last_note: l_note,
+        }, type).setContext(context).setRenderOptions(hairpin_options).setPosition(place).draw();
+        
+    }
 
     var extract_staves = function(i, measure) {
 	if (rendering_method === 'staff-wise') {
@@ -286,12 +313,28 @@ var render_notation = function(score, target, width, height) {
 	    if ($(staff_element).parent().get(0).attrs().n === '1') {
 		left = 0
 		top = (Number(staff_element.attrs().n) - 1) * 100;
-		staff = initialise_staff(null, $(score).find('mei\\:staffdef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+        /* Determine if there's a new staff definition, or take default */
+		/* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+        if ($(parent_measure).prev().get(0) != undefined && $(parent_measure).prev().get(0).tagName.toLowerCase() === 'mei:scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
+            scoredef = $(parent_measure).prev().get(0);
+            staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+        }
+        else {
+	      staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+	    } 
 	    } else {
 		var previous_measure = measures[measures.length-1][0];
 		left = previous_measure.x + previous_measure.width;
 		top = (Number(staff_element.attrs().n) - 1) * 100;
-		staff = initialise_staff(null, $(score).find('mei\\:staffdef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
+		/* Determine if there's a new staff definition, or take default */
+		/* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+        if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
+            scoredef = $(parent_measure).prev().get(0);
+            staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+        }
+        else {
+		    staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
+	    }
 	    }
 
 	    var layer_events = $(staff_element).find('mei\\:layer').map(function(i, layer) { return extract_events(i, layer, staff_element, parent_measure); }).get();
@@ -334,7 +377,8 @@ var render_notation = function(score, target, width, height) {
 					       stem_direction: mei_note_stem_dir(element, parent_staff_element)});
 
 	    note.addAnnotation(2, make_annot_below(mei_syl2vex_annot(element)));
-	    note.addAnnotation(2, make_annot_above(mei_dir2vex_annot(parent_measure, element)));
+	    var annot = mei_dir2vex_annot(parent_measure, element);
+	    note.addAnnotation(2, annot[1] == 'below' ? make_annot_below(annot[0]) : make_annot_above(annot[0]));
 
 	    try {
 	       for (i=0;i<parseInt($(element).attr('dots'));i++){
