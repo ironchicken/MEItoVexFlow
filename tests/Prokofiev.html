@@ -12,7 +12,11 @@
   <head>
     <title>Serge Prokofiev: Five Poems for Voice and Piano Op. 36</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script><script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-free.js"></script><script type="text/JavaScript" src="../meitovexflow.js"></script><script type="text/JavaScript">$(document).ready(function(){var MEI = document.getElementById('meiScore');var canvas = $("div.a canvas")[0];render_notation(MEI, canvas,981,400);});</script>
+  	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  	<script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-free.js"></script>
+        <script type="text/JavaScript" src="../tables.js"></script>
+        <script type="text/JavaScript" src="../meitovexflow.js"></script>
+        <script type="text/JavaScript">$(document).ready(function(){var MEI = document.getElementById('meiScore');var canvas = $("div.a canvas")[0];render_notation(MEI, canvas,981,400);});</script>
     <!--<link href="http://fonts.googleapis.com/css?family=OFL+Sorts+Mill+Goudy+TT|Yanone+Kaffeesatz|Tangerine" rel="stylesheet" type="text/css" />-->
     <link href="http://fonts.googleapis.com/css?family=Crimson+Text|Droid+Sans" rel="stylesheet" type="text/css" />
     <!--<link rel="stylesheet" type="text/css" href="prokofiev-catalogue.css" />-->
@@ -118,7 +122,9 @@
 	    <mei:staff n="3">
 	      <mei:layer>
 		<mei:beam>
-		  <mei:note xml:id="op36-e8" pname="c" oct="4" dur="8"></mei:note>
+		  <mei:note xml:id="op36-e8a" pname="c" oct="4" dur="16" dots="1"></mei:note>
+			<mei:note xml:id="op36-e8b" pname="c" oct="4" dur="64"></mei:note>
+			<mei:note xml:id="op36-e8c" pname="c" oct="4" dur="64"></mei:note>
 		  <mei:note xml:id="op36-e9" pname="c" oct="4" dur="8"></mei:note>
 		  <mei:note xml:id="op36-e10" pname="c" oct="4" dur="8"></mei:note>
 		</mei:beam>
@@ -129,6 +135,8 @@
 		</mei:beam>
 	      </mei:layer>
 	    </mei:staff>
+	  	<mei:tie startid="op36-e8a" endid="op36-e8b"/>
+	  	<mei:tie startid="op36-e8b" endid="op36-e8c"/>
 	  </mei:measure>
 	  <mei:measure n="2">
 	    <mei:staff n="1">
@@ -215,6 +223,7 @@
 		</mei:beam>
 	      </mei:layer>
 	    </mei:staff>
+	  	<mei:hairpin xml:id="d1e352" startid="op36-e43" endid="op36-e45" form="cres" place="below" staff="3"/>
 	  </mei:measure>
 	  <mei:measure n="4">
 	    <mei:staff n="1">
