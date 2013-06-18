@@ -39,7 +39,9 @@ var render_notation = function(score, target, width, height) {
   var rendering_method;
 
   var mei_note2vex_key = function(mei_note) {
-    mei_note = (typeof mei_note === 'number' && arguments.length === 2 && typeof arguments[1] === 'object') ? arguments[1] : mei_note;
+    mei_note = (typeof mei_note === 'number' && 
+                arguments.length === 2 && 
+                typeof arguments[1] === 'object') ? arguments[1] : mei_note;
 
     return $(mei_note).attr('pname') + '/' + $(mei_note).attr('oct');
   };
@@ -123,7 +125,9 @@ var render_notation = function(score, target, width, height) {
   var mei_note2vex_dur = function(mei_note, allow_dotted) {
     allow_dotted = allow_dotted || true;
 
-    mei_note = (typeof mei_note === 'number' && arguments.length === 2 && typeof arguments[1] === 'object') ? arguments[1] : mei_note;
+    mei_note = (typeof mei_note === 'number' && 
+                arguments.length === 2 && 
+                typeof arguments[1] === 'object') ? arguments[1] : mei_note;
 
     if ($(mei_note).attr('dur') === undefined) {
       alert('Could not get duration from:\n' + JSON.stringify(mei_note, null, '\t'));
@@ -227,7 +231,9 @@ var render_notation = function(score, target, width, height) {
   var render_staff_wise = function() {
     rendering_method = 'staff-wise';
 
-    $(score).find('mei\\:staffdef').each(function(i, staffdef) { staves[(Number($(staffdef).attr('n')))] = initialise_staff(i, staffdef, true, true, true, 0, i * 100, width); });
+    $(score).find('mei\\:staffdef').each(function(i, staffdef) { 
+      staves[(Number($(staffdef).attr('n')))] = initialise_staff(i, staffdef, true, true, true, 0, i * 100, width); 
+    });
 
     var i;
     for (staff_n in staves) {
@@ -311,7 +317,9 @@ var render_notation = function(score, target, width, height) {
 
   var extract_layers = function(i, staff_element, parent_measure) {
     if (rendering_method === 'staff-wise') {
-      return $(staff_element).find('mei\\:layer').map(function(i, layer) { return extract_events(i, layer, staff_element, parent_measure); }).get();
+      return $(staff_element).find('mei\\:layer').map(function(i, layer) { 
+        return extract_events(i, layer, staff_element, parent_measure); 
+      }).get();
     } else if (rendering_method === 'measure-wise') {
       var n_measures = $(score).find('mei\\:measure').get().length;
       var measure_width = Math.round(width / n_measures);
@@ -321,11 +329,12 @@ var render_notation = function(score, target, width, height) {
         top = (Number(staff_element.attrs().n) - 1) * 100;
         /* Determine if there's a new staff definition, or take default */
         /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-        if ($(parent_measure).prev().get(0) != undefined && $(parent_measure).prev().get(0).tagName.toLowerCase() === 'mei:scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
+        if ($(parent_measure).prev().get(0) != undefined && 
+            $(parent_measure).prev().get(0).tagName.toLowerCase() === 'mei:scoredef' && 
+            !$(parent_measure).prev().get(0).attrs().n) {
           scoredef = $(parent_measure).prev().get(0);
           staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-        }
-        else {
+        } else {
           staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
         } 
       } else {
@@ -337,17 +346,25 @@ var render_notation = function(score, target, width, height) {
         if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
           scoredef = $(parent_measure).prev().get(0);
           staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-        }
-        else {
+        } else {
           staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
         }
       }
 
-      var layer_events = $(staff_element).find('mei\\:layer').map(function(i, layer) { return extract_events(i, layer, staff_element, parent_measure); }).get();
+      var layer_events = $(staff_element).find('mei\\:layer').map(function(i, layer) { 
+        return extract_events(i, layer, staff_element, parent_measure); 
+      }).get();
 
       // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
       var vex_layer_events = [];
-      $(layer_events).each(function(){ vex_layer_events.push( {events : $(this.events).get().map( function(events){ return events.vexNote ? events.vexNote : events; }), layer: this.layer} )});
+      $(layer_events).each( function() { 
+        vex_layer_events.push({ 
+          events : $(this.events).get().map( function(events) { 
+            return events.vexNote ? events.vexNote : events; 
+          }), 
+          layer: this.layer
+        })
+      });
 
       var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
       var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
@@ -362,7 +379,11 @@ var render_notation = function(score, target, width, height) {
     // map(extract_events).get() which will flatten the arrays
     // returned. Therefore, we wrap them up in an object to
     // protect them.
-    return {layer: i, events: $(layer).children().map(function(i, element) { return process_element(i, element, layer, parent_staff_element, parent_measure); }).get()};
+    return {
+      layer: i, 
+      events: $(layer).children().map(function(i, element) { 
+        return process_element(i, element, layer, parent_staff_element, parent_measure); 
+      }).get()};
   };
 
   var make_note = function(element, parent_layer, parent_staff_element, parent_measure) {
@@ -462,8 +483,12 @@ var render_notation = function(score, target, width, height) {
   var make_chord = function(element, parent_layer, parent_staff_element, parent_measure) {
     try {
       var keys = $(element).children().map(mei_note2vex_key).get();
-      var duration = mei_dur2vex_dur(Math.max.apply(Math, $(element).children().map(function() { return Number($(this).attr('dur')); }).get()));
-      var dotted = $(element).children().map(function() { return $(this).attr('dots') === '1'; }).get().any();
+      var duration = mei_dur2vex_dur(Math.max.apply(Math, $(element).children().map(function() { 
+        return Number($(this).attr('dur')); 
+      }).get()));
+      var dotted = $(element).children().map(function() { 
+        return $(this).attr('dots') === '1'; 
+      }).get().any();
       if (dotted === true) { duration += 'd'; }
 
       var chord = new Vex.Flow.StaveNote({keys: keys,
@@ -483,7 +508,9 @@ var render_notation = function(score, target, width, height) {
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
       'A problem occurred processing the <mei:chord>: ' +
-      JSON.stringify($.each($(element).children(), function(i, element) { element.attrs(); }).get()) + '. \"' + x.message + '"');
+      JSON.stringify($.each($(element).children(), function(i, element) { 
+        element.attrs(); 
+      }).get()) + '. \"' + x.message + '"');
     }
   };
 
