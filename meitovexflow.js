@@ -31,7 +31,7 @@ var render_notation = function(score, target, width, height) {
   width = width || 800;
   height = height || 350;
 
-  var renderer, canvas, context;
+  var context;
   var staves = [];
   var measures = [];
   var beams = [];
@@ -75,12 +75,19 @@ var render_notation = function(score, target, width, height) {
     key2 = {pitch: key2.split('/')[0][0], octave: Number(key2.split('/')[1])};
 
     if (key1.octave === key2.octave) {
-      if (key1.pitch === key2.pitch) { return 0; }
-      else if (key1.pitch < key2.pitch) { return -1; }
-      else if (key1.pitch > key2.pitch) { return 1; }
-      } else if (key1.octave < key2.octave) { return -1; }
-      else if (key1.octave > key2.octave) { return 1; }
-    };
+      if (key1.pitch === key2.pitch) { 
+        return 0; 
+      } else if (key1.pitch < key2.pitch) { 
+        return -1; 
+      } else if (key1.pitch > key2.pitch) { 
+        return 1; 
+      }
+    } else if (key1.octave < key2.octave) { 
+      return -1; 
+    } else if (key1.octave > key2.octave) { 
+      return 1; 
+    }
+  }
 
   var vex_dur_cmp = function(key1, key2) {
 
@@ -194,7 +201,7 @@ var render_notation = function(score, target, width, height) {
   };
 
   var initialise_score = function(canvas) {
-    renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+    var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
     context = renderer.getContext();
   };
 
