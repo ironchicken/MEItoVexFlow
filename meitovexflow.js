@@ -332,7 +332,7 @@ var render_notation = function(score, target, width, height) {
         /* Determine if there's a new staff definition, or take default */
         /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
         if ($(parent_measure).prev().get(0) != undefined && 
-            $(parent_measure).prev().get(0).tagName.toLowerCase() === 'mei:scoredef' && 
+            $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
             !$(parent_measure).prev().get(0).attrs().n) {
           scoredef = $(parent_measure).prev().get(0);
           staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
@@ -418,7 +418,7 @@ var render_notation = function(score, target, width, height) {
         }
       } catch (x) {
         throw new Vex.RuntimeError('BadArguments',
-        'A problem occurred processing the dots of <mei:note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+        'A problem occurred processing the dots of <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
       }
       if ($(element).attr('accid')) {
         note.addAccidental(0, new Vex.Flow.Accidental(mei_note2vex_accid(element)));
@@ -426,7 +426,7 @@ var render_notation = function(score, target, width, height) {
       $.each($(element).find('artic'), function(i, ar){
         note.addArticulation(0, new Vex.Flow.Articulation(mei2vexflowTables.articulations[$(ar).attr('artic')]).setPosition(mei2vexflowTables.positions[$(ar).attr('place')]));
       });
-      // FIXME For now, we'll remove any child nodes of <mei:note>
+      // FIXME For now, we'll remove any child nodes of <note>
       $.each($(element).children(), function(i, child) { $(child).remove(); });
 
       //Build a note object that keeps the xml:id
@@ -441,7 +441,7 @@ var render_notation = function(score, target, width, height) {
 
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <mei:note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
     }
   };
 
@@ -454,7 +454,7 @@ var render_notation = function(score, target, width, height) {
       return rest;
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <mei:rest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <rest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
     }
   };
 
@@ -465,7 +465,7 @@ var render_notation = function(score, target, width, height) {
       return mrest;
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <mei:mRest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <mRest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
     }
   };
 
@@ -509,7 +509,7 @@ var render_notation = function(score, target, width, height) {
       return chord;
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <mei:chord>: ' +
+      'A problem occurred processing the <chord>: ' +
       JSON.stringify($.each($(element).children(), function(i, element) { 
         element.attrs(); 
       }).get()) + '. \"' + x.message + '"');
@@ -518,15 +518,15 @@ var render_notation = function(score, target, width, height) {
 
   var process_element = function(i, element, parent_layer, parent_staff_element, parent_measure) {
     var element_type = $(element).get(0).tagName.toLowerCase();
-    if (element_type === 'mei:rest') {
+    if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mei:mrest') {
+    } else if (element_type === 'mrest') {
       return make_mrest(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mei:note') {
+    } else if (element_type === 'note') {
       return make_note(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mei:beam') {
+    } else if (element_type === 'beam') {
       return make_beam(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mei:chord') {
+    } else if (element_type === 'chord') {
       return make_chord(element, parent_layer, parent_staff_element, parent_measure);
     } else {
       throw new Vex.RuntimeError('BadArguments',
