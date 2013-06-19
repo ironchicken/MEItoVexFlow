@@ -182,6 +182,8 @@ var render_notation = function(score, target, width, height) {
       keyname += $(mei_staffdef).attr('key.mode') === 'major' ? '' : 'm';
 
       return keyname;
+    } else {
+      return 'C'
     }
   };
 
