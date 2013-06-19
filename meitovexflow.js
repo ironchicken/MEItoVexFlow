@@ -48,7 +48,7 @@ var render_notation = function(score, target, width, height) {
 
   //Add annotation (lyrics)
   var mei_syl2vex_annot = function(mei_note) {
-    var syl = $(mei_note).find('mei\\:syl'); 
+    var syl = $(mei_note).find('syl'); 
     var full_syl = '';
     $(syl).each(function(i,s){ 
       var dash = ($(s).attr('wordpos')=='i' || $(s).attr('wordpos')=='m') ? '-' : '';
@@ -60,7 +60,7 @@ var render_notation = function(score, target, width, height) {
 
   //Add annotation (directions)
   var mei_dir2vex_annot = function(parent_measure, mei_note) {
-    var dir = $(parent_measure).find('mei\\:dir')
+    var dir = $(parent_measure).find('dir')
     var dir_text = '';
     var pos = '';
     $(dir).each(function(){
@@ -194,7 +194,7 @@ var render_notation = function(score, target, width, height) {
   };
 
   var staff_clef = function(staff_n) {
-    var staffdef = $(score).find('mei\\:staffdef[n=' + staff_n + ']')[0];
+    var staffdef = $(score).find('staffdef[n=' + staff_n + ']')[0];
     return mei_staffdef2vex_clef(staffdef);
   };
 
@@ -231,13 +231,13 @@ var render_notation = function(score, target, width, height) {
   var render_staff_wise = function() {
     rendering_method = 'staff-wise';
 
-    $(score).find('mei\\:staffdef').each(function(i, staffdef) { 
+    $(score).find('staffdef').each(function(i, staffdef) { 
       staves[(Number($(staffdef).attr('n')))] = initialise_staff(i, staffdef, true, true, true, 0, i * 100, width); 
     });
 
     var i;
     for (staff_n in staves) {
-      var layers = $(score).find('mei\\:staff[n=' + staff_n + ']').map(extract_layers).get();
+      var layers = $(score).find('staff[n=' + staff_n + ']').map(extract_layers).get();
 
       var voices = {};
 
@@ -263,12 +263,12 @@ var render_notation = function(score, target, width, height) {
   var render_measure_wise = function() {
     rendering_method = 'measure-wise';
 
-    $(score).find('mei\\:measure').each(extract_staves);
+    $(score).find('measure').each(extract_staves);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     //do ties now!
-    $(score).find('mei\\:tie').each(make_ties);
-    $(score).find('mei\\:slur').each(make_ties);
-    $(score).find('mei\\:hairpin').each(make_hairpins);
+    $(score).find('tie').each(make_ties);
+    $(score).find('slur').each(make_ties);
+    $(score).find('hairpin').each(make_hairpins);
   };
 
   var make_ties = function(i, tie) {
@@ -309,19 +309,19 @@ var render_notation = function(score, target, width, height) {
 
   var extract_staves = function(i, measure) {
     if (rendering_method === 'staff-wise') {
-      return $(measure).find('mei\\:staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get();
+      return $(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get();
     } else if (rendering_method === 'measure-wise') {
-      measures.push($(measure).find('mei\\:staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
+      measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
     };
   };
 
   var extract_layers = function(i, staff_element, parent_measure) {
     if (rendering_method === 'staff-wise') {
-      return $(staff_element).find('mei\\:layer').map(function(i, layer) { 
+      return $(staff_element).find('layer').map(function(i, layer) { 
         return extract_events(i, layer, staff_element, parent_measure); 
       }).get();
     } else if (rendering_method === 'measure-wise') {
-      var n_measures = $(score).find('mei\\:measure').get().length;
+      var n_measures = $(score).find('measure').get().length;
       var measure_width = Math.round(width / n_measures);
       var staff, left, top;
       if ($(staff_element).parent().get(0).attrs().n === '1') {
@@ -335,7 +335,7 @@ var render_notation = function(score, target, width, height) {
           scoredef = $(parent_measure).prev().get(0);
           staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
         } else {
-          staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+          staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
         } 
       } else {
         var previous_measure = measures[measures.length-1][0];
@@ -347,11 +347,11 @@ var render_notation = function(score, target, width, height) {
           scoredef = $(parent_measure).prev().get(0);
           staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
         } else {
-          staff = initialise_staff(null, $(score).find('mei\\:staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
+          staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
         }
       }
 
-      var layer_events = $(staff_element).find('mei\\:layer').map(function(i, layer) { 
+      var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
         return extract_events(i, layer, staff_element, parent_measure); 
       }).get();
 
@@ -421,7 +421,7 @@ var render_notation = function(score, target, width, height) {
       if ($(element).attr('accid')) {
         note.addAccidental(0, new Vex.Flow.Accidental(mei_note2vex_accid(element)));
       }
-      $.each($(element).find('mei\\:artic'), function(i, ar){
+      $.each($(element).find('artic'), function(i, ar){
         note.addArticulation(0, new Vex.Flow.Articulation(mei2vexflowTables.articulations[$(ar).attr('artic')]).setPosition(mei2vexflowTables.positions[$(ar).attr('place')]));
       });
       // FIXME For now, we'll remove any child nodes of <mei:note>
@@ -535,8 +535,8 @@ var render_notation = function(score, target, width, height) {
   var make_voice = function(i, voice_contents) {
     if (!$.isArray(voice_contents)) { throw new Vex.RuntimeError('BadArguments', 'make_voice() voice_contents argument must be an array.');  }
 
-    var voice = new Vex.Flow.Voice({num_beats: Number($(score).find('mei\\:staffDef').attr('meter.count')),
-    beat_value: Number($(score).find('mei\\:staffDef').attr('meter.unit')),
+    var voice = new Vex.Flow.Voice({num_beats: Number($(score).find('staffDef').attr('meter.count')),
+    beat_value: Number($(score).find('staffDef').attr('meter.unit')),
     resolution: Vex.Flow.RESOLUTION});
 
     voice.setStrict(false);
