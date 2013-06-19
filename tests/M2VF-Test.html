@@ -16,7 +16,25 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-min.js"></script>
 		<script type="text/JavaScript" src="../tables.js"></script>
 		<script type="text/JavaScript" src="../meitovexflow.js"></script>
-		<script type="text/JavaScript">$(document).ready(function(){var MEI = document.getElementById('meiScore');var canvas = $("div.a canvas")[0];render_notation(MEI, canvas,981,400);});</script>
+		<script type="text/JavaScript">
+			
+			if (window.XMLHttpRequest) {
+				// code for IE7+, Firefox, Chrome, Opera, Safari
+				xmlhttp=new XMLHttpRequest();
+			} else {
+				// code for IE6, IE5
+				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			xmlhttp.open("GET","./Prokofiev.xml",false);
+			xmlhttp.send();
+			xmlDoc=xmlhttp.responseXML;
+			
+			$(document).ready(function(){
+				var MEI = xmlDoc.getElementsByTagName('score');
+				var canvas = $("div.a canvas")[0];
+				render_notation(MEI, canvas,981,400);
+			});
+		</script>
 		<!--<link href="http://fonts.googleapis.com/css?family=OFL+Sorts+Mill+Goudy+TT|Yanone+Kaffeesatz|Tangerine" rel="stylesheet" type="text/css" />-->
 		<link href="http://fonts.googleapis.com/css?family=Crimson+Text|Droid+Sans" rel="stylesheet" type="text/css" />
 		<!--<link rel="stylesheet" type="text/css" href="prokofiev-catalogue.css" />-->
