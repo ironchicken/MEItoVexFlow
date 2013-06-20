@@ -196,7 +196,7 @@ var render_notation = function(score, target, width, height) {
   };
 
   var staff_clef = function(staff_n) {
-    var staffdef = $(score).find('staffdef[n=' + staff_n + ']')[0];
+    var staffdef = $(score).find('staffDef[n=' + staff_n + ']')[0];
     return mei_staffdef2vex_clef(staffdef);
   };
 
