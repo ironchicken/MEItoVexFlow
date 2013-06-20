@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mei meiversion="2013" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei">
+<mei meiversion="2013" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" xmlns:mei="http://www.music-encoding.org/ns/mei">
 	<meiHead>
 		<fileDesc>
 			<titleStmt>
@@ -16,13 +16,13 @@
 						<staffGrp>
 							<staffDef n="1" label="Voice" clef.line="2" clef.shape="G" meter.count="6" meter.unit="8"/>
 							<staffGrp barthru="true">
-								<staffDef n="2" label="Left hand" clef.line="2" clef.shape="G" meter.count="6" meter.unit="8"/>
-								<staffDef n="3" label="Right hand" clef.line="4" clef.shape="F" meter.count="6" meter.unit="8"/>
+								<staffDef n="2" label="Right hand" clef.line="2" clef.shape="G" meter.count="6" meter.unit="8"/>
+								<staffDef n="3" label="Left hand" clef.line="4" clef.shape="F" meter.count="6" meter.unit="8"/>
 							</staffGrp>
 						</staffGrp>
 					</scoreDef>
 					<section>
-						<measure n="1">
+						<mei:measure n="1">
 							<staff n="1">
 								<layer>
 									<rest xml:id="op36-e1-1" dur="4"></rest>
@@ -63,7 +63,7 @@
 							</staff>
 							<tie startid="op36-e8a" endid="op36-e8b"/>
 							<tie startid="op36-e8b" endid="op36-e8c"/>
-						</measure>
+						</mei:measure>
 						<measure n="2">
 							<staff n="1">
 								<layer>
