@@ -25,12 +25,12 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				// code for IE6, IE5
 				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 			}
-			xmlhttp.open("GET","./Prokofiev-ns.xml",false);
+			xmlhttp.open("GET","./Prokofiev-nons.xml",false);
 			xmlhttp.send();
 			xmlDoc=xmlhttp.responseXML;
 			
 			$(document).ready(function(){
-				var MEI = xmlDoc.getElementsByTagName('score');
+				var MEI = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
 				var canvas = $("div.a canvas")[0];
 				render_notation(MEI, canvas,981,400);
 			});
