@@ -36,7 +36,6 @@ var render_notation = function(score, target, width, height) {
   var measures = [];
   var beams = [];
   var notes = [];
-  var rendering_method;
 
   var mei_note2vex_key = function(mei_note) {
     mei_note = (typeof mei_note === 'number' && 
@@ -230,41 +229,7 @@ var render_notation = function(score, target, width, height) {
     return staff;
   };
 
-  var render_staff_wise = function() {
-    rendering_method = 'staff-wise';
-
-    $(score).find('staffdef').each(function(i, staffdef) { 
-      staves[(Number($(staffdef).attr('n')))] = initialise_staff(i, staffdef, true, true, true, 0, i * 100, width); 
-    });
-
-    var i;
-    for (staff_n in staves) {
-      var layers = $(score).find('staff[n=' + staff_n + ']').map(extract_layers).get();
-
-      var voices = {};
-
-      for (i = 0; i < layers.length; i++) {
-        var voice_n = layers[i].layer;
-        if (voices.hasOwnProperty(voice_n)) {
-          voices[voice_n].push.apply(voices[voice_n], layers[i].events)
-        } else {
-          voices[voice_n] = layers[i].events;
-        }
-      }
-
-      var voices_a = [];
-      for (voice_n in voices) {
-        voices_a.push(make_voice(null, voices[voice_n]));
-      }
-      var formatter = new Vex.Flow.Formatter().joinVoices(voices_a).format(voices_a, width);
-      $.each(voices_a, function(i, voice) { voice.draw(context, staves[staff_n]); });
-      $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
-    }
-  };
-
   var render_measure_wise = function() {
-    rendering_method = 'measure-wise';
-
     $(score).find('measure').each(extract_staves);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     //do ties now!
@@ -310,70 +275,60 @@ var render_notation = function(score, target, width, height) {
   }
 
   var extract_staves = function(i, measure) {
-    if (rendering_method === 'staff-wise') {
-      return $(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get();
-    } else if (rendering_method === 'measure-wise') {
-      measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
-    };
+    measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
   };
 
   var extract_layers = function(i, staff_element, parent_measure) {
-    if (rendering_method === 'staff-wise') {
-      return $(staff_element).find('layer').map(function(i, layer) { 
-        return extract_events(i, layer, staff_element, parent_measure); 
-      }).get();
-    } else if (rendering_method === 'measure-wise') {
-      var n_measures = $(score).find('measure').get().length;
-      var measure_width = Math.round(width / n_measures);
-      var staff, left, top;
-      if ($(staff_element).parent().get(0).attrs().n === '1') {
-        left = 0
-        top = (Number(staff_element.attrs().n) - 1) * 100;
-        /* Determine if there's a new staff definition, or take default */
-        /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-        if ($(parent_measure).prev().get(0) != undefined && 
-            $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
-            !$(parent_measure).prev().get(0).attrs().n) {
-          scoredef = $(parent_measure).prev().get(0);
-          staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-        } else {
-          staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
-        } 
+    var n_measures = $(score).find('measure').get().length;
+    var measure_width = Math.round(width / n_measures);
+    var staff, left, top;
+    if ($(staff_element).parent().get(0).attrs().n === '1') {
+      left = 0
+      top = (Number(staff_element.attrs().n) - 1) * 100;
+      /* Determine if there's a new staff definition, or take default */
+      /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+      if ($(parent_measure).prev().get(0) != undefined && 
+          $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
+          !$(parent_measure).prev().get(0).attrs().n) {
+        scoredef = $(parent_measure).prev().get(0);
+        staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
       } else {
-        var previous_measure = measures[measures.length-1][0];
-        left = previous_measure.x + previous_measure.width;
-        top = (Number(staff_element.attrs().n) - 1) * 100;
-        /* Determine if there's a new staff definition, or take default */
-        /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-        if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
-          scoredef = $(parent_measure).prev().get(0);
-          staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-        } else {
-          staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
-        }
+        staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+      } 
+    } else {
+      var previous_measure = measures[measures.length-1][0];
+      left = previous_measure.x + previous_measure.width;
+      top = (Number(staff_element.attrs().n) - 1) * 100;
+      /* Determine if there's a new staff definition, or take default */
+      /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+      if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
+        scoredef = $(parent_measure).prev().get(0);
+        staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+      } else {
+        staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
       }
+    }
 
-      var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
-        return extract_events(i, layer, staff_element, parent_measure); 
-      }).get();
+    var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
+      return extract_events(i, layer, staff_element, parent_measure); 
+    }).get();
 
-      // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
-      var vex_layer_events = [];
-      $(layer_events).each( function() { 
-        vex_layer_events.push({ 
-          events : $(this.events).get().map( function(events) { 
-            return events.vexNote ? events.vexNote : events; 
-          }), 
-          layer: this.layer
-        })
-      });
+    // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
+    var vex_layer_events = [];
+    $(layer_events).each( function() { 
+      vex_layer_events.push({ 
+        events : $(this.events).get().map( function(events) { 
+          return events.vexNote ? events.vexNote : events; 
+        }), 
+        layer: this.layer
+      })
+    });
 
-      var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
-      var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
-      $.each(voices, function(i, voice) { voice.draw(context, staff);});
+    var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
+    var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
+    $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
-      return staff;
-    };
+    return staff;
   };
 
   var extract_events = function(i, layer, parent_staff_element, parent_measure) {
