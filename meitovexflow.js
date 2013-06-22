@@ -1,33 +1,36 @@
-Node.prototype.attrs = function() {
-  var i;
-  var attrs = {};
-  for (i in this.attributes) {
-    attrs[this.attributes[i].name] = this.attributes[i].value;
-  }
-  return attrs;
-};
+  Node.prototype.attrs = function() {
+    var i;
+    var attrs = {};
+    for (i in this.attributes) {
+      attrs[this.attributes[i].name] = this.attributes[i].value;
+    }
+    return attrs;
+  };
 
-Array.prototype.all = function(test) {
-  test = test || function(a) { return a == true; };
+  Array.prototype.all = function(test) {
+    test = test || function(a) { return a == true; };
 
-  var i;
-  for (i = 0; i < this.length; i++) {
-    if (test(this[i]) === false) { return false; }
-  }
-  return true;
-};
+    var i;
+    for (i = 0; i < this.length; i++) {
+      if (test(this[i]) === false) { return false; }
+    }
+    return true;
+  };
 
-Array.prototype.any = function(test) {
-  test = test || function(a) { return a == true; };
+  Array.prototype.any = function(test) {
+    test = test || function(a) { return a == true; };
 
-  var i;
-  for (i = 0; i < this.length; i++) {
-    if (test(this[i]) === true) { return true; }
-  }
-  return false;
-};
+    var i;
+    for (i = 0; i < this.length; i++) {
+      if (test(this[i]) === true) { return true; }
+    }
+    return false;
+  };
 
-var render_notation = function(score, target, width, height) {
+
+MEI2VF = {}
+  
+MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
   height = height || 350;
 
@@ -505,3 +508,5 @@ var render_notation = function(score, target, width, height) {
   initialise_score(target);
   render_measure_wise();
 };
+
+
