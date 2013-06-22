@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html
+xmlns="http://www.w3.org/1999/xhtml"
+xmlns:mei="http://www.music-encoding.org/ns/mei"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:foaf="http://xmlns.com/foaf/0.1/"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:mo="http://purl.org/ontology/mo/"
+xmlns:mo-i="http://purl.org/ontology/mo-imaginary/"
+xmlns:event="http://purl.org/NET/c4dm/event.owl"
+version="HTML+RDFa 1.0" xml:lang="en">
+	<head>
+		<title>MEI-to-VexFlow Test Page</title>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+		<script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-min.js"></script>
+		<script type="text/JavaScript" src="../tables.js"></script>
+		<script type="text/JavaScript" src="../meitovexflow.js"></script>
+		<script type="text/JavaScript" src="loadxmldoc.js"></script>
+		<script type="text/JavaScript" src="runtest.js"></script>		
+		<script type="text/JavaScript">
+		
+		
+			$(document).ready(function(){
+				var test_cases = new Array();
+				
+				//define test cases
+				test_cases[0] = { title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'};
+
+				//create as many canvases and title elements as test cases... 
+				
+				
+				//...and load them into canvas_elements and title_elements arrays
+				var canvas_elements = new Array();
+				var title_elements = new Array();
+				canvas_elements[0] = $("div.a canvas")[0];
+				title_elements[0] = $("span.test-title")[0];
+
+				//render test cases
+				for (i=0;i<test_cases.length;i++) {
+					
+					MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i])
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<div class="test-page">
+			<h2>
+				<span class="test-title"
+					property="dc:title">Title of Test Comes Here
+				</span>
+			</h2>
+			<div class="a">
+				<canvas width="1031" height="450" style="border: none"></canvas>
+			</div>
+		</div>
+	</body>
+</html>
