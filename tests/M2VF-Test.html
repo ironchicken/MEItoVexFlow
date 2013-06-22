@@ -32,7 +32,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 			$(document).ready(function(){
 				var MEI = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
 				var canvas = $("div.a canvas")[0];
-				render_notation(MEI, canvas,981,400);
+				MEI2VF.render_notation(MEI, canvas,981,400);
 			});
 		</script>
 		<!--<link href="http://fonts.googleapis.com/css?family=OFL+Sorts+Mill+Goudy+TT|Yanone+Kaffeesatz|Tangerine" rel="stylesheet" type="text/css" />-->
