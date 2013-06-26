@@ -304,7 +304,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       top = (Number(staff_element.attrs().n) - 1) * 100;
       /* Determine if there's a new staff definition, or take default */
       /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-      if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
+      if ($(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
         scoredef = $(parent_measure).prev().get(0);
         staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
       } else {
