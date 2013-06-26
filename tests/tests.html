@@ -19,41 +19,37 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
 		<script type="text/JavaScript" src="runtest.js"></script>		
 		<script type="text/JavaScript">
-		
+			var testItem_html = "<h2><span class='test-title' property='dc:title'>Title of Test Comes Here</span></h2><div class='a'><canvas width='1031' height='450' style='border: none'></canvas></div>"
 		
 			$(document).ready(function(){
 				var test_cases = new Array();
 				
-				//define test cases
-				test_cases[0] = { title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'};
+				//add test cases
+				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'});
+				test_cases.push({ title: 'TC01: Prokofiev Op. 36 - One more time', mei_xml: 'TC01.xml'});
 
-				//create as many canvases and title elements as test cases... 
-				
-				
-				//...and load them into canvas_elements and title_elements arrays
 				var canvas_elements = new Array();
 				var title_elements = new Array();
-				canvas_elements[0] = $("div.a canvas")[0];
-				title_elements[0] = $("span.test-title")[0];
-
-				//render test cases
-				for (i=0;i<test_cases.length;i++) {
+				//create as many canvases and title elements as test cases... 
+				$(test_cases).each( function(index) {
+					$('div.test-page').append(testItem_html);
 					
-					MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i])
+					//...and load them into canvas_elements and title_elements arrays
+					canvas_elements[index] = $("div.a canvas")[index] 
+					title_elements[index] = $("span.test-title")[index];
+				})
+				
+				//render test cases
+				var i;
+				for (i=0;i<test_cases.length;i++) {
+					console.log('Starting Test Case #' + i.toString());
+					MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i]);
 				}
 			});
 		</script>
 	</head>
 	<body>
 		<div class="test-page">
-			<h2>
-				<span class="test-title"
-					property="dc:title">Title of Test Comes Here
-				</span>
-			</h2>
-			<div class="a">
-				<canvas width="1031" height="450" style="border: none"></canvas>
-			</div>
 		</div>
 	</body>
 </html>
