@@ -20,14 +20,18 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="runtest.js"></script>		
 		<script type="text/JavaScript">
 			var testItem_html = "<h2><span class='test-title' property='dc:title'>Title of Test Comes Here</span></h2><div class='a'><canvas width='1031' height='450' style='border: none'></canvas></div>"
-		
+			Vex.LogLevel = 5;
 			$(document).ready(function(){
 				var test_cases = new Array();
 				
 				//add test cases
-//				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'});
-//				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'One-measure.xml'});
-				test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC-MissingAttribute.xml'});
+				// test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'});
+				// test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC-MissingAttribute.xml'});
+				// test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'One-measure.xml'});
+				test_cases.push({ title: 'KeySpec.01 - default pitch and mode [C major]', mei_xml: 'TC.KeySpec.01.xml'});
+				test_cases.push({ title: 'KeySpec.02 - supplied pitch, default accid and mode [G major]', mei_xml: 'TC.KeySpec.02.xml'});
+				test_cases.push({ title: 'KeySpec.03 - supplied pitch and accid, default mode [G-flat major]', mei_xml: 'TC.KeySpec.03.xml'});
+				test_cases.push({ title: 'KeySpec.04 - supplied pitch, accid and mode [D-sharp minor]', mei_xml: 'TC.KeySpec.04.xml'});
 				var canvas_elements = new Array();
 				var title_elements = new Array();
 				//create as many canvases and title elements as test cases... 
@@ -42,11 +46,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				//render test cases
 				var i;
 				for (i=0;i<test_cases.length;i++) {
-					console.log('Starting Test Case #' + i.toString());
+					Vex.LogInfo('Starting Test Case #' + i.toString());
 					try {
 						MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i]);
 					} catch(e) {
-						alert('Error during rendering test case #' + i.toString() + " title: " + test_cases[i].title + ". Error Message: " +  e.toString());
+						Vex.LogError('Error during rendering test case #' + i.toString() + " title: " + test_cases[i].title + ". Error Message: " +  e.toString());
 					}
 				}
 			});

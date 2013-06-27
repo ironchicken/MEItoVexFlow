@@ -108,8 +108,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   }
 
+  //TO BE REMOVED
   var vex_dur_cmp = function(key1, key2) {
-
   };
 
   var mei_dur2vex_dur = function(mei_dur) {
@@ -165,14 +165,16 @@ MEI2VF.render_notation = function(score, target, width, height) {
     if (mei_accid === 's') return '#';
     if (mei_accid === 'ff') return 'bb';
     if (mei_accid === 'ss') return '##';
-    return undefined;
+    throw new MEI2VF.RUNTIME_ERROR('BadAttributeValue', 'Invalid attribute value: ' + mei_accid);
   };
 
+  //TO BE REMOVED
   var mei_note2vex_accid = function(mei_note) {
     var accid = $(mei_note).attr('accid');
-    if (accid !== undefined) {
-      return mei_accid2vex_accid($(mei_note).attr('accid'));
+    if (accid === undefined) {
+      throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'When calling mei_note2vex_accid(mei_note), mei_note must have accid attribute.')
     }
+    return mei_accid2vex_accid(accid);
   };
 
   var mei_note_stem_dir = function(mei_note, parent_staff_element) {
@@ -182,22 +184,28 @@ MEI2VF.render_notation = function(score, target, width, height) {
     } else {
       var clef = staff_clef($(parent_staff_element).attr('n'));
       if (clef === 'treble') {
-        return (vex_key_cmp('a/5', mei_note2vex_key(mei_note)) == 1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
+        return (vex_key_cmp('a/5', mei_note2vex_key(mei_note)) === 1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
       } else if (clef === 'bass') {
-        return (vex_key_cmp('c/4', mei_note2vex_key(mei_note)) == -1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
+        return (vex_key_cmp('c/4', mei_note2vex_key(mei_note)) === -1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
       }
     }
   };
 
   var mei_staffdef2vex_keyspec = function(mei_staffdef) {
-    if ($(mei_staffdef).attr('key.pname') !== undefined && $(mei_staffdef).attr('key.mode') !== undefined) {
+    if ($(mei_staffdef).attr('key.pname') !== undefined) {
       var keyname = $(mei_staffdef).attr('key.pname').toUpperCase();
-      if ($(mei_staffdef).attr('key.accid') !== undefined) {
-        if ($(mei_staffdef).attr('key.accid') === 's') { keyname += '#'; }
-        else if ($(mei_staffdef).attr('key.accid') === 'f') { keyname += 'b'; }
+      var key_accid = $(mei_staffdef).attr('key.accid');
+      if (key_accid !== undefined) {
+        switch (key_accid) {
+          case 's': keyname += '#'; break;
+          case 'f': keyname +=  'b'; break;
+          default: throw new MEI2VF.RUNTIME_ERROR('UnexpectedAttributeValue', "Value of key.accid must be 's' or 'f'");
+        } 
       }
-      keyname += $(mei_staffdef).attr('key.mode') === 'major' ? '' : 'm';
-
+      var key_mode = $(mei_staffdef).attr('key.mode'); 
+      if (key_mode !== undefined) {
+        keyname += key_mode === 'major' ? '' : 'm';        
+      }
       return keyname;
     } else {
       return 'C'
@@ -394,8 +402,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
         throw new Vex.RuntimeError('BadArguments',
         'A problem occurred processing the dots of <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.toString() + '"');
       }
-      if ($(element).attr('accid')) {
-        note.addAccidental(0, new Vex.Flow.Accidental(mei_note2vex_accid(element)));
+      var mei_accid = $(element).attr('accid');
+      if (mei_accid) {
+        note.addAccidental(0, new Vex.Flow.Accidental(mei_accid2vex_accid(mei_accid)));
       }
       $.each($(element).find('artic'), function(i, ar){
         note.addArticulation(0, new Vex.Flow.Articulation(mei2vexflowTables.articulations[$(ar).attr('artic')]).setPosition(mei2vexflowTables.positions[$(ar).attr('place')]));
@@ -475,8 +484,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
       if (dotted === true) { chord.addDotToAll(); }
 
-      $(element).children().each(function(i, note) { if ($(note).attr('accid') !== undefined) { 
-          chord.addAccidental(i, new Vex.Flow.Accidental(mei_note2vex_accid(note))); 
+      $(element).children().each(function(i, note) { 
+        var mei_accid = $(note).attr('accid');
+        if (accid !== undefined) { 
+          chord.addAccidental(i, new Vex.Flow.Accidental(mei_accid2vex_accid(mei_accid))); 
         }
       });
 
