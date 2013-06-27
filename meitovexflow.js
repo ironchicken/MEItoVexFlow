@@ -228,7 +228,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     context = renderer.getContext();
   };
 
-  var initialise_staff = function(i, staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
+  var initialise_staff = function(staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
     var staff = new Vex.Flow.Stave(left, top, width);
     if (with_clef === true) {
       staff.addClef(mei_staffdef2vex_clef(staffdef));
@@ -309,9 +309,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
           $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
           !$(parent_measure).prev().get(0).attrs().n) {
         scoredef = $(parent_measure).prev().get(0);
-        staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+        staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
       } else {
-        staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+        staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
       } 
     } else {
       var previous_measure = measures[measures.length-1][0];
@@ -319,11 +319,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
       top = (Number(staff_element.attrs().n) - 1) * 100;
       /* Determine if there's a new staff definition, or take default */
       /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-      if ($(parent_measure).prev().get(0).tagName == 'MEI:SCOREDEF' && !$(parent_measure).prev().get(0).attrs().n) {
+      if ($(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
         scoredef = $(parent_measure).prev().get(0);
-        staff = initialise_staff(null, scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+        staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
       } else {
-        staff = initialise_staff(null, $(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
+        staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
       }
     }
 
@@ -386,6 +386,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       note.addAnnotation(2, annot[1] == 'below' ? make_annot_below(annot[0]) : make_annot_above(annot[0]));
 
       try {
+        var i;
         for (i=0;i<parseInt($(element).attr('dots'));i++){
           note.addDotToAll();
         }
