@@ -371,6 +371,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       note.addAnnotation(2, annot[1] == 'below' ? make_annot_below(annot[0]) : make_annot_above(annot[0]));
 
       try {
+        var i;
         for (i=0;i<parseInt($(element).attr('dots'));i++){
           note.addDotToAll();
         }
