@@ -25,8 +25,9 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				var test_cases = new Array();
 				
 				//add test cases
-				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'});
-				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'One-measure.xml'});
+//				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'Prokofiev-nons.xml'});
+//				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'One-measure.xml'});
+				test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC-MissingAttribute.xml'});
 
 				var canvas_elements = new Array();
 				var title_elements = new Array();
@@ -43,7 +44,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				var i;
 				for (i=0;i<test_cases.length;i++) {
 					console.log('Starting Test Case #' + i.toString());
-					MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i]);
+					try {
+						MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i]);
+					} catch(e) {
+						alert('Error during rendering test case #' + i.toString() + " title: " + test_cases[i].title + ". Error Message: " +  e.toString());
+					}
 				}
 			});
 		</script>

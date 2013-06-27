@@ -29,6 +29,16 @@
 
 
 MEI2VF = {}
+
+MEI2VF.RUNTIME_ERROR = function(code, message) {
+  this.code = code;
+  this.message = message;
+}
+
+MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
+  return "MEI2VF.RUNTIME_ERROR: " + this.message;
+}
+
   
 MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
@@ -41,11 +51,16 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes = [];
 
   var mei_note2vex_key = function(mei_note) {
-    mei_note = (typeof mei_note === 'number' && 
+    mei_note = (typeof mei_note === 'number' &&
                 arguments.length === 2 && 
                 typeof arguments[1] === 'object') ? arguments[1] : mei_note;
 
-    return $(mei_note).attr('pname') + '/' + $(mei_note).attr('oct');
+    var pname = $(mei_note).attr('pname');
+    var oct = $(mei_note).attr('oct');
+    if (!pname  || !oct) {
+      throw new MEI2VF.RUNTIME_ERROR('MissingAttribute', 'pname and oct attributes must be specified for <note>');
+    }
+    return pname + '/' + oct;
   };
 
   //Add annotation (lyrics)
@@ -376,7 +391,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
         }
       } catch (x) {
         throw new Vex.RuntimeError('BadArguments',
-        'A problem occurred processing the dots of <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+        'A problem occurred processing the dots of <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.toString() + '"');
       }
       if ($(element).attr('accid')) {
         note.addAccidental(0, new Vex.Flow.Accidental(mei_note2vex_accid(element)));
@@ -399,7 +414,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <note>: ' + JSON.stringify(element.attrs()) + '. \"' + x.toString() + '"');
     }
   };
 
@@ -412,7 +427,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       return rest;
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <rest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <rest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.toString() + '"');
     }
   };
 
@@ -423,7 +438,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       return mrest;
     } catch (x) {
       throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <mRest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.message + '"');
+      'A problem occurred processing the <mRest>: ' + JSON.stringify(element.attrs()) + '. \"' + x.toString() + '"');
     }
   };
 
@@ -470,7 +485,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       'A problem occurred processing the <chord>: ' +
       JSON.stringify($.each($(element).children(), function(i, element) { 
         element.attrs(); 
-      }).get()) + '. \"' + x.message + '"');
+      }).get()) + '. \"' + x.toString() + '"');
     }
   };
 
