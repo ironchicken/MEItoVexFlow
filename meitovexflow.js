@@ -374,7 +374,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     return {
       layer: i, 
       events: $(layer).children().map(function(i, element) { 
-        return process_element(i, element, layer, parent_staff_element, parent_measure); 
+        return process_element(element, layer, parent_staff_element, parent_measure); 
       }).get()};
   };
 
@@ -465,7 +465,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var elements = $(element).children().map(function(i, note) 
     { 
       //make sure to get vexNote out of wrapped note objects
-      var proc_element = process_element(i, note, parent_layer, parent_staff_element, parent_measure);
+      var proc_element = process_element(note, parent_layer, parent_staff_element, parent_measure);
       return proc_element.vexNote ? proc_element.vexNote : proc_element;
     }).get();
 
@@ -510,7 +510,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   };
 
-  var process_element = function(i, element, parent_layer, parent_staff_element, parent_measure) {
+  var process_element = function(element, parent_layer, parent_staff_element, parent_measure) {
     var element_type = $(element).get(0).tagName.toLowerCase();
     if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
