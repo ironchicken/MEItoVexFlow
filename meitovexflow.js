@@ -51,8 +51,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes = [];
 
   var get_attr_value = function(element, attribute) {
+    var result = get_attr_value_opt(element, attribute);
+    if (!result) throw new MEI2VF.RUNTIME_ERROR('MissingAttribute', 'Attribute ' + attribute + ' is mandatory.');
+    return result;
+  }
+
+  var get_attr_value_opt = function(element, attribute) {
     var result = $(element).attr(attribute);
-    if (!result) throw new MEI2VF.RUNTIME_ERROR('MissingAttribute', 'Attribute ' + attr + ' is mandatory.');
     return result;
   }
 
@@ -222,10 +227,17 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var mei_staffdef2vex_clef = function(mei_staffdef) {
-    if ($(mei_staffdef).attr('clef.shape') === 'G') {
+    Vex.LogDebug('mei_staffdef2vex_clef()')
+    var clef_shape = get_attr_value(mei_staffdef, 'clef.shape');
+    var clef_line = get_attr_value_opt(mei_staffdef, 'clef.line');
+    if (clef_shape === 'G' && (!clef_line || clef_line === '2')) {
+      Vex.LogDebug('mei_staffdef2vex_clef() {A}')
       return 'treble';
-    } else if ($(mei_staffdef).attr('clef.shape') === 'F') {
+    } else if (clef_shape === 'F' && (!clef_line || clef_line === '4') ) {
+      Vex.LogDebug('mei_staffdef2vex_clef() {B}')
       return 'bass';
+    } else {
+      throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Clef definition is not supported: [ clef.shape="' + clef_shape + '" ' + (clef_line?('clef.line="' + clef_line + '"'):'') + ' ]' );
     }
   };
 
