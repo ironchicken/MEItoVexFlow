@@ -122,10 +122,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   }
 
-  //TO BE REMOVED
-  var vex_dur_cmp = function(key1, key2) {
-  };
-
   var mei_dur2vex_dur = function(mei_dur) {
     mei_dur = String(mei_dur);
     //if (mei_dur === 'long') return ;
@@ -180,15 +176,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     if (mei_accid === 'ff') return 'bb';
     if (mei_accid === 'ss') return '##';
     throw new MEI2VF.RUNTIME_ERROR('BadAttributeValue', 'Invalid attribute value: ' + mei_accid);
-  };
-
-  //TO BE REMOVED
-  var mei_note2vex_accid = function(mei_note) {
-    var accid = $(mei_note).attr('accid');
-    if (accid === undefined) {
-      throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'When calling mei_note2vex_accid(mei_note), mei_note must have accid attribute.')
-    }
-    return mei_accid2vex_accid(accid);
   };
 
   var mei_note_stem_dir = function(mei_note, parent_staff_element) {
@@ -523,6 +510,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var process_element = function(element, parent_layer, parent_staff_element, parent_measure) {
+    //TRY: $(element).prop("tagName");
+    //capitalised: SCOREDEF
+    
     var element_type = $(element).get(0).tagName.toLowerCase();
     if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
