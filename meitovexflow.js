@@ -1,31 +1,31 @@
-  Node.prototype.attrs = function() {
-    var i;
-    var attrs = {};
-    for (i in this.attributes) {
-      attrs[this.attributes[i].name] = this.attributes[i].value;
-    }
-    return attrs;
-  };
+Node.prototype.attrs = function() {
+  var i;
+  var attrs = {};
+  for (i in this.attributes) {
+    attrs[this.attributes[i].name] = this.attributes[i].value;
+  }
+  return attrs;
+};
 
-  Array.prototype.all = function(test) {
-    test = test || function(a) { return a == true; };
+Array.prototype.all = function(test) {
+  test = test || function(a) { return a == true; };
 
-    var i;
-    for (i = 0; i < this.length; i++) {
-      if (test(this[i]) === false) { return false; }
-    }
-    return true;
-  };
+  var i;
+  for (i = 0; i < this.length; i++) {
+    if (test(this[i]) === false) { return false; }
+  }
+  return true;
+};
 
-  Array.prototype.any = function(test) {
-    test = test || function(a) { return a == true; };
+Array.prototype.any = function(test) {
+  test = test || function(a) { return a == true; };
 
-    var i;
-    for (i = 0; i < this.length; i++) {
-      if (test(this[i]) === true) { return true; }
-    }
-    return false;
-  };
+  var i;
+  for (i = 0; i < this.length; i++) {
+    if (test(this[i]) === true) { return true; }
+  }
+  return false;
+};
 
 
 MEI2VF = {}
@@ -49,6 +49,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var measures = [];
   var beams = [];
   var notes = [];
+
+  var get_attr_value = function(element, attribute) {
+    var result = $(element).attr(attribute);
+    if (!result) throw new MEI2VF.RUNTIME_ERROR('MissingAttribute', 'Attribute ' + attr + ' is mandatory.');
+    return result;
+  }
 
   var mei_note2vex_key = function(mei_note) {
     mei_note = (typeof mei_note === 'number' &&
@@ -74,16 +80,19 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var dash = (syl.attr('wordpos')=='i' || syl.attr('wordpos')=='m') ? '-' : '';
     return full_syl; 
   }
-
+  
   //Add annotation (directions)
   var mei_dir2vex_annot = function(parent_measure, mei_note) {
     var dir = $(parent_measure).find('dir')
     var dir_text = '';
     var pos = '';
     $(dir).each(function(){
-      if ($(this).attr('startid') == $(mei_note).attr('xml:id')){
+      var startid = get_attr_value(this, 'startid');
+      var xml_id = get_attr_value(mei_note,'xml:id');
+      var place = get_attr_value(this, 'place');
+      if (startid === xml_id){
         dir_text += $(this).text().trim();
-        pos = $(this).attr('place');
+        pos = place;
       }
     });
     return [dir_text, pos];
@@ -486,7 +495,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
       $(element).children().each(function(i, note) { 
         var mei_accid = $(note).attr('accid');
-        if (accid !== undefined) { 
+        if (mei_accid !== undefined) { 
           chord.addAccidental(i, new Vex.Flow.Accidental(mei_accid2vex_accid(mei_accid))); 
         }
       });
