@@ -87,6 +87,8 @@
 									<note xml:id="tc01-v2e11" pname="e" oct="4" dur="2">
 										<syl wordpos="i">vir</syl>
 									</note>
+									<note xml:id="tc01-v2e12" pname="e" oct="4" dur="2"/>
+									<note xml:id="tc01-v2e13" pname="e" oct="4" dur="4"/>
 								</layer>
 							</staff>
 							<staff n="3">
