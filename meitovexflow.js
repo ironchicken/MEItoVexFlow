@@ -543,10 +543,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var process_element = function(element, parent_layer, parent_staff_element, parent_measure) {
-    //TRY: $(element).prop("tagName");
-    //capitalised: SCOREDEF
-    
-    var element_type = $(element).get(0).tagName.toLowerCase();
+    var element_type = $(element).prop("localName");
     if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
     } else if (element_type === 'mrest') {
