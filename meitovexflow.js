@@ -308,6 +308,39 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   }
 
+  //  MEI element <section> may contain (MEI v2.1.0):
+  //    MEI.cmn: measure
+  //    MEI.critapp: app
+  //    MEI.edittrans: add choice corr damage del gap handShift orig reg restore sic subst supplied unclear 
+  //    MEI.shared: annot ending expansion pb sb scoreDef section staff staffDef
+  //    MEI.text: div
+  //    MEI.usersymbols: anchoredText curve line symbol
+  //
+  //  Supported elements: measure, scoreDef, staffDef
+  //
+  var process_section_children = function(i, child) {
+    switch ($(child).prop('localName')) {
+      case 'measure': extract_staves(child); break;
+      case 'scoreDef': parse_scoreDef(child); break;
+      case 'staffDef': parse_staffDef(child); break;
+      default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported.');
+    } 
+  }
+  
+  
+  //  MEI element <measure> may contain (MEI v2.1.0):
+  //   MEI.cmn: meterSig meterSigGrp
+  //   MEI.harmony: chordTable
+  //   MEI.linkalign: timeline
+  //   MEI.midi: instrGrp
+  //   MEI.shared: keySig pgFoot pgFoot2 pgHead pgHead2 staffGrp MEI.usersymbols: symbolTable
+  //
+  //  Supported elements: staffDef
+  //
+  var parse_scoreDef = function(scoredef) {
+
+  }
+
   var extract_staves = function(i, measure) {
     measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
   };
