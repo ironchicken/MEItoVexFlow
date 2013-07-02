@@ -39,6 +39,51 @@ MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
   return "MEI2VF.RUNTIME_ERROR: " + this.message;
 }
 
+MEI2VF.StaffInfo = function(staffdef, w_clef, w_keysig, w_timesig) {
+  this.renderWith = { clef: w_clef, keysig: w_keysig, timesig: w_timesig };
+  this.staffDef = staffdef;
+  this.updateDef = function(staffdef) {      
+    Vex.LogDebug('StaffInfo.addDef() {1}')
+    var look4changes = function (current_staffDef, new_staffdef, renderInstr) {
+      Vex.LogDebug('look4changes() {1}')
+      if (!current_staffDef && new_staffdef) {
+        Vex.LogDebug('look4changes() {1}.{A}')
+        renderInstr.clef = true;
+        renderInstr.keysig = true;
+        renderInstr.keysig = true;
+        return;
+      } else if (current_staffDef && !new_staffDef) {
+        Vex.LogDebug('look4changes() {1}.{B}')
+        renderInstr.clef = false;
+        renderInstr.keysig = false;
+        renderInstr.keysig = false;
+        return;
+      } else if (!current_staffDef && !new_staffDef) {
+        throw new MEI2VF_RUNTIME_ERROR('BadArgument', 'Cannot compare two undefined staff definitions.')
+      }
+      Vex.LogDebug('look4changes() {2}')
+      var cmp_attr = function(e1, e2, attr_name) { return $(e1).attr(attr_name) === $(e2).attr(attr_name) };
+      if (!cmp_attr(current_staffDef, new_staffdef, 'clef.shape') || !cmp_attr(current_staffDef, new_staffdef, 'clef.line')) {
+        Vex.LogDebug('look4changes() {2}.{A}')
+        renderInstr.clef = true;
+      } 
+      if (!cmp_attr(current_staffDef, new_staffdef, 'key.pname') || !cmp_attr(current_staffDef, new_staffdef, 'key.accid')) {
+        Vex.LogDebug('look4changes() {2}.{B}')
+        renderInstr.keysig = true;
+      } 
+      if (!cmp_attr(current_staffDef, new_staffdef, 'meter.count') || !cmp_attr(current_staffDef, new_staffdef, 'meter.unit')) {
+        Vex.LogDebug('look4changes() {2}.{C}')
+        renderInstr.keysig = true;
+      }
+      Vex.LogDebug('look4changes() {3}')
+    }
+    Vex.LogDebug('StaffInfo.addDef() {2}')
+
+    look4changes(staffDef, staffdef, this.renderWith);
+    this.staffDef = staffdef;
+  }
+  
+}
   
 MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
@@ -60,73 +105,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var system_break = false;
   var new_section = true;
   
-  StaffInfo = function() {
-    
-    this.staffDefs = new Array();
-    this.renderWith = { clef:true, keysig:true, timesig:true };
-    this.staffDef = function (i) {
-      var result;
-      if (i) {
-        result = this.staffDefs[i];
-      } else {
-        result = this.staffDefs[0]
-      }
-      if (result) {
-        return result;
-      } else if (i) {
-        throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'StaffInfo.staffDef(i): index defined but not in range')
-      } else {
-        throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'StaffInfo.staffDef(i): index undefined but no default staffDef')
-      }
-    }
-    this.addDef = function(staffdef, n) {      
-      Vex.LogDebug('addDef() {1}')
-      var look4changes = function (current_staffDef, new_staffdef, renderInstr) {
-        Vex.LogDebug('look4changes() {1}')
-        if (!current_staffDef && new_staffdef) {
-          Vex.LogDebug('look4changes() {1}.{A}')
-          renderInstr.clef = true;
-          renderInstr.keysig = true;
-          renderInstr.keysig = true;
-          return;
-        } else if (current_staffDef && !new_staffDef) {
-          Vex.LogDebug('look4changes() {1}.{B}')
-          renderInstr.clef = false;
-          renderInstr.keysig = false;
-          renderInstr.keysig = false;
-          return;
-        } else if (!current_staffDef && !new_staffDef) {
-          throw new MEI2VF_RUNTIME_ERROR('BadArgument', 'Cannot compare two undefined staff definitions.')
-        }
-        Vex.LogDebug('look4changes() {2}')
-        var cmp_attr = function(e1, e2, attr_name) { return $(e1).attr(attr_name) === $(e2).attr(attr_name) };
-        if (!cmp_attr(current_staffDef, new_staffdef, 'clef.shape') || !cmp_attr(current_staffDef, new_staffdef, 'clef.line')) {
-          Vex.LogDebug('look4changes() {2}.{A}')
-          renderInstr.clef = true;
-        } 
-        if (!cmp_attr(current_staffDef, new_staffdef, 'key.pname') || !cmp_attr(current_staffDef, new_staffdef, 'key.accid')) {
-          Vex.LogDebug('look4changes() {2}.{B}')
-          renderInstr.keysig = true;
-        } 
-        if (!cmp_attr(current_staffDef, new_staffdef, 'meter.count') || !cmp_attr(current_staffDef, new_staffdef, 'meter.unit')) {
-          Vex.LogDebug('look4changes() {2}.{C}')
-          renderInstr.keysig = true;
-        }
-        Vex.LogDebug('look4changes() {3}')
-      }
-      Vex.LogDebug('addDef() {2}')
 
-      if (n) {
-        look4changes(this.staffDefs[n], staffdef, this.renderWith);
-        this.staffDefs[n] = staffdef;
-      } else {
-        look4changes(this.staffDefs[0], staffdef);
-        this.staffDefs[0] = staffdef;
-      }
-    }
-  };
-
-  var staffInfo = new StaffInfo();
+//  var staffInfo = new StaffInfo();
+  var staffInfoArray = new Array();
   
   var move_to_next_measure = function() {
     if (new_section) {
@@ -136,9 +117,18 @@ MEI2VF.render_notation = function(score, target, width, height) {
       measure_left = 0;      
       new_section = false;
       system_break = false;
-      staffInfo.renderWith.clef = true;
-      staffInfo.renderWith.keysig = true;
-      staffInfo.renderWith.timesig = true;
+      Vex.LogDebug('move_to_next_measure() {A}.{1}');
+      $.each(staffInfoArray, function(i,staff_info) { 
+        if (staff_info) {
+          staff_info.renderWith.clef = true;
+          staff_info.renderWith.keysig = true;
+          staff_info.renderWith.timesig = true;          
+        }
+      });
+      Vex.LogDebug('move_to_next_measure() {A}.{2}');
+      // staffInfo.renderWith.clef = true;
+      // staffInfo.renderWith.keysig = true;
+      // staffInfo.renderWith.timesig = true;
     } else if (system_break) {
       Vex.LogDebug('move_to_next_measure() {B}: measure_left=' + measure_left.toString() + 
                    ' system_top=' + system_top.toString());
@@ -147,8 +137,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
       system_n += 1;
       system_top = bottom_most + SYSTEM_SPACE;
       system_break = false;
-      staffInfo.renderWith.clef = true;
-      staffInfo.renderWith.keysig = true;
+      // staffInfo.renderWith.clef = true;
+      // staffInfo.renderWith.keysig = true;
+      $.each(staffInfoArray, function(i,staff_info) { 
+        if (staff_info) {
+          staff_info.renderWith.clef = true;
+          staff_info.renderWith.keysig = true;
+        }
+      });
     } else {
       Vex.LogDebug('move_to_next_measure() {C}: measure_left=' + measure_left.toString() + 
                    ' system_top=' + system_top.toString());
@@ -390,35 +386,40 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var initialise_staff_n = function(staff_n, width) {
     Vex.LogDebug('initialise_staff_n() {1}');
     
+    if (!staff_n) {
+      throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'Cannot render staff without attribute "n".')
+    }
+    
     move_to_next_measure();
 
-    var staffdef = staffInfo.staffDef(staff_n);
+//    var staffdef = staffInfo.staffDef(staff_n);
+    var staffdef = staffInfoArray[staff_n].staffDef;
     
     Vex.LogDebug('initialise_staff_n() {2} measure_left: ' + measure_left+ ', staff_top_abs:' + staff_top_abs(staff_n) );
     
-    if (staffInfo.renderWith.clef || staffInfo.renderWith.keysig || staffInfo.renderWith.timesig) width += 30;
+    if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
     
     var staff = new Vex.Flow.Stave(measure_left, staff_top_abs(staff_n), width);
-    if (staffInfo.renderWith.clef) {
+    if (staffInfoArray[staff_n].renderWith.clef) {
       Vex.LogDebug('initialise_staff_n() {2}.{A}' );
       staff.addClef(mei_staffdef2vex_clef(staffdef));
-      staffInfo.renderWith.clef = false;
+      staffInfoArray[staff_n].renderWith.clef = false;
     }
-    if (staffInfo.renderWith.keysig) {
+    if (staffInfoArray[staff_n].renderWith.keysig) {
       Vex.LogDebug('initialise_staff_n() {2}.{B}' );
       if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
         Vex.LogDebug('initialise_staff_n() {2}.{B}.{a}' );
         staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
       }
-      staffInfo.renderWith.keysig = false;
+      staffInfoArray[staff_n].renderWith.keysig = false;
     }
-    if (staffInfo.renderWith.timesig) {
+    if (staffInfoArray[staff_n].renderWith.timesig) {
       Vex.LogDebug('initialise_staff_n() {2}.{C}' );
       if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
         Vex.LogDebug('initialise_staff_n() {2}.{C}.{a}' );
         staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
       }
-      staffInfo.renderWith.timesig = false;
+      staffInfoArray[staff_n].renderWith.timesig = false;
     }
     Vex.LogDebug('initialise_staff_n() {3}' );
     staff.setContext(context).draw();
@@ -563,7 +564,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var process_staffDef = function(staffDef) {
     Vex.LogDebug('process_staffDef() {}');
     var staff_n = Number(staffDef.attrs().n);
-    staffInfo.addDef(staffDef, staff_n);
+    var staff_info = staffInfoArray[staff_n];
+    if (staff_info) {
+      staffInfoArray[staff_n].updateDef(staffDef);
+    } else {
+      staffInfoArray[staff_n] = new MEI2VF.StaffInfo(staffDef, true, true, true);
+    }
   }
   
 
@@ -574,8 +580,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var extract_staves_without_i = function(measure) {
     measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
   };
-
-  
 
   var extract_layers = function(i, staff_element, parent_measure) {
     var n_measures = $(score).find('measure').get().length;
