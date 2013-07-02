@@ -123,7 +123,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
 
   var mei_dur2vex_dur = function(mei_dur) {
+    Vex.LogDebug('mei_dur2vex_dur() {}');
     mei_dur = String(mei_dur);
+    Vex.LogDebug('mei_dur2vex_dur() {1}');
     //if (mei_dur === 'long') return ;
     //if (mei_dur === 'breve') return ;
     if (mei_dur === '1') return 'w';
@@ -146,6 +148,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     //if (mei_dur === 'semiminima') return ;
     //if (mei_dur === 'fusa') return ;
     //if (mei_dur === 'semifusa') return ;
+    Vex.LogDebug('mei_dur2vex_dur() {2}');
     throw new Vex.RuntimeError('BadArguments', 'The MEI duration "' + mei_dur + '" is not supported.');
   };
 
@@ -234,9 +237,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var mei_staffdef2vex_timespec = function(mei_staffdef) {
+    Vex.LogDebug('mei_staffdef2vex_timespec() {}')
     if ($(mei_staffdef).attr('meter.count') !== undefined && $(mei_staffdef).attr('meter.unit') !== undefined) {
+      Vex.LogDebug('mei_staffdef2vex_timespec() {A}')
       return $(mei_staffdef).attr('meter.count') + '/' + $(mei_staffdef).attr('meter.unit');
     }
+    Vex.LogDebug('mei_staffdef2vex_timespec() {end}')
   };
 
   var initialise_score = function(canvas) {
@@ -245,21 +251,28 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var initialise_staff = function(staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
+    Vex.LogDebug('initialise_staff() {}')
     var staff = new Vex.Flow.Stave(left, top, width);
     if (with_clef === true) {
       staff.addClef(mei_staffdef2vex_clef(staffdef));
     }
+    Vex.LogDebug('initialise_staff() {1}')
     if (with_keysig === true) {
       if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
         staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
       }
     }
+    Vex.LogDebug('initialise_staff() {2}')
     if (with_timesig === true) {
+      Vex.LogDebug('initialise_staff() {A}')
       if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
+        Vex.LogDebug('initialise_staff() {A}.{a}')
         staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
       }
     }
+    Vex.LogDebug('initialise_staff() {3}')
     staff.setContext(context).draw();
+    Vex.LogDebug('initialise_staff() {end}')
     return staff;
   };
 
@@ -501,11 +514,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
       return chord;
     } catch (x) {
-      throw new Vex.RuntimeError('BadArguments',
-      'A problem occurred processing the <chord>: ' +
-      JSON.stringify($.each($(element).children(), function(i, element) { 
-        element.attrs(); 
-      }).get()) + '. \"' + x.toString() + '"');
+      throw new Vex.RuntimeError('BadArguments', 'A problem occurred processing the <chord>:' + x.toString());
+      // 'A problem occurred processing the <chord>: ' +
+      // JSON.stringify($.each($(element).children(), function(i, element) { 
+      //   element.attrs(); 
+      // }).get()) + '. \"' + x.toString() + '"');
     }
   };
 
