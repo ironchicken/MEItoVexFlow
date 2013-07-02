@@ -25,22 +25,25 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				var test_cases = new Array();
 				
 				//add test cases
-				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'TC.Prokofiev.xml'});
-				test_cases.push({ title: 'Prokofiev Op. 36 (with prefixes)', mei_xml: 'TC.Prokofiev.pref.xml'});
-				test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC.MissingAttribute.xml'});
-				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml'});
-				test_cases.push({ title: 'KeySpec.01 - default pitch and mode [C major]', mei_xml: 'TC.KeySpec.01.xml'});
-				test_cases.push({ title: 'KeySpec.02 - supplied pitch, default accid and mode [G major]', mei_xml: 'TC.KeySpec.02.xml'});
-				test_cases.push({ title: 'KeySpec.03 - supplied pitch and accid, default mode [G-flat major]', mei_xml: 'TC.KeySpec.03.xml'});
-				test_cases.push({ title: 'KeySpec.04 - supplied pitch, accid and mode [D-sharp minor]', mei_xml: 'TC.KeySpec.04.xml'});
-				test_cases.push({ title: "Directions.01 - 'pizz' above", mei_xml: 'TC.dir.01.xml'});
-				test_cases.push({ title: "Directions.02 - 'espressivo' below", mei_xml: 'TC.dir.02.xml'});
-				test_cases.push({ title: "Directions.03 - All execution paths", mei_xml: 'TC.dir.03.xml'});
-				test_cases.push({ title: "Clef - Treble", mei_xml: 'TC.VexClef.01.xml'});
-				test_cases.push({ title: "Clef - Treble with default clef.line", mei_xml: 'TC.VexClef.02.xml'});
-				test_cases.push({ title: "Clef - Bass", mei_xml: 'TC.VexClef.03.xml'});
-				test_cases.push({ title: "Clef - Bass with default clef.line", mei_xml: 'TC.VexClef.04.xml'});
-				test_cases.push({ title: "Clef - Tenor clef not supported", mei_xml: 'TC.VexClef.05.xml'});
+				// test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'TC.Prokofiev.xml'});
+				// test_cases.push({ title: 'Prokofiev Op. 36 (with prefixes)', mei_xml: 'TC.Prokofiev.pref.xml'});
+				// //test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC.MissingAttribute.xml'});
+				// test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml'});
+				// test_cases.push({ title: 'KeySpec.01 - default pitch and mode [C major]', mei_xml: 'TC.KeySpec.01.xml'});
+				// test_cases.push({ title: 'KeySpec.02 - supplied pitch, default accid and mode [G major]', mei_xml: 'TC.KeySpec.02.xml'});
+				// test_cases.push({ title: 'KeySpec.03 - supplied pitch and accid, default mode [G-flat major]', mei_xml: 'TC.KeySpec.03.xml'});
+				// test_cases.push({ title: 'KeySpec.04 - supplied pitch, accid and mode [D-sharp minor]', mei_xml: 'TC.KeySpec.04.xml'});
+				// test_cases.push({ title: "Directions.01 - 'pizz' above", mei_xml: 'TC.dir.01.xml'});
+				// test_cases.push({ title: "Directions.02 - 'espressivo' below", mei_xml: 'TC.dir.02.xml'});
+				// test_cases.push({ title: "Directions.03 - All execution paths", mei_xml: 'TC.dir.03.xml'});
+				// test_cases.push({ title: "Clef - Treble", mei_xml: 'TC.VexClef.01.xml'});
+				// test_cases.push({ title: "Clef - Treble with default clef.line", mei_xml: 'TC.VexClef.02.xml'});
+				// test_cases.push({ title: "Clef - Bass", mei_xml: 'TC.VexClef.03.xml'});
+				// test_cases.push({ title: "Clef - Bass with default clef.line", mei_xml: 'TC.VexClef.04.xml'});
+				// //test_cases.push({ title: "Clef - Tenor clef not supported", mei_xml: 'TC.VexClef.05.xml'});
+				test_cases.push({ title: "Ties", mei_xml: 'TC.Ties.xml'});
+				test_cases.push({ title: "Slurs", mei_xml: 'TC.Slurs.xml'});
+				
 				var canvas_elements = new Array();
 				var title_elements = new Array();
 				//create as many canvases and title elements as test cases... 
