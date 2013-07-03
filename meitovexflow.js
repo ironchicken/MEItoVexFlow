@@ -289,10 +289,15 @@ MEI2VF.render_notation = function(score, target, width, height) {
     //find first and last note
     var f_note = null;
     var l_note = null;
+    //not sure how efficient it is to searching through all the notes of the piece each time...
+    //what about processing ties on the fly...?
     $(notes).each(function(i, note) {
       if (note.id === $(tie).attr('startid')) { f_note = note.vexNote; }
       else if (note.id === $(tie).attr('endid')) { l_note = note.vexNote; }
     });
+    
+    //first_indices: [0] and last_indices: [0] are redundant (coz these are allowed 
+    //to be undefined and will be set to [0] by the StaveTie constructor)
     new Vex.Flow.StaveTie({
       first_note: f_note,
       last_note: l_note,
