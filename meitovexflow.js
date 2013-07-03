@@ -39,16 +39,130 @@ MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
   return "MEI2VF.RUNTIME_ERROR: " + this.message;
 }
 
+MEI2VF.StaffInfo = function(staffdef, w_clef, w_keysig, w_timesig) {
+  this.renderWith = { clef: w_clef, keysig: w_keysig, timesig: w_timesig };
+  this.staffDef = staffdef;
+  this.updateDef = function(staffdef) {      
+    Vex.LogDebug('StaffInfo.addDef() {1}')
+    var look4changes = function (current_staffDef, new_staffdef, renderInstr) {
+      Vex.LogDebug('look4changes() {1}')
+      if (!current_staffDef && new_staffdef) {
+        Vex.LogDebug('look4changes() {1}.{A}')
+        renderInstr.clef = true;
+        renderInstr.keysig = true;
+        renderInstr.keysig = true;
+        return;
+      } else if (current_staffDef && !new_staffDef) {
+        Vex.LogDebug('look4changes() {1}.{B}')
+        renderInstr.clef = false;
+        renderInstr.keysig = false;
+        renderInstr.keysig = false;
+        return;
+      } else if (!current_staffDef && !new_staffDef) {
+        throw new MEI2VF_RUNTIME_ERROR('BadArgument', 'Cannot compare two undefined staff definitions.')
+      }
+      Vex.LogDebug('look4changes() {2}')
+      var cmp_attr = function(e1, e2, attr_name) { return $(e1).attr(attr_name) === $(e2).attr(attr_name) };
+      if (!cmp_attr(current_staffDef, new_staffdef, 'clef.shape') || !cmp_attr(current_staffDef, new_staffdef, 'clef.line')) {
+        Vex.LogDebug('look4changes() {2}.{A}')
+        renderInstr.clef = true;
+      } 
+      if (!cmp_attr(current_staffDef, new_staffdef, 'key.pname') || !cmp_attr(current_staffDef, new_staffdef, 'key.accid')) {
+        Vex.LogDebug('look4changes() {2}.{B}')
+        renderInstr.keysig = true;
+      } 
+      if (!cmp_attr(current_staffDef, new_staffdef, 'meter.count') || !cmp_attr(current_staffDef, new_staffdef, 'meter.unit')) {
+        Vex.LogDebug('look4changes() {2}.{C}')
+        renderInstr.keysig = true;
+      }
+      Vex.LogDebug('look4changes() {3}')
+    }
+    Vex.LogDebug('StaffInfo.addDef() {2}')
+
+    look4changes(staffDef, staffdef, this.renderWith);
+    this.staffDef = staffdef;
+  }
+  
+}
   
 MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
   height = height || 350;
 
   var context;
-  var staves = [];
   var measures = [];
   var beams = [];
   var notes = [];
+  
+//  var staffInfo = { staffDefs:[], render_with: {} };   // containing the current staffDef elements and rendering instructions
+//  var global_staffInfo = { staffDef: null, render_with: {} }; // global staffInfo for staffDef with no attribute 'n' and rendering inctructions
+  var SYSTEM_SPACE = 20;
+  var system_top = 0;
+  var measure_left = 0;
+  var bottom_most = 0;
+  var system_n = 0;
+  var nb_of_measures = 0; //nb_of_measures already rendered in the current system;
+  var system_break = false;
+  var new_section = true;
+  
+
+//  var staffInfo = new StaffInfo();
+  var staffInfoArray = new Array();
+  
+  var move_to_next_measure = function() {
+    if (new_section) {
+      Vex.LogDebug('move_to_next_measure() {A}: measure_left=' + measure_left.toString() + 
+                   ' system_top=' + system_top.toString());
+      nb_of_measures = 0;
+      measure_left = 0;      
+      new_section = false;
+      system_break = false;
+      Vex.LogDebug('move_to_next_measure() {A}.{1}');
+      $.each(staffInfoArray, function(i,staff_info) { 
+        if (staff_info) {
+          staff_info.renderWith.clef = true;
+          staff_info.renderWith.keysig = true;
+          staff_info.renderWith.timesig = true;          
+        }
+      });
+      Vex.LogDebug('move_to_next_measure() {A}.{2}');
+      // staffInfo.renderWith.clef = true;
+      // staffInfo.renderWith.keysig = true;
+      // staffInfo.renderWith.timesig = true;
+    } else if (system_break) {
+      Vex.LogDebug('move_to_next_measure() {B}: measure_left=' + measure_left.toString() + 
+                   ' system_top=' + system_top.toString());
+      nb_of_measures = 0;
+      measure_left = 0;
+      system_n += 1;
+      system_top = bottom_most + SYSTEM_SPACE;
+      system_break = false;
+      // staffInfo.renderWith.clef = true;
+      // staffInfo.renderWith.keysig = true;
+      $.each(staffInfoArray, function(i,staff_info) { 
+        if (staff_info) {
+          staff_info.renderWith.clef = true;
+          staff_info.renderWith.keysig = true;
+        }
+      });
+    } else {
+      Vex.LogDebug('move_to_next_measure() {C}: measure_left=' + measure_left.toString() + 
+                   ' system_top=' + system_top.toString());
+      if (measures[measures.length-1]) {
+        var previous_measure = measures[measures.length-1][0];
+
+        Vex.LogDebug('move_to_next_measure() {C}.{a}: measures[measures.length-1]=' + measures[measures.length-1] + 
+                     ' previous_measure=' + previous_measure);
+
+        measure_left = previous_measure.x + previous_measure.width;      
+      } else {
+        Vex.LogDebug('move_to_next_measure() {C}.{b}');
+        measure_left = 0;
+      }
+    }
+    Vex.LogDebug('move_to_next_measure() {end}: measure_left=' + measure_left.toString() + 
+                 ' system_top=' + system_top.toString());
+  }
 
   var get_attr_value = function(element, attribute) {
     var result = get_attr_value_opt(element, attribute);
@@ -217,14 +331,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var mei_staffdef2vex_clef = function(mei_staffdef) {
-    Vex.LogDebug('mei_staffdef2vex_clef()')
     var clef_shape = get_attr_value(mei_staffdef, 'clef.shape');
     var clef_line = get_attr_value_opt(mei_staffdef, 'clef.line');
     if (clef_shape === 'G' && (!clef_line || clef_line === '2')) {
-      Vex.LogDebug('mei_staffdef2vex_clef() {A}')
       return 'treble';
     } else if (clef_shape === 'F' && (!clef_line || clef_line === '4') ) {
-      Vex.LogDebug('mei_staffdef2vex_clef() {B}')
       return 'bass';
     } else {
       throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Clef definition is not supported: [ clef.shape="' + clef_shape + '" ' + (clef_line?('clef.line="' + clef_line + '"'):'') + ' ]' );
@@ -249,6 +360,77 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
     context = renderer.getContext();
   };
+
+
+  var staff_height = function(staff_n) {
+    return 100;
+  }
+
+  //
+  // The Y coordinate of staff #staff_n (within the current system)
+  //
+  var staff_top_rel = function(staff_n) {
+    var result = 0;
+    var i;
+    for (i=0;i<staff_n-1;i++) result += staff_height(i);
+    return result;
+  }
+  
+  //
+  // The Y coordinate of staff #staff_n (within the current system)
+  //
+  var staff_top_abs = function(staff_n){
+    var result = system_top + staff_top_rel(staff_n);
+    var bottom_most_candidate = result + staff_height(staff_n);
+    if (bottom_most_candidate > bottom_most) bottom_most = bottom_most_candidate;
+    return result;
+  }
+
+  //
+  // Initialise staff #staff_n. Render necessary staff modifiers.
+  //
+  var initialise_staff_n = function(staff_n, width) {
+    Vex.LogDebug('initialise_staff_n() {1}');
+    
+    if (!staff_n) {
+      throw new MEI2VF.RUNTIME_ERROR('BadArgument', 'Cannot render staff without attribute "n".')
+    }
+    
+    move_to_next_measure();
+
+//    var staffdef = staffInfo.staffDef(staff_n);
+    var staffdef = staffInfoArray[staff_n].staffDef;
+    
+    Vex.LogDebug('initialise_staff_n() {2} measure_left: ' + measure_left+ ', staff_top_abs:' + staff_top_abs(staff_n) );
+    
+    if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
+    
+    var staff = new Vex.Flow.Stave(measure_left, staff_top_abs(staff_n), width);
+    if (staffInfoArray[staff_n].renderWith.clef) {
+      Vex.LogDebug('initialise_staff_n() {2}.{A}' );
+      staff.addClef(mei_staffdef2vex_clef(staffdef));
+      staffInfoArray[staff_n].renderWith.clef = false;
+    }
+    if (staffInfoArray[staff_n].renderWith.keysig) {
+      Vex.LogDebug('initialise_staff_n() {2}.{B}' );
+      if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
+        Vex.LogDebug('initialise_staff_n() {2}.{B}.{a}' );
+        staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
+      }
+      staffInfoArray[staff_n].renderWith.keysig = false;
+    }
+    if (staffInfoArray[staff_n].renderWith.timesig) {
+      Vex.LogDebug('initialise_staff_n() {2}.{C}' );
+      if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
+        Vex.LogDebug('initialise_staff_n() {2}.{C}.{a}' );
+        staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
+      }
+      staffInfoArray[staff_n].renderWith.timesig = false;
+    }
+    Vex.LogDebug('initialise_staff_n() {3}' );
+    staff.setContext(context).draw();
+    return staff;
+  }
 
   var initialise_staff = function(staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
     Vex.LogDebug('initialise_staff() {}')
@@ -277,7 +459,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var render_measure_wise = function() {
-    $(score).find('measure').each(extract_staves);
+//    $(score).find('measure').each(extract_staves);
+    var scoredef = $(score).find('scoreDef')[0];
+    if (!scoredef) throw new MEI2VF.RUNTIME_ERROR('BadMEIFile', 'No <scoreDef> found.')
+    process_scoreDef(scoredef);
+    
+    $(score).find('section').children().each(process_section_child);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     //do ties now!
     $(score).find('tie').each(make_ties);
@@ -326,7 +513,89 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   }
 
+  //  MEI element <section> may contain (MEI v2.1.0):
+  //    MEI.cmn: measure
+  //    MEI.critapp: app
+  //    MEI.edittrans: add choice corr damage del gap handShift orig reg restore sic subst supplied unclear 
+  //    MEI.shared: annot ending expansion pb sb scoreDef section staff staffDef
+  //    MEI.text: div
+  //    MEI.usersymbols: anchoredText curve line symbol
+  //
+  //  Supported elements: measure, scoreDef, staffDef
+  //
+  var process_section_child = function(i, child) {
+    Vex.LogDebug('process_section_child() {}');
+    switch ($(child).prop('localName')) {
+      case 'measure': extract_staves_without_i(child); break;
+      case 'scoreDef': process_scoreDef(child); break;
+      case 'staffDef': process_staffDef(child); break;
+      default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <section>');
+    } 
+  }
+  
+
+  var process_scoreDef = function(scoredef) {
+    Vex.LogDebug('process_scoreDef() {}');
+    $(scoredef).children().each(process_scoredef_child);
+  }
+
+  //  MEI element <scoreDef> may contain (MEI v2.1.0):
+  //    MEI.cmn: meterSig meterSigGrp
+  //    MEI.harmony: chordTable
+  //    MEI.linkalign: timeline
+  //    MEI.midi: instrGrp
+  //    MEI.shared: keySig pgFoot pgFoot2 pgHead pgHead2 staffGrp 
+  //    MEI.usersymbols: symbolTable
+  // 
+  //  Supported elements: staffGrp
+  //
+  var process_scoredef_child = function(i, child) {
+    Vex.LogDebug('process_scoredef_child() {}');
+    switch ($(child).prop('localName')) {
+      case 'staffGrp': process_staffGrp(child); break;
+      default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <scoreDef>');
+    }     
+  }
+  
+  var process_staffGrp = function(staffGrp) {
+    Vex.LogDebug('process_staffGrp() {}');
+    $(staffGrp).children().each(process_staffGrp_child);
+  }
+  
+  
+  //  MEI element <staffGrp> may contain (MEI v2.1.0):
+  //    MEI.cmn: meterSig meterSigGrp MEI.mensural: mensur proport
+  //    MEI.midi: instrDef
+  //    MEI.shared: clef clefGrp keySig label layerDef
+  // 
+  //  Supported elements: staffGrp, staffDef
+  //￼￼￼￼￼￼￼￼￼￼
+  var process_staffGrp_child = function(i, child) {
+    Vex.LogDebug('process_staffGrp_child() {}');
+    switch ($(child).prop('localName')) {
+      case 'staffDef': process_staffDef(child); break;
+      case 'staffGrp': process_staffGrp(child); break;
+      default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <staffGrp>');
+    }    
+  }
+  
+  var process_staffDef = function(staffDef) {
+    Vex.LogDebug('process_staffDef() {}');
+    var staff_n = Number(staffDef.attrs().n);
+    var staff_info = staffInfoArray[staff_n];
+    if (staff_info) {
+      staffInfoArray[staff_n].updateDef(staffDef);
+    } else {
+      staffInfoArray[staff_n] = new MEI2VF.StaffInfo(staffDef, true, true, true);
+    }
+  }
+  
+
   var extract_staves = function(i, measure) {
+    measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
+  };
+
+  var extract_staves_without_i = function(measure) {
     measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
   };
 
@@ -334,32 +603,40 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var n_measures = $(score).find('measure').get().length;
     var measure_width = Math.round(width / n_measures);
     var staff, left, top;
-    if ($(staff_element).parent().get(0).attrs().n === '1') {
-      left = 0
-      top = (Number(staff_element.attrs().n) - 1) * 100;
-      /* Determine if there's a new staff definition, or take default */
-      /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-      if ($(parent_measure).prev().get(0) != undefined && 
-          $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
-          !$(parent_measure).prev().get(0).attrs().n) {
-        scoredef = $(parent_measure).prev().get(0);
-        staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-      } else {
-        staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
-      } 
-    } else {
-      var previous_measure = measures[measures.length-1][0];
-      left = previous_measure.x + previous_measure.width;
-      top = (Number(staff_element.attrs().n) - 1) * 100;
-      /* Determine if there's a new staff definition, or take default */
-      /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-      if ($(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
-        scoredef = $(parent_measure).prev().get(0);
-        staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-      } else {
-        staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
-      }
-    }
+    
+    
+    // if ($(staff_element).parent().get(0).attrs().n === '1') {
+    //   left = 0
+    //   top = (Number(staff_element.attrs().n) - 1) * 100;
+    //   /* Determine if there's a new staff definition, or take default */
+    //   /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+    //   if ($(parent_measure).prev().get(0) != undefined && 
+    //       $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
+    //       !$(parent_measure).prev().get(0).attrs().n) {
+    //     scoredef = $(parent_measure).prev().get(0);
+    //     staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+    //   } else {
+    //     staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
+    //   } 
+    // } else {
+    //   var previous_measure = measures[measures.length-1][0];
+    //   left = previous_measure.x + previous_measure.width;
+    //   top = (Number(staff_element.attrs().n) - 1) * 100;
+    //   /* Determine if there's a new staff definition, or take default */
+    //   /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
+    //   if ($(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
+    //     scoredef = $(parent_measure).prev().get(0);
+    //     staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
+    //   } else {
+    //     staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
+    //   }
+    // }
+    // 
+    
+    //get current staffDef
+    var staff_n = Number(staff_element.attrs().n);
+    Vex.LogDebug('staff_element.attrs().n=' + staff_element.attrs().n);
+    staff = initialise_staff_n(staff_n, measure_width);
 
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
       return extract_events(i, layer, staff_element, parent_measure); 
