@@ -84,7 +84,7 @@ MEI2VF.StaffInfo = function(staffdef, w_clef, w_keysig, w_timesig) {
   }
   
 }
-  
+
 MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
   height = height || 350;
@@ -93,6 +93,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var measures = [];
   var beams = [];
   var notes = [];
+  var notes_by_id = {};
   
 //  var staffInfo = { staffDefs:[], render_with: {} };   // containing the current staffDef elements and rendering instructions
 //  var global_staffInfo = { staffDef: null, render_with: {} }; // global staffInfo for staffDef with no attribute 'n' and rendering inctructions
@@ -476,8 +477,26 @@ MEI2VF.render_notation = function(score, target, width, height) {
     //find first and last note
     var f_note = null;
     var l_note = null;
-    //not sure how efficient it is to searching through all the notes of the piece each time...
-    //what about processing ties on the fly...?
+
+    // not sure how efficient it is to searching through all the notes of the piece each time...
+    // what about:
+    //  1. when processing a tie, store only the ids (or the ids calculated from timestamps) 
+    //  2. when rendering a tie, look up the actual note from a dictionary (to be built 
+    //     during processing notes -- make_note() )
+    // 
+    //  this means that parsing and rendering will be spearated.  
+    //  when parsing: 
+    //    1. <tie> element will create a Tie object and store into a list
+    //    2. @tie attribute will either:
+    //      a) create a partially initialised Tie obejct (only startid is set) and store it into the same list.
+    //      b) complement a previously initialised Tie object
+    //      c) create a partially initialised Tie obejct (only endid is set - e.g. because of a system break) 
+    //         and store it in the list.
+    //  
+    //  rendergin:
+    //    1. resolve the ids in the Tie object, i.e. look up note elements from
+    //       the notes dictionary.
+    //    2. call StaveTie()
     $(notes).each(function(i, note) {
       if (note.id === $(tie).attr('startid')) { f_note = note.vexNote; }
       else if (note.id === $(tie).attr('endid')) { l_note = note.vexNote; }
@@ -526,7 +545,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var process_section_child = function(i, child) {
     Vex.LogDebug('process_section_child() {}');
     switch ($(child).prop('localName')) {
-      case 'measure': extract_staves_without_i(child); break;
+      case 'measure': 
+        extract_staves_without_i(child);
+        //extract_ties()??
+      break;
       case 'scoreDef': process_scoreDef(child); break;
       case 'staffDef': process_staffDef(child); break;
       default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <section>');
@@ -718,10 +740,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
       //Build a note object that keeps the xml:id
 
       // Sanity check
-      if (!$(element).attr('xml:id')) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
+      var xml_id = $(element).attr('xml:id');
+      if (!xml_id) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
 
-      var note_object = {vexNote: note, id: $(element).attr('xml:id')};
+      var note_object = {vexNote: note, id: xml_id};
       notes.push(note_object);
+
+      notes_by_id[xml_id] = note_object;
 
       return note_object;
 
