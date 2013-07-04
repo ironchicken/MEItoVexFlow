@@ -23,7 +23,7 @@
 						<measure n="1">
 							<staff n="1">
 								<layer>
-									<note xml:id="v1e01" pname="c" oct="4" dur="4" tie="i"/>
+									<note xml:id="v1e01" pname="c" oct="4" dur="4" tie="it"/>
 									<note xml:id="v1e02" pname="c" oct="4" dur="2" tie="t"/>
 									<note xml:id="v1e03" pname="c" oct="4" dur="2" tie="i"/>
 									<note xml:id="v1e04" pname="c" oct="4" dur="2" tie="t"/>
@@ -58,7 +58,8 @@
 							</staff>
 							<tie staff="1" startid="v1e11" endid="v1e12" bulge="-1"/>
 							<tie staff="1" startid="v1e12" endid="v1e13" bulge="-1"/>
-							<tie staff="1" startid="v1e13" endid="v1e15" bulge="-1"/>
+							<tie staff="1" startid="v1e13" endid="v1e14" bulge="-1"/>
+							<tie staff="1" startid="v1e15" bulge="-1"/>
 						</measure>
 					</section>
 				</score>
