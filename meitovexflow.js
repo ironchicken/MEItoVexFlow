@@ -30,13 +30,13 @@ Array.prototype.any = function(test) {
 
 MEI2VF = {}
 
-MEI2VF.RUNTIME_ERROR = function(code, message) {
-  this.code = code;
+MEI2VF.RUNTIME_ERROR = function(error_code, message) {
+  this.error_code = error_code;
   this.message = message;
 }
 
 MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
-  return "MEI2VF.RUNTIME_ERROR: " + this.message;
+  return "MEI2VF.RUNTIME_ERROR: " + this.error_code + this.message;
 }
 
 MEI2VF.StaffInfo = function(staffdef, w_clef, w_keysig, w_timesig) {
@@ -94,6 +94,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var beams = [];
   var notes = [];
   var notes_by_id = {};
+  var ties = [];
   
 //  var staffInfo = { staffDefs:[], render_with: {} };   // containing the current staffDef elements and rendering instructions
 //  var global_staffInfo = { staffDef: null, render_with: {} }; // global staffInfo for staffDef with no attribute 'n' and rendering inctructions
@@ -663,7 +664,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
       return extract_events(i, layer, staff_element, parent_measure); 
     }).get();
-
+    
     // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
     var vex_layer_events = [];
     $(layer_events).each( function() { 
@@ -679,6 +680,21 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
     $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
+    //extract <tie> elements and create tie (EventLink) obejcts
+    Vex.LogDebug('extract_layers(): {1}')
+    var measure_ties = $(parent_measure).find('tie');
+    $.each(measure_ties, function(i, tie) {
+      Vex.LogDebug('extract_layers(): {1}.{a}')
+      var startid = tie.attrs().startid;
+      var endid = tie.attrs().endid;
+      Vex.LogDebug('extract_layers(): {1}.{a}.{1}')
+      if (startid && endid) {
+        Vex.LogDebug('extract_layers(): {1}.{a}.{b}')
+        make_tie(startid, endid);
+      } 
+      Vex.LogDebug('extract_layers(): {1}.{a}.{2}')
+    });
+
     return staff;
   };
 
@@ -693,6 +709,34 @@ MEI2VF.render_notation = function(score, target, width, height) {
         return process_element(element, layer, parent_staff_element, parent_measure); 
       }).get()};
   };
+
+  var make_tie = function(startid, endid) {
+    var tie = new MEI2VF.EventLink(startid, endid);
+    ties.push(tie);    
+  };
+
+  var start_tie = function(startid) {
+    var tie = new MEI2VF.EventLink(startid);
+    ties.push(tie);
+  }
+  
+  var terminate_tie = function(endid, pname) {
+    var found=false
+    
+    $.each(ties, function (i, tie) {
+      var note_element = notes_by_id[tie.getFirstId()];
+      if (note_element && note_element.attrs('pname') === pname) {
+        found=true;
+        tie.setLastId(endid);
+      }
+    });
+    
+    if (!found) {
+      var tie = new MEI2VF.EventLink(null, endid);
+      ties.push(tie);      
+    }
+  }
+  
 
   var make_note = function(element, parent_layer, parent_staff_element, parent_measure) {
 
@@ -743,10 +787,23 @@ MEI2VF.render_notation = function(score, target, width, height) {
       var xml_id = $(element).attr('xml:id');
       if (!xml_id) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
 
+      var mei_tie = $(element).attr('tie'); 
+      if (!mei_tie) mei_tie = "";
+      for (var i=0; i<mei_tie.length; ++i) {
+        switch (mei_tie[i]) {
+          case 'i': start_tie(xml_id); break;
+          case 't': 
+            var pname = $(element).attr('pname');
+            if (!pname) throw new MEI2VF.RUNTIME_ERROR('BadArguments', 'mei:note must have pname attribute');
+            terminate_tie(xml_id, pname); 
+            break;
+        }
+      }
+
       var note_object = {vexNote: note, id: xml_id};
       notes.push(note_object);
 
-      notes_by_id[xml_id] = note_object;
+      notes_by_id[xml_id] = element;
 
       return note_object;
 
