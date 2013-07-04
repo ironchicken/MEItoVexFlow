@@ -469,10 +469,24 @@ MEI2VF.render_notation = function(score, target, width, height) {
     $(score).find('section').children().each(process_section_child);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     //do ties now!
-    $(score).find('tie').each(make_ties);
+    render_ties();
     $(score).find('slur').each(make_ties);
     $(score).find('hairpin').each(make_hairpins);
   };
+
+  var render_ties = function() {
+    $(ties).each(function(i, tie) {
+      var f_note = notes_by_id[tie.getFirstId()];
+      var l_note = notes_by_id[tie.getLastId()];
+      Vex.LogDebug('tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
+      
+      var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
+      var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
+      new Vex.Flow.StaveTie({
+        first_note: f_vexNote,
+        last_note: l_vexNote}).setContext(context).draw();
+    });
+  }
 
   var make_ties = function(i, tie) {
     //find first and last note
@@ -548,12 +562,29 @@ MEI2VF.render_notation = function(score, target, width, height) {
     switch ($(child).prop('localName')) {
       case 'measure': 
         extract_staves_without_i(child);
-        //extract_ties()??
+        extract_ties(child);
       break;
       case 'scoreDef': process_scoreDef(child); break;
       case 'staffDef': process_staffDef(child); break;
       default: throw new MEI2VF.RUNTIME_ERROR('NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <section>');
     } 
+  }
+  
+  var extract_ties = function (measure) {
+    //extract <tie> elements and create tie (EventLink) obejcts
+    Vex.LogDebug('extract_layers(): {1}')
+    var measure_ties = $(measure).find('tie');
+    $.each(measure_ties, function(i, tie) {
+      Vex.LogDebug('extract_layers(): {1}.{a}')
+      var startid = tie.attrs().startid;
+      var endid = tie.attrs().endid;
+      Vex.LogDebug('extract_layers(): {1}.{a}.{1}')
+      if (startid || endid) {
+        Vex.LogDebug('extract_layers(): {1}.{a}.{b}')
+        make_tie(startid, endid);
+      } 
+      Vex.LogDebug('extract_layers(): {1}.{a}.{2}')
+    });
   }
   
 
@@ -680,21 +711,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
     $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
-    //extract <tie> elements and create tie (EventLink) obejcts
-    Vex.LogDebug('extract_layers(): {1}')
-    var measure_ties = $(parent_measure).find('tie');
-    $.each(measure_ties, function(i, tie) {
-      Vex.LogDebug('extract_layers(): {1}.{a}')
-      var startid = tie.attrs().startid;
-      var endid = tie.attrs().endid;
-      Vex.LogDebug('extract_layers(): {1}.{a}.{1}')
-      if (startid && endid) {
-        Vex.LogDebug('extract_layers(): {1}.{a}.{b}')
-        make_tie(startid, endid);
-      } 
-      Vex.LogDebug('extract_layers(): {1}.{a}.{2}')
-    });
-
     return staff;
   };
 
@@ -722,14 +738,27 @@ MEI2VF.render_notation = function(score, target, width, height) {
   
   var terminate_tie = function(endid, pname) {
     var found=false
-    
-    $.each(ties, function (i, tie) {
-      var note_element = notes_by_id[tie.getFirstId()];
-      if (note_element && note_element.attrs('pname') === pname) {
-        found=true;
-        tie.setLastId(endid);
+    var i=0; var tie;
+    while (!found && i<ties.length) {
+      tie = ties[i];
+      if (!tie.getLastId()) {
+        Vex.LogDebug('terminate_tie() {}: tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
+        var note_id = tie.getFirstId();
+        if (note_id) {
+          var note = notes_by_id[note_id];
+          Vex.LogDebug('terminate_tie() {A}: note:' + note + ' pname:' + pname);
+          if (note) Vex.LogDebug('terminate_tie() {A}: $(note.meiNote).attr("pname")' + $(note.meiNote).attr('pname'));
+          if (note && $(note.meiNote).attr('pname') === pname) {
+            Vex.LogDebug('terminate_tie() {A}.{a}');
+            found=true;
+            tie.setLastId(endid);
+            Vex.LogDebug('terminate_tie() {A}.{a.2}: tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
+          }
+          Vex.LogDebug('terminate_tie() {A.2}: ');
+        }        
       }
-    });
+      ++i;
+    };
     
     if (!found) {
       var tie = new MEI2VF.EventLink(null, endid);
@@ -737,7 +766,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   }
   
-
   var make_note = function(element, parent_layer, parent_staff_element, parent_measure) {
 
     //Support for annotations (lyrics, directions, etc.)
@@ -803,7 +831,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       var note_object = {vexNote: note, id: xml_id};
       notes.push(note_object);
 
-      notes_by_id[xml_id] = element;
+      notes_by_id[xml_id] = { meiNote:element, vexNote:note };
 
       return note_object;
 
