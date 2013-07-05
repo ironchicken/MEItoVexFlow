@@ -1,7 +1,7 @@
 /* 
 * EventLink.js
 * Author: Zoltan Komives (zolaemil@gmail.com)
-* Created: 04.06.2013
+* Created: 04.07.2013
 * 
 * Represents a link between two MEI events. The link is represented by two references: 
 *  1. reference to start event, 

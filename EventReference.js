@@ -1,7 +1,7 @@
 /* 
 * EventReference.js
 * Author: Zoltan Komives (zolaemil@gmail.com)
-* Created: 04.06.2013
+* Created: 04.07.2013
 * 
 * Represents and event with its xmlid, but if the xmlid is not defined, 
 * it can also hold the timestamp that can be resolved as soon as the context that 

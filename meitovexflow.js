@@ -39,52 +39,6 @@ MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
   return "MEI2VF.RUNTIME_ERROR: " + this.error_code + this.message;
 }
 
-MEI2VF.StaffInfo = function(staffdef, w_clef, w_keysig, w_timesig) {
-  this.renderWith = { clef: w_clef, keysig: w_keysig, timesig: w_timesig };
-  this.staffDef = staffdef;
-  this.updateDef = function(staffdef) {      
-    Vex.LogDebug('StaffInfo.addDef() {1}')
-    var look4changes = function (current_staffDef, new_staffdef, renderInstr) {
-      Vex.LogDebug('look4changes() {1}')
-      if (!current_staffDef && new_staffdef) {
-        Vex.LogDebug('look4changes() {1}.{A}')
-        renderInstr.clef = true;
-        renderInstr.keysig = true;
-        renderInstr.keysig = true;
-        return;
-      } else if (current_staffDef && !new_staffDef) {
-        Vex.LogDebug('look4changes() {1}.{B}')
-        renderInstr.clef = false;
-        renderInstr.keysig = false;
-        renderInstr.keysig = false;
-        return;
-      } else if (!current_staffDef && !new_staffDef) {
-        throw new MEI2VF_RUNTIME_ERROR('BadArgument', 'Cannot compare two undefined staff definitions.')
-      }
-      Vex.LogDebug('look4changes() {2}')
-      var cmp_attr = function(e1, e2, attr_name) { return $(e1).attr(attr_name) === $(e2).attr(attr_name) };
-      if (!cmp_attr(current_staffDef, new_staffdef, 'clef.shape') || !cmp_attr(current_staffDef, new_staffdef, 'clef.line')) {
-        Vex.LogDebug('look4changes() {2}.{A}')
-        renderInstr.clef = true;
-      } 
-      if (!cmp_attr(current_staffDef, new_staffdef, 'key.pname') || !cmp_attr(current_staffDef, new_staffdef, 'key.accid')) {
-        Vex.LogDebug('look4changes() {2}.{B}')
-        renderInstr.keysig = true;
-      } 
-      if (!cmp_attr(current_staffDef, new_staffdef, 'meter.count') || !cmp_attr(current_staffDef, new_staffdef, 'meter.unit')) {
-        Vex.LogDebug('look4changes() {2}.{C}')
-        renderInstr.keysig = true;
-      }
-      Vex.LogDebug('look4changes() {3}')
-    }
-    Vex.LogDebug('StaffInfo.addDef() {2}')
-
-    look4changes(staffDef, staffdef, this.renderWith);
-    this.staffDef = staffdef;
-  }
-  
-}
-
 MEI2VF.render_notation = function(score, target, width, height) {
   width = width || 800;
   height = height || 350;
@@ -96,19 +50,15 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes_by_id = {};
   var ties = [];
   
-//  var staffInfo = { staffDefs:[], render_with: {} };   // containing the current staffDef elements and rendering instructions
-//  var global_staffInfo = { staffDef: null, render_with: {} }; // global staffInfo for staffDef with no attribute 'n' and rendering inctructions
   var SYSTEM_SPACE = 20;
   var system_top = 0;
   var measure_left = 0;
   var bottom_most = 0;
   var system_n = 0;
-  var nb_of_measures = 0; //nb_of_measures already rendered in the current system;
+  var nb_of_measures = 0; //number of measures already rendered in the current system;
   var system_break = false;
   var new_section = true;
   
-
-//  var staffInfo = new StaffInfo();
   var staffInfoArray = new Array();
   
   var move_to_next_measure = function() {
@@ -363,7 +313,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     context = renderer.getContext();
   };
 
-
   var staff_height = function(staff_n) {
     return 100;
   }
@@ -461,7 +410,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var render_measure_wise = function() {
-//    $(score).find('measure').each(extract_staves);
     var scoredef = $(score).find('scoreDef')[0];
     if (!scoredef) throw new MEI2VF.RUNTIME_ERROR('BadMEIFile', 'No <scoreDef> found.')
     process_scoreDef(scoredef);
@@ -493,25 +441,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var f_note = null;
     var l_note = null;
 
-    // not sure how efficient it is to searching through all the notes of the piece each time...
-    // what about:
-    //  1. when processing a tie, store only the ids (or the ids calculated from timestamps) 
-    //  2. when rendering a tie, look up the actual note from a dictionary (to be built 
-    //     during processing notes -- make_note() )
-    // 
-    //  this means that parsing and rendering will be spearated.  
-    //  when parsing: 
-    //    1. <tie> element will create a Tie object and store into a list
-    //    2. @tie attribute will either:
-    //      a) create a partially initialised Tie obejct (only startid is set) and store it into the same list.
-    //      b) complement a previously initialised Tie object
-    //      c) create a partially initialised Tie obejct (only endid is set - e.g. because of a system break) 
-    //         and store it in the list.
-    //  
-    //  rendergin:
-    //    1. resolve the ids in the Tie object, i.e. look up note elements from
-    //       the notes dictionary.
-    //    2. call StaveTie()
     $(notes).each(function(i, note) {
       if (note.id === $(tie).attr('startid')) { f_note = note.vexNote; }
       else if (note.id === $(tie).attr('endid')) { l_note = note.vexNote; }
@@ -547,21 +476,21 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   }
 
-  //  MEI element <section> may contain (MEI v2.1.0):
-  //    MEI.cmn: measure
-  //    MEI.critapp: app
-  //    MEI.edittrans: add choice corr damage del gap handShift orig reg restore sic subst supplied unclear 
-  //    MEI.shared: annot ending expansion pb sb scoreDef section staff staffDef
-  //    MEI.text: div
-  //    MEI.usersymbols: anchoredText curve line symbol
-  //
-  //  Supported elements: measure, scoreDef, staffDef
-  //
+  /*  MEI element <section> may contain (MEI v2.1.0):
+  *    MEI.cmn: measure
+  *    MEI.critapp: app
+  *    MEI.edittrans: add choice corr damage del gap handShift orig reg restore sic subst supplied unclear 
+  *    MEI.shared: annot ending expansion pb sb scoreDef section staff staffDef
+  *    MEI.text: div
+  *    MEI.usersymbols: anchoredText curve line symbol
+  *
+  *  Supported elements: measure, scoreDef, staffDef
+  */
   var process_section_child = function(i, child) {
     Vex.LogDebug('process_section_child() {}');
     switch ($(child).prop('localName')) {
       case 'measure': 
-        extract_staves_without_i(child);
+        extract_staves(child);
         extract_ties(child);
       break;
       case 'scoreDef': process_scoreDef(child); break;
@@ -570,39 +499,21 @@ MEI2VF.render_notation = function(score, target, width, height) {
     } 
   }
   
-  var extract_ties = function (measure) {
-    //extract <tie> elements and create tie (EventLink) obejcts
-    Vex.LogDebug('extract_layers(): {1}')
-    var measure_ties = $(measure).find('tie');
-    $.each(measure_ties, function(i, tie) {
-      Vex.LogDebug('extract_layers(): {1}.{a}')
-      var startid = tie.attrs().startid;
-      var endid = tie.attrs().endid;
-      Vex.LogDebug('extract_layers(): {1}.{a}.{1}')
-      if (startid || endid) {
-        Vex.LogDebug('extract_layers(): {1}.{a}.{b}')
-        make_tie(startid, endid);
-      } 
-      Vex.LogDebug('extract_layers(): {1}.{a}.{2}')
-    });
-  }
-  
-
   var process_scoreDef = function(scoredef) {
     Vex.LogDebug('process_scoreDef() {}');
     $(scoredef).children().each(process_scoredef_child);
   }
 
-  //  MEI element <scoreDef> may contain (MEI v2.1.0):
-  //    MEI.cmn: meterSig meterSigGrp
-  //    MEI.harmony: chordTable
-  //    MEI.linkalign: timeline
-  //    MEI.midi: instrGrp
-  //    MEI.shared: keySig pgFoot pgFoot2 pgHead pgHead2 staffGrp 
-  //    MEI.usersymbols: symbolTable
-  // 
-  //  Supported elements: staffGrp
-  //
+  /*  MEI element <scoreDef> may contain (MEI v2.1.0):
+  *    MEI.cmn: meterSig meterSigGrp
+  *    MEI.harmony: chordTable
+  *    MEI.linkalign: timeline
+  *    MEI.midi: instrGrp
+  *    MEI.shared: keySig pgFoot pgFoot2 pgHead pgHead2 staffGrp 
+  *    MEI.usersymbols: symbolTable
+  * 
+  *  Supported elements: staffGrp
+  */
   var process_scoredef_child = function(i, child) {
     Vex.LogDebug('process_scoredef_child() {}');
     switch ($(child).prop('localName')) {
@@ -617,13 +528,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   
-  //  MEI element <staffGrp> may contain (MEI v2.1.0):
-  //    MEI.cmn: meterSig meterSigGrp MEI.mensural: mensur proport
-  //    MEI.midi: instrDef
-  //    MEI.shared: clef clefGrp keySig label layerDef
-  // 
-  //  Supported elements: staffGrp, staffDef
-  //￼￼￼￼￼￼￼￼￼￼
+  /*  MEI element <staffGrp> may contain (MEI v2.1.0):
+  *    MEI.cmn: meterSig meterSigGrp MEI.mensural: mensur proport
+  *    MEI.midi: instrDef
+  *    MEI.shared: clef clefGrp keySig label layerDef
+  * 
+  *  Supported elements: staffGrp, staffDef
+  */
   var process_staffGrp_child = function(i, child) {
     Vex.LogDebug('process_staffGrp_child() {}');
     switch ($(child).prop('localName')) {
@@ -644,12 +555,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   }
   
-
-  var extract_staves = function(i, measure) {
-    measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
-  };
-
-  var extract_staves_without_i = function(measure) {
+  var extract_staves = function(measure) {
     measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
   };
 
@@ -657,35 +563,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var n_measures = $(score).find('measure').get().length;
     var measure_width = Math.round(width / n_measures);
     var staff, left, top;
-    
-    
-    // if ($(staff_element).parent().get(0).attrs().n === '1') {
-    //   left = 0
-    //   top = (Number(staff_element.attrs().n) - 1) * 100;
-    //   /* Determine if there's a new staff definition, or take default */
-    //   /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-    //   if ($(parent_measure).prev().get(0) != undefined && 
-    //       $(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && 
-    //       !$(parent_measure).prev().get(0).attrs().n) {
-    //     scoredef = $(parent_measure).prev().get(0);
-    //     staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-    //   } else {
-    //     staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], true, true, true, left, top, measure_width + 30);
-    //   } 
-    // } else {
-    //   var previous_measure = measures[measures.length-1][0];
-    //   left = previous_measure.x + previous_measure.width;
-    //   top = (Number(staff_element.attrs().n) - 1) * 100;
-    //   /* Determine if there's a new staff definition, or take default */
-    //   /* TODO: deal with non-general changes. NB if there is no @n in staffdef it applies to all staves */
-    //   if ($(parent_measure).prev().get(0).tagName.toLowerCase() === 'scoredef' && !$(parent_measure).prev().get(0).attrs().n) {
-    //     scoredef = $(parent_measure).prev().get(0);
-    //     staff = initialise_staff(scoredef, false, false, $(scoredef).attr('meter.count') ? true : false, left, top, measure_width + 30);
-    //   } else {
-    //     staff = initialise_staff($(score).find('staffDef[n=' + staff_element.attrs().n + ']')[0], false, false, false, left, top, measure_width);
-    //   }
-    // }
-    // 
     
     //get current staffDef
     var staff_n = Number(staff_element.attrs().n);
@@ -725,6 +602,24 @@ MEI2VF.render_notation = function(score, target, width, height) {
         return process_element(element, layer, parent_staff_element, parent_measure); 
       }).get()};
   };
+
+  var extract_ties = function (measure) {
+    //extract <tie> elements and create tie (EventLink) obejcts
+    Vex.LogDebug('extract_layers(): {1}')
+    var measure_ties = $(measure).find('tie');
+    $.each(measure_ties, function(i, tie) {
+      Vex.LogDebug('extract_layers(): {1}.{a}')
+      var startid = tie.attrs().startid;
+      var endid = tie.attrs().endid;
+      Vex.LogDebug('extract_layers(): {1}.{a}.{1}')
+      if (startid || endid) {
+        Vex.LogDebug('extract_layers(): {1}.{a}.{b}')
+        make_tie(startid, endid);
+      } 
+      Vex.LogDebug('extract_layers(): {1}.{a}.{2}')
+    });
+  }
+  
 
   var make_tie = function(startid, endid) {
     var tie = new MEI2VF.EventLink(startid, endid);
