@@ -7,13 +7,14 @@
 *  1. reference to start event, 
 *  2. reference to end event.
 * 
+* 
 */
 
-MEI2VF.EventLink = function(first_id, last_id) {
+MEI2VF.EventLink = function(first_id, last_id, link_cond) {
   this.first_ref = new MEI2VF.EventReference(first_id);
   this.last_ref = new MEI2VF.EventReference(last_id);
+  this.linkCond = link_cond;
 }
-
 
 MEI2VF.EventLink.prototype.setFirstRef = function (first_ref) {
   this.first_ref = first_ref;
