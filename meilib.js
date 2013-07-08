@@ -26,8 +26,8 @@ MeiLib.RuntimeError.prototype.toString = function() {
 *   @eventid: xml:id of the event
 *   @context: array of contextual objects {layer, meter}. time signature is mandatory for the first one.
 *
-*   @returns: the total duration (in beats - as defined by ) of all events that happened 
-*             before the given event in the given context. 
+*   @returns: the total duration (in beats - in relation to the meter of the target measure) of all events 
+*             that happened before the given event in the given context. 
 */
 MeiLib.id2tstamp = function (eventid, context) {
   var meter;
@@ -52,10 +52,11 @@ MeiLib.id2tstamp = function (eventid, context) {
 
 /*
 * 
-* @return: Either..
-*            1) a number, the total duration of all events in layer, if no event with eventid is found, or
-*            2) an object { beats:number, found:boolean } where 'beats' is the total duration of the events 
-*               that happened before the event with eventid within layer, and 'found' is true.
+* @return: an object { beats:number, found:boolean } where 
+*             1. 'found' is true and 'beats' is the total duration of the events that happened before the 
+*                 event with 'eventid' within 'layer', or
+*             2. 'found' is false and 'beats is the total duration of the events in 'layer'. 
+
 *       
 */
 MeiLib.sumUpUntil = function(eventid, layer, meter) {
