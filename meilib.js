@@ -25,13 +25,14 @@ MeiLib.RuntimeError.prototype.toString = function() {
 * Enumerate over the children events of node (node is a layer or a beam)
 */
 MeiLib.EventEnumerator = function (node) {
-  this.node = node;
-  this.next_evnt = null;
-  this.EoI = true;
-  this.init();
+  this.init(node);
 }
 
-MeiLib.EventEnumerator.prototype.init = function() {
+MeiLib.EventEnumerator.prototype.init = function(node) {
+  if (!node) throw new MeiLib.RuntimeError('MeiLib.EventEnumerator.init():E01', 'node is null or undefined');
+  this.node = node;
+  this.next_evnt = null;
+  this.EoI = true; // false if and only if next_evnt is valid.
   this.children = $(this.node).children();
   this.i_next = -1;
   this.read_ahead();

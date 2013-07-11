@@ -453,26 +453,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     });
   }
 
-
-  var make_ties = function(i, tie) {
-    //find first and last note
-    var f_note = null;
-    var l_note = null;
-
-    $(notes).each(function(i, note) {
-      if (note.id === $(tie).attr('startid')) { f_note = note.vexNote; }
-      else if (note.id === $(tie).attr('endid')) { l_note = note.vexNote; }
-    });
-    
-    //first_indices: [0] and last_indices: [0] are redundant (coz these are allowed 
-    //to be undefined and will be set to [0] by the StaveTie constructor)
-    new Vex.Flow.StaveTie({
-      first_note: f_note,
-      last_note: l_note,
-      first_indices: [0],
-      last_indices: [0]}).setContext(context).draw();
-  }
-
   var make_hairpins = function(i, hp) {
     //find first and last note
     var f_note = null;
@@ -631,6 +611,32 @@ MEI2VF.render_notation = function(score, target, width, height) {
     $.each(tiesslurs, function(i, tieslr) {
       Vex.LogDebug('extract_ties(): {1}.{a}')
       var startid = tieslr.attrs().startid;
+      //TODO: if no startid, extract tstamp if present
+      if(!startid) {
+        var tstamp = tieslr.attrs().tstamp;
+        if (tstamp) {
+          //convert tstamp into id --> startid
+          //TODO: meter??
+          var staff_n = tieslr.attrs().staff;
+          if (!staff_n) { staff_n = "1"; } 
+          var layer_n = tieslr.attrs().layer;
+          if (!layer_n) { layer_n = "1"; }
+          //TODO: layer 
+          var staff = $(measure).find('staff[n="' + staff_n + '"]');
+          var layer = $(staff).find('layer[n="'+ layer_n + '"]').get(0);
+          if (!layer) {
+            var layer_candid = $(staff).find('layer');
+            if (layer_candid && !layer_candid.attr('n')) layer = layer_candid;
+            if (!layer) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E01', 'Cannot find layer');
+          } 
+          var staffdef = staffInfoArray[staff_n].staffDef;
+          if (!staffdef) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E02', 'Cannot determine staff definition.');
+          var meter = { count:Number(staffdef.attrs()['meter.count']), unit:Number(staffdef.attrs()['meter.unit']) };
+          if (!meter.count || !meter.unit) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E03', "Cannot determine meter; missing or incorrect @meter.count or @meter.unit.");
+          startid = MeiLib.tstamp2id(tstamp, layer, meter);
+        } 
+      }
+      
       var endid = tieslr.attrs().endid;
       Vex.LogDebug('extract_ties(): {1}.{a}.{1}')
       if (startid || endid) {
