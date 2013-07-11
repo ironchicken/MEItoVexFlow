@@ -50,6 +50,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes_by_id = {};
   var ties = [];
   var slurs = [];
+  unresolvedReferencesToMeasure = [];
   
   var SYSTEM_SPACE = 20;
   var system_top = 0;
@@ -489,8 +490,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
     switch ($(child).prop('localName')) {
       case 'measure': 
         extract_staves(child);
-        extract_tiesslurs(child, 'tie', ties);
-        extract_tiesslurs(child, 'slur', slurs);
+        extract_linkingElements(child, 'tie', ties);
+        extract_linkingElements(child, 'slur', slurs);
         break;
       case 'scoreDef': process_scoreDef(child); break;
       case 'staffDef': process_staffDef(child); break;
@@ -605,45 +606,90 @@ MEI2VF.render_notation = function(score, target, width, height) {
   /*
   * Extract <tie> or <slur> elements and create tie (EventLink) obejcts
   */
-  var extract_tiesslurs = function (measure, element_name, eventlink_container) {
+  var extract_linkingElements = function (measure, element_name, eventlink_container) {
+
+    var link_staffInfo = function(lnkelem) {
+      var staff_n = lnkelem.attrs().staff;
+      if (!staff_n) { staff_n = "1"; } 
+      var layer_n = lnkelem.attrs().layer;
+      if (!layer_n) { layer_n = "1"; }
+      return { staff_n:staff_n, layer_n:layer_n };
+    }
+   
+    //convert tstamp into startid in current measure
+    var local_tstamp2id = function(tstamp, lnkelem, measure) {
+      var stffinf = link_staffInfo(lnkelem);      
+      var staff = $(measure).find('staff[n="' + stffinf.staff_n + '"]');
+      var layer = $(staff).find('layer[n="'+ stffinf.layer_n + '"]').get(0);
+      if (!layer) {
+        var layer_candid = $(staff).find('layer');
+        if (layer_candid && !layer_candid.attr('n')) layer = layer_candid;
+        if (!layer) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_linkingElements:E01', 'Cannot find layer');
+      } 
+      var staffdef = staffInfoArray[stffinf.staff_n].staffDef;
+      if (!staffdef) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_linkingElements:E02', 'Cannot determine staff definition.');
+      var meter = { count:Number(staffdef.attrs()['meter.count']), unit:Number(staffdef.attrs()['meter.unit']) };
+      if (!meter.count || !meter.unit) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_linkingElements:E03', "Cannot determine meter; missing or incorrect @meter.count or @meter.unit.");
+      return MeiLib.tstamp2id(tstamp, layer, meter);      
+    }
+    
+    var measure_partOf = function(tstamp2) {
+      var indexOfPlus;
+      return tstamp2.substring(0,tstamp2.indexOf('m'));
+    }
+
+    var beat_partOf = function(tstamp2) {
+      var indexOfPlus;
+      return tstamp2.substring(tstamp2.indexOf('+')+1);
+    }
+
     Vex.LogDebug('extract_ties(): {1}')
-    var tiesslurs = $(measure).find(element_name);
-    $.each(tiesslurs, function(i, tieslr) {
+    var link_elements = $(measure).find(element_name);
+    $.each(link_elements, function(i, lnkelem) {
       Vex.LogDebug('extract_ties(): {1}.{a}')
-      var startid = tieslr.attrs().startid;
-      //TODO: if no startid, extract tstamp if present
-      if(!startid) {
-        var tstamp = tieslr.attrs().tstamp;
+      
+      var eventLink = new MEI2VF.EventLink(null, null);    
+      // find first reference value (id/tstamp) of eventLink:
+      var startid = lnkelem.attrs().startid;
+      if(startid) {
+        eventLink.setFirstId(startid);
+      } else {
+        var tstamp = lnkelem.attrs().tstamp;
         if (tstamp) {
-          //convert tstamp into id --> startid
-          //TODO: meter??
-          var staff_n = tieslr.attrs().staff;
-          if (!staff_n) { staff_n = "1"; } 
-          var layer_n = tieslr.attrs().layer;
-          if (!layer_n) { layer_n = "1"; }
-          //TODO: layer 
-          var staff = $(measure).find('staff[n="' + staff_n + '"]');
-          var layer = $(staff).find('layer[n="'+ layer_n + '"]').get(0);
-          if (!layer) {
-            var layer_candid = $(staff).find('layer');
-            if (layer_candid && !layer_candid.attr('n')) layer = layer_candid;
-            if (!layer) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E01', 'Cannot find layer');
-          } 
-          var staffdef = staffInfoArray[staff_n].staffDef;
-          if (!staffdef) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E02', 'Cannot determine staff definition.');
-          var meter = { count:Number(staffdef.attrs()['meter.count']), unit:Number(staffdef.attrs()['meter.unit']) };
-          if (!meter.count || !meter.unit) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_tiesslurs:E03', "Cannot determine meter; missing or incorrect @meter.count or @meter.unit.");
-          startid = MeiLib.tstamp2id(tstamp, layer, meter);
-        } 
+          startid = local_tstamp2id(tstamp, lnkelem, measure);
+          eventLink.setFirstId(startid);
+        } else {
+          //no @startid, no @tstamp ==> eventLink.first_ref remains empty.
+        }
+      }
+
+      // find end reference value (id/tstamp) of eventLink:
+      var endid = lnkelem.attrs().endid;
+      if (endid) {
+          eventLink.setLastId(endid);
+      } else {
+        var tstamp2 = lnkelem.attrs().tstamp2;
+        if (tstamp2) {
+          var measures_ahead = Number(measure_partOf(tstamp2));
+          if (measures_ahead>0) {
+            eventLink.setLastTStamp(beat_partOf(tstamp2));
+            //register that eventLink needs context;
+            //need to save: measure.n, link.staff_n, link.layer_n
+            var stffinfo = link_staffInfo(lnkelem);
+            var measure_n = measure.attrs().n;
+            if (!unresolvedReferencesToMeasure[measure_n]) unresolvedReferencesToMeasure[measure_n] = new Array();
+            unresolvedReferencesToMeasure[measure_n].push(eventLink);
+          } else {
+            endid = local_tstamp2id(beat_partOf(tstamp2),lnkelem,measure);
+            eventLink.setLastId(endid);
+          }          
+        } else {
+          //no @endid, no @tstamp2 ==> eventLink.last_ref remains empty.
+        }
       }
       
-      var endid = tieslr.attrs().endid;
-      Vex.LogDebug('extract_ties(): {1}.{a}.{1}')
-      if (startid || endid) {
-        Vex.LogDebug('extract_ties(): {1}.{a}.{b}')
-        make_tieslur(startid, endid, eventlink_container);
-      } 
-      Vex.LogDebug('extract_ties(): {1}.{a}.{2}')
+      eventlink_container.push(eventLink);
+
     });
   }
   
