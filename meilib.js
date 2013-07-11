@@ -103,7 +103,6 @@ MeiLib.durationOf = function (evnt, meter) {
   
   var durationOf_Chord = function(chord, meter, layer_no) {
     if (!layer_no) layer_no = "1";
-    Vex.LogDebug('durationOf_Chord() {}: ' + chord);
     var dur = $(chord).attr('dur');
     if (dur) return MeiLib.dur2beats(Number(dur), meter);
     $(chord).find('note').each(function(){ 
@@ -114,7 +113,6 @@ MeiLib.durationOf = function (evnt, meter) {
         else if (dur && dur != dur_note) throw new MeiLib.RuntimeError('MeiLib.durationOf:E05', 'duration of <chord> is ambiguous.');        
       }
     });
-    Vex.LogDebug('durationOf_Chord() {1}: dur:' + dur);
     if (dur) return MeiLib.dur2beats(Number(dur), meter);
     throw new MeiLib.RuntimeError('MeiLib.durationOf:E06', '@dur of chord must be specified either in <chord> or in at least one of its <note> elements.');
   }
@@ -173,7 +171,6 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
   var prev_evnt; // previous event
   var prev_dist; // previuos distance
   while (!eventList.EoI && (dist === undefined || dist>0)) {
-    Vex.LogDebug('tstamp2id():' + dist);
     prev_evnt = evnt;
     prev_dist = dist;
     evnt = eventList.nextEvent();
@@ -184,7 +181,6 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
   if (dist === undefined) return undefined;
   var winner;
   if (dist < 0) {
-    Vex.LogDebug('tstamp2id(): winner? prev_dist:' + prev_dist +' Abs(dist):'+ Math.abs(dist));
     if (prev_evnt && prev_dist<Math.abs(dist) ) { winner = prev_evnt; }
     else { winner = evnt; }
   } else {
@@ -224,11 +220,8 @@ MeiLib.tstamp2idInContext = function ( tstamp, context ) {
   var found = false;
   for (var i=0; i<context.length && !found; ++i) {   
     Vex.LogDebug('<<<< Measure ' + i + " >>>>");
-    Vex.LogDebug('tstamp2id(): {a.1}');
     if (context[i].meter) meter = context[i].meter;
     if (i===0 && !meter) throw new MeiLib.RuntimeError('MeiLib.tstamp2id:E001', 'No time signature specified');
-
-    Vex.LogDebug('id2tstamp(): {a.end}');
   }
   throw new MeiLib.RuntimeError('MeiLib.E002', 'No event with xml:id="' + eventid + '" was found in the given MEI context.');  
   
@@ -248,17 +241,14 @@ MeiLib.id2tstamp = function (eventid, context) {
   var found = false;
   for (var i=0; i<context.length && !found; ++i) {   
     Vex.LogDebug('<<<< Measure ' + i + " >>>>");
-    Vex.LogDebug('id2tstamp(): {a.1}');
     if (context[i].meter) meter = context[i].meter;
     if (i===0 && !meter) throw new MeiLib.RuntimeError('MeiLib.id2tstamp:E001', 'No time signature specified');
 
     var result = MeiLib.sumUpUntil(eventid, context[i].layer, meter);
     if (result.found) {
-      Vex.LogDebug('id2tstamp(): {a}.{b}');
       found = true;
       return i.toString() + 'm' + '+' + (result.beats+1).toString();
     } 
-    Vex.LogDebug('id2tstamp(): {a.end}');
   }
   throw new MeiLib.RuntimeError('MeiLib.id2tstamp:E002', 'No event with xml:id="' + eventid + '" was found in the given MEI context.');
 };
@@ -301,78 +291,58 @@ MeiLib.sumUpUntil = function(eventid, layer, meter) {
   var sumUpUntil_inNode = function(node_elem) {
     var node = $(node_elem);
     var node_name = node.prop('localName');
-    Vex.LogDebug('sumUpUntil_inNode() {.1} looking for eventid: ' + eventid + ' node_name: ' + node_name)
     if (node_name === 'note' || node_name === 'rest') { 
       //TODO: dotted value!
-      Vex.LogDebug('sumUpUntil_inNode() {.2} node.xml:id=' + node.attr('xml:id'));
       if (node.attr('xml:id') === eventid) {
-        Vex.LogDebug('sumUpUntil_inNode() {A}: beats:' + 0);
         return { beats:0, found:true };
       } else {
-        Vex.LogDebug('sumUpUntil_inNode() {B}');
         var dur = Number(node.attr('dur'));
         if (!dur) throw new MeiLib.RuntimeError('MeiLib.sumUpUntil:E001', "Duration is not a number ('breve' and 'long' are not supported).");
         var dots = Number(node.attr('dots'));
         //TODO: dots
         var beats = MeiLib.dur2beats(dur, meter);
-        Vex.LogDebug('sumUpUntil_inNode() {B.end}: beats:' + beats);
         return { beats:beats, found:false };
       }
     } else if (node_name === 'mRest') {
-      Vex.LogDebug('sumUpUntil_inNode() {C}');
       if (node.attr('xml:id') === eventid) {
-        Vex.LogDebug('sumUpUntil_inNode() {C}.{a}: beats:' + 0);
         found = true;
         return { beats:0, found:true };
       } else {
-        Vex.LogDebug('sumUpUntil_inNode() {C}.{b}: beats:' + meter.count);
         return { beats:meter.count, found:false }; //the duration of a whole bar expressed in number of beats.
       }
     } else if (node_name === 'layer' || node_name === 'beam') {
-      Vex.LogDebug('sumUpUntil_inNode() {D.1}');
       
       //sum up childrens' duration
       var beats = 0;
       var children = node.children();
       var found = false;
       for (var i=0; i<children.length && !found; ++i) {
-        Vex.LogDebug('sumUpUntil_inNode() {D}.{a}');
         var subtotal = sumUpUntil_inNode(children[i]);
         beats += subtotal.beats;
         found = subtotal.found;
       }
-      Vex.LogDebug('sumUpUntil_inNode() {D.2}: beats: ' + beats + ' found:' + found);
       return { beats:beats, found:found };
     } else if (node_name === 'chord') {
-      Vex.LogDebug('sumUpUntil_inNode() {E}');
       var chord_dur = node.attr('dur'); 
       if (node.attr('xml:id')===eventid) {
-        Vex.LogDebug('sumUpUntil_inNode() {E}.{a}: beats:' + 0);
         return { beats:0, found:true };
       } else {        
-        Vex.LogDebug('sumUpUntil_inNode() {E}.{b}');
         //... or find the longest note in the chord ????
         var chord_dur = node.attr('dur'); 
         if (chord_dur) { 
-          Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{i}');
           if (node.find("[xml\\:id='" + eventid + "']")) {
-            Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{i}.{x}: beats:' + 0);
             return { beats:0, found:true };
           } else {
-            Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{i.2}: beats:' + MeiLib.dur2beats(chord_dur, meter));
             return { beats:MeiLib.dur2beats(chord_dur, meter), found:found };
           }        
         } else {
-          Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{ii.1}');
           var children = node.children();
           var found = false;
           for (var i=0; i<children.length && !found; ++i) {
-            Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{ii}.{A}');
             var subtotal = sumUpUntil_inNode(children[i]);
             beats = subtotal.beats;
             found = subtotal.found;
           }
-          Vex.LogDebug('sumUpUntil_inNode() {E}.{b}.{ii.2}: beats:' + beats.toString());
           return { beats:beats, found:found };            
         }
       };
@@ -381,7 +351,6 @@ MeiLib.sumUpUntil = function(eventid, layer, meter) {
   }
 
 
-  Vex.LogDebug('sumUpUntil() {1} looking for eventid: ' + eventid);
   return sumUpUntil_inNode(layer);  
 }
 
