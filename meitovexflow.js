@@ -65,13 +65,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
   
   var move_to_next_measure = function() {
     if (new_section) {
-      Vex.LogDebug('move_to_next_measure() {A}: measure_left=' + measure_left.toString() + 
-                   ' system_top=' + system_top.toString());
       nb_of_measures = 0;
       measure_left = 0;      
       new_section = false;
       system_break = false;
-      Vex.LogDebug('move_to_next_measure() {A}.{1}');
       $.each(staffInfoArray, function(i,staff_info) { 
         if (staff_info) {
           staff_info.renderWith.clef = true;
@@ -79,13 +76,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
           staff_info.renderWith.timesig = true;          
         }
       });
-      Vex.LogDebug('move_to_next_measure() {A}.{2}');
       // staffInfo.renderWith.clef = true;
       // staffInfo.renderWith.keysig = true;
       // staffInfo.renderWith.timesig = true;
     } else if (system_break) {
-      Vex.LogDebug('move_to_next_measure() {B}: measure_left=' + measure_left.toString() + 
-                   ' system_top=' + system_top.toString());
       nb_of_measures = 0;
       measure_left = 0;
       system_n += 1;
@@ -100,22 +94,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
         }
       });
     } else {
-      Vex.LogDebug('move_to_next_measure() {C}: measure_left=' + measure_left.toString() + 
-                   ' system_top=' + system_top.toString());
       if (measures[measures.length-1]) {
         var previous_measure = measures[measures.length-1][0];
 
-        Vex.LogDebug('move_to_next_measure() {C}.{a}: measures[measures.length-1]=' + measures[measures.length-1] + 
-                     ' previous_measure=' + previous_measure);
-
         measure_left = previous_measure.x + previous_measure.width;      
       } else {
-        Vex.LogDebug('move_to_next_measure() {C}.{b}');
         measure_left = 0;
       }
     }
-    Vex.LogDebug('move_to_next_measure() {end}: measure_left=' + measure_left.toString() + 
-                 ' system_top=' + system_top.toString());
   }
 
   var get_attr_value = function(element, attribute) {
@@ -191,9 +177,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
 
   var mei_dur2vex_dur = function(mei_dur) {
-    Vex.LogDebug('mei_dur2vex_dur() {}');
     mei_dur = String(mei_dur);
-    Vex.LogDebug('mei_dur2vex_dur() {1}');
     //if (mei_dur === 'long') return ;
     //if (mei_dur === 'breve') return ;
     if (mei_dur === '1') return 'w';
@@ -216,7 +200,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     //if (mei_dur === 'semiminima') return ;
     //if (mei_dur === 'fusa') return ;
     //if (mei_dur === 'semifusa') return ;
-    Vex.LogDebug('mei_dur2vex_dur() {2}');
     throw new Vex.RuntimeError('BadArguments', 'The MEI duration "' + mei_dur + '" is not supported.');
   };
 
@@ -303,12 +286,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var mei_staffdef2vex_timespec = function(mei_staffdef) {
-    Vex.LogDebug('mei_staffdef2vex_timespec() {}')
     if ($(mei_staffdef).attr('meter.count') !== undefined && $(mei_staffdef).attr('meter.unit') !== undefined) {
-      Vex.LogDebug('mei_staffdef2vex_timespec() {A}')
       return $(mei_staffdef).attr('meter.count') + '/' + $(mei_staffdef).attr('meter.unit');
     }
-    Vex.LogDebug('mei_staffdef2vex_timespec() {end}')
   };
 
   var initialise_score = function(canvas) {
@@ -344,7 +324,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   // Initialise staff #staff_n. Render necessary staff modifiers.
   //
   var initialise_staff_n = function(staff_n, width) {
-    Vex.LogDebug('initialise_staff_n() {1}');
     
     if (!staff_n) {
       throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArgument', 'Cannot render staff without attribute "n".')
@@ -354,61 +333,46 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
 //    var staffdef = staffInfo.staffDef(staff_n);
     var staffdef = staffInfoArray[staff_n].staffDef;
-    
-    Vex.LogDebug('initialise_staff_n() {2} measure_left: ' + measure_left+ ', staff_top_abs:' + staff_top_abs(staff_n) );
-    
+        
     if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
     
     var staff = new Vex.Flow.Stave(measure_left, staff_top_abs(staff_n), width);
     if (staffInfoArray[staff_n].renderWith.clef) {
-      Vex.LogDebug('initialise_staff_n() {2}.{A}' );
       staff.addClef(mei_staffdef2vex_clef(staffdef));
       staffInfoArray[staff_n].renderWith.clef = false;
     }
     if (staffInfoArray[staff_n].renderWith.keysig) {
-      Vex.LogDebug('initialise_staff_n() {2}.{B}' );
       if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
-        Vex.LogDebug('initialise_staff_n() {2}.{B}.{a}' );
         staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
       }
       staffInfoArray[staff_n].renderWith.keysig = false;
     }
     if (staffInfoArray[staff_n].renderWith.timesig) {
-      Vex.LogDebug('initialise_staff_n() {2}.{C}' );
       if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
-        Vex.LogDebug('initialise_staff_n() {2}.{C}.{a}' );
         staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
       }
       staffInfoArray[staff_n].renderWith.timesig = false;
     }
-    Vex.LogDebug('initialise_staff_n() {3}' );
     staff.setContext(context).draw();
     return staff;
   }
 
   var initialise_staff = function(staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
-    Vex.LogDebug('initialise_staff() {}')
     var staff = new Vex.Flow.Stave(left, top, width);
     if (with_clef === true) {
       staff.addClef(mei_staffdef2vex_clef(staffdef));
     }
-    Vex.LogDebug('initialise_staff() {1}')
     if (with_keysig === true) {
       if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
         staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
       }
     }
-    Vex.LogDebug('initialise_staff() {2}')
     if (with_timesig === true) {
-      Vex.LogDebug('initialise_staff() {A}')
       if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
-        Vex.LogDebug('initialise_staff() {A}.{a}')
         staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
       }
     }
-    Vex.LogDebug('initialise_staff() {3}')
     staff.setContext(context).draw();
-    Vex.LogDebug('initialise_staff() {end}')
     return staff;
   };
 
@@ -430,7 +394,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     $(ties).each(function(i, tie) {
       var f_note = notes_by_id[tie.getFirstId()];
       var l_note = notes_by_id[tie.getLastId()];
-      Vex.LogDebug('tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
       
       var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
       var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
@@ -444,7 +407,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     $(eventlinks).each(function(i, link) {
       var f_note = notes_by_id[link.getFirstId()];
       var l_note = notes_by_id[link.getLastId()];
-      Vex.LogDebug('vextie[' + link.getFirstId() + '...' + link.getLastId() + ']');
       
       var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
       var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
@@ -486,7 +448,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   *  Supported elements: measure, scoreDef, staffDef
   */
   var process_section_child = function(i, child) {
-    Vex.LogDebug('process_section_child() {}');
     switch ($(child).prop('localName')) {
       case 'measure': 
         extract_staves(child);
@@ -500,7 +461,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_scoreDef = function(scoredef) {
-    Vex.LogDebug('process_scoreDef() {}');
     $(scoredef).children().each(process_scoredef_child);
   }
 
@@ -515,7 +475,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   *  Supported elements: staffGrp
   */
   var process_scoredef_child = function(i, child) {
-    Vex.LogDebug('process_scoredef_child() {}');
     switch ($(child).prop('localName')) {
       case 'staffGrp': process_staffGrp(child); break;
       default: throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <scoreDef>');
@@ -523,7 +482,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_staffGrp = function(staffGrp) {
-    Vex.LogDebug('process_staffGrp() {}');
     $(staffGrp).children().each(process_staffGrp_child);
   }
   
@@ -536,7 +494,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   *  Supported elements: staffGrp, staffDef
   */
   var process_staffGrp_child = function(i, child) {
-    Vex.LogDebug('process_staffGrp_child() {}');
     switch ($(child).prop('localName')) {
       case 'staffDef': process_staffDef(child); break;
       case 'staffGrp': process_staffGrp(child); break;
@@ -545,7 +502,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_staffDef = function(staffDef) {
-    Vex.LogDebug('process_staffDef() {}');
     var staff_n = Number(staffDef.attrs().n);
     var staff_info = staffInfoArray[staff_n];
     if (staff_info) {
@@ -566,7 +522,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     //get current staffDef
     var staff_n = Number(staff_element.attrs().n);
-    Vex.LogDebug('staff_element.attrs().n=' + staff_element.attrs().n);
     staff = initialise_staff_n(staff_n, measure_width);
 
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
@@ -643,10 +598,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
       return tstamp2.substring(tstamp2.indexOf('+')+1);
     }
 
-    Vex.LogDebug('extract_ties(): {1}')
     var link_elements = $(measure).find(element_name);
     $.each(link_elements, function(i, lnkelem) {
-      Vex.LogDebug('extract_ties(): {1}.{a}')
       
       var eventLink = new MEI2VF.EventLink(null, null);    
       // find first reference value (id/tstamp) of eventLink:
@@ -711,31 +664,20 @@ MEI2VF.render_notation = function(score, target, width, height) {
     for(i=0; !found && i<ties.length;++i) {
       tie = ties[i];
       if (!tie.getLastId()) {
-        Vex.LogDebug('terminate_tie() {.1}: tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
         if (tie.linkCond === pname) {
-          Vex.LogDebug('terminate_tie() {A.1}');
           found=true;
           tie.setLastId(endid);
-          Vex.LogDebug('terminate_tie() {A.2}: tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');          
         } else {
           //in case there's no link condition set for the link, we have to retreive the pitch of the referenced note.
-          Vex.LogDebug('terminate_tie() {B.1}: pname:' + pname);
           var note_id = tie.getFirstId();
           if (note_id) {
             var note = notes_by_id[note_id];
-            Vex.LogDebug('terminate_tie() {B}.{a}: note:' + note);
-            if (note) Vex.LogDebug('terminate_tie() {B}.{a}: $(note.meiNote).attr("pname")' + $(note.meiNote).attr('pname'));
             if (note && $(note.meiNote).attr('pname') === pname) {
-              Vex.LogDebug('terminate_tie() {B}.{a}.{i.1}');
               found=true;
               tie.setLastId(endid);
-              Vex.LogDebug('terminate_tie() {B}.{a}.{i.2}: tie[' + tie.getFirstId() + '...' + tie.getLastId() + ']');
             }
-            Vex.LogDebug('terminate_tie() {B}.{a}: ');
           }        
-          Vex.LogDebug('terminate_tie() {B.2}: ');
         }
-        Vex.LogDebug('terminate_tie() {.2}');
       }
     };
     //if no tie object found that is uncomplete and with the same pitch, 
@@ -747,7 +689,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var terminate_slur = function(endid, nesting_level) {
-    Vex.LogDebug('terminate_slur() {}')
     var found=false
     var i=0; var slur;
     for(i=0; !found && i<slurs.length;++i) {
@@ -761,31 +702,22 @@ MEI2VF.render_notation = function(score, target, width, height) {
       var slr = new MEI2VF.EventLink(null, endid);
       slurs.push(slr);      
     }
-    Vex.LogDebug('terminate_slur() {end}')
   }
   
   var parse_slur_attribute = function(slur_str) {
-    Vex.LogDebug('parse_slur_attribute() {1} slur_str: "' + slur_str + '"');
     var result = []
     var numbered_tokens = slur_str.split(' ');
-    Vex.LogDebug('parse_slur_attribute() {2} numbered_tokens.length:' + numbered_tokens.length);
     $.each(numbered_tokens, function(i, numbered_token) {
-      Vex.LogDebug('parse_slur_attribute() {A.1}');
       var num;
-      Vex.LogDebug('parse_slur_attribute() {A.2}: ' + numbered_token.length);
       if (numbered_token.length === 1) {
-        Vex.LogDebug('parse_slur_attribute() {A}.{a}');
         result.push({ letter:numbered_token, nesting_level:0 })
       } else if (numbered_token.length===2) {
-        Vex.LogDebug('parse_slur_attribute() {A}.{b}');
         if ( !(num=Number(numbered_token[1])) ) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:ParseSlur01', "badly formed slur attribute")
         result.push({ letter:numbered_token[0], nesting_level:num });
       } else {
         throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:ParseSlur01', "badly formed slur attribute");
       }
-      Vex.LogDebug('parse_slur_attribute() {A.3}');
     });
-    Vex.LogDebug('parse_slur_attribute() {end}');
     return result;
   }
   
@@ -854,15 +786,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
       if (mei_slur) {
         //create a list of { letter, num }
         var tokens = parse_slur_attribute(mei_slur);
-        Vex.LogDebug('make_note() {mei_slur.1}');
         $.each(tokens, function(i, token) {
-          Vex.LogDebug('make_note() {mei_slur}.{a}');
           switch (token.letter) {
             case 'i': start_tieslur(xml_id, token.nesting_level, slurs); break;
             case 't': terminate_slur(xml_id, token.nesting_level); break;
           }
         });
-        Vex.LogDebug('make_note() {mei_slur.2}');
       } 
       
       
