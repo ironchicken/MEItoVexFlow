@@ -52,7 +52,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes_by_id = {};
   var ties = [];
   var slurs = [];
-  var unresolvedReferencesToMeasure = [];
+  var unresolvedTStamp2 = [];
   
   var SYSTEM_SPACE = 20;
   var system_top = 0;
@@ -547,6 +547,28 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var extract_events = function(i, layer, parent_staff_element, parent_measure) {
+    // check if there's an unresolved TStamp2 reference to this location (measure, staff, layer):
+    var measure_n = parent_measure.attrs().n;
+    if (!measure_n) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.extract_events:', '<measure> must have @n specified');
+    var staff_n = parent_staff_element.attrs().n; if (!staff_n) staff_n = "1";
+    var layer_n = layer.attrs().n; if (!layer_n) layer_n = "1";
+    var staffdef = staffInfoArray[staff_n].staffDef;
+    var refLocationIndex = measure_n + ':' + staff_n + ':' + layer_n;
+    Vex.LogDebug('extract_events() check if there\'s an unresolved TStamp2 reference at location [' + refLocationIndex + ']');
+    if (unresolvedTStamp2[refLocationIndex]) {
+      $(unresolvedTStamp2[refLocationIndex]).each(function(i, eventLink) {
+        Vex.LogDebug('extract_events() setting context for eventLink: [' + eventLink.getFirstId() + '...' + ']: refLocationIndex:' + refLocationIndex);
+        var count = $(staffdef).attr('meter.count');
+        var unit = $(staffdef).attr('meter.unit');
+        var meter = { count:Number(count), unit:Number(unit) };
+        eventLink.setContext( { layer:layer, meter:meter } );
+        Vex.LogDebug('extract_events() context set for eventLink: [' + eventLink.getFirstId() + '...' + eventLink.getLastId() + ']');
+        //TODO: remove eventLink from the list
+        unresolvedTStamp2[refLocationIndex][i] = null;
+      });
+      //at this point all references should be supplied with context.
+      unresolvedTStamp2[refLocationIndex] = null;
+    }
     // the calling context for this function is always a
     // map(extract_events).get() which will flatten the arrays
     // returned. Therefore, we wrap them up in an object to
@@ -628,10 +650,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
             eventLink.setLastTStamp(beat_partOf(tstamp2));
             //register that eventLink needs context;
             //need to save: measure.n, link.staff_n, link.layer_n
-            var stffinfo = link_staffInfo(lnkelem);
+            var staffinfo = link_staffInfo(lnkelem);
             var measure_n = measure.attrs().n;
-            if (!unresolvedReferencesToMeasure[measure_n]) unresolvedReferencesToMeasure[measure_n] = new Array();
-            unresolvedReferencesToMeasure[measure_n].push(eventLink);
+            var tartget_measure_n = Number(measure_n) + measures_ahead;
+            var refLocationIndex = tartget_measure_n.toString() + ':' + staffinfo.staff_n + ':' + staffinfo.layer_n;
+            if (!unresolvedTStamp2[refLocationIndex]) unresolvedTStamp2[refLocationIndex] = new Array();
+            Vex.LogDebug('extract_linkingElements() {..} adding eventLink to refLocationIndex:' + refLocationIndex);
+            unresolvedTStamp2[refLocationIndex].push(eventLink);
           } else {
             endid = local_tstamp2id(beat_partOf(tstamp2),lnkelem,measure);
             eventLink.setLastId(endid);

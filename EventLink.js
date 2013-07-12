@@ -45,10 +45,10 @@ MEI2VF.EventLink.prototype.setContext = function(meicontext) {
 }
 
 MEI2VF.EventLink.prototype.getFirstId = function () {
-    return this.first_ref.getId(this.meicontext);  
+    return this.first_ref.getId( { meicontext:this.meicontext } );  
 }
 
 MEI2VF.EventLink.prototype.getLastId = function () {
-    return this.last_ref.getId(this.meicontext);
+    return this.last_ref.getId( { meicontext:this.meicontext } );
 }
 

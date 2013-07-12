@@ -44,10 +44,10 @@
 									<note xml:id="v1e10" pname="b" oct="4" dur="4"/>
 								</layer>
 							</staff>
-							<tie staff="1" startid="v1e06" endid="v1e07" bulge="-1"/>
-							<tie staff="1" startid="v1e07" endid="v1e08" bulge="-1"/>
-							<tie staff="1" startid="v1e08" endid="v1e09" bulge="-1"/>
-							<tie staff="1" startid="v1e10" endid="v1e11" bulge="-1"/>
+							<tie staff="1" tstamp="1" tstamp2="0m+1.5"/>
+							<tie staff="1" tstamp="1.5" tstamp2="2.5"/>
+							<tie staff="1" tstamp="2.5" tstamp2="3.5"/>
+							<tie staff="1" tstamp="4.5" tstamp2="1m+1"/>
 						</measure>
 						<measure n="3">
 							<staff n="1">
