@@ -16,6 +16,13 @@ MEI2VF.EventLink = function(first_id, last_id, link_cond) {
   this.linkCond = link_cond;
 }
 
+/**
+ * @param hairpinparams is an object { place, form }.
+ */
+MEI2VF.EventLink.prototype.setHairpinParams = function (hairpinparams) {
+  this.hairpinParams = hairpinparams;
+}
+
 MEI2VF.EventLink.prototype.setFirstRef = function (first_ref) {
   this.first_ref = first_ref;
 }

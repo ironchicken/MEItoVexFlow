@@ -52,6 +52,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes_by_id = {};
   var ties = [];
   var slurs = [];
+  var hairpins = [];
   var unresolvedTStamp2 = [];
   
   var SYSTEM_SPACE = 20;
@@ -385,25 +386,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     $(score).find('section').children().each(process_section_child);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
-    //do ties now!
+    //do ties, slurs and hairpins now!
     render_vexTies(ties);
-//    $(score).find('slur').each(make_ties);
     render_vexTies(slurs);
-    $(score).find('hairpin').each(make_hairpins);
+    render_vexHairpins(hairpins);
   };
-
-  var render_ties = function() {
-    $(ties).each(function(i, tie) {
-      var f_note = notes_by_id[tie.getFirstId()];
-      var l_note = notes_by_id[tie.getLastId()];
-      
-      var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
-      var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
-      new Vex.Flow.StaveTie({
-        first_note: f_vexNote,
-        last_note: l_vexNote}).setContext(context).draw();
-    });
-  }
 
   var render_vexTies = function(eventlinks) {
     $(eventlinks).each(function(i, link) {
@@ -418,26 +405,27 @@ MEI2VF.render_notation = function(score, target, width, height) {
     });
   }
 
-  var make_hairpins = function(i, hp) {
-    //find first and last note
-    var f_note = null;
-    var l_note = null;
-    $(notes).each(function(i, note) {
-      if (note.id === $(hp).attr('startid')){ f_note = note.vexNote; }
-      if (note.id === $(hp).attr('endid')){ l_note = note.vexNote; }
+  var render_vexHairpins = function(hairpin_links) {
+    
+    $(hairpin_links).each(function(i, link) {
+      var f_note = notes_by_id[link.getFirstId()];
+      var l_note = notes_by_id[link.getLastId()];
+      
+      var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
+      var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
+      
+      var place = mei2vexflowTables.positions[link.hairpinParams.place];
+      var type = mei2vexflowTables.hairpins[link.hairpinParams.form];        
+      var l_ho = 0;
+      var r_ho = 0;
+      var hairpin_options = {height: 10, y_shift:0, left_shift_px:l_ho, r_shift_px:r_ho};
+  
+      new Vex.Flow.StaveHairpin({
+        first_note: f_vexNote,
+        last_note: l_vexNote,
+      }, type).setContext(context).setRenderOptions(hairpin_options).setPosition(place).draw();
     });
-    var place = mei2vexflowTables.positions[$(hp).attr('place')];
-    var type = mei2vexflowTables.hairpins[$(hp).attr('form')];        
-    var l_ho = 0;
-    var r_ho = 0;
-    var hairpin_options = {height: 10, y_shift:0, left_shift_px:l_ho, r_shift_px:r_ho};
-
-    new Vex.Flow.StaveHairpin({
-      first_note: f_note,
-      last_note: l_note,
-    }, type).setContext(context).setRenderOptions(hairpin_options).setPosition(place).draw();
-
-  }
+  } 
 
   /*  MEI element <section> may contain (MEI v2.1.0):
   *    MEI.cmn: measure
@@ -455,6 +443,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
         extract_staves(child);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
+        extract_linkingElements(child, 'hairpin', hairpins);
         break;
       case 'scoreDef': process_scoreDef(child); break;
       case 'staffDef': process_staffDef(child); break;
@@ -554,15 +543,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var layer_n = layer.attrs().n; if (!layer_n) layer_n = "1";
     var staffdef = staffInfoArray[staff_n].staffDef;
     var refLocationIndex = measure_n + ':' + staff_n + ':' + layer_n;
-    Vex.LogDebug('extract_events() check if there\'s an unresolved TStamp2 reference at location [' + refLocationIndex + ']');
     if (unresolvedTStamp2[refLocationIndex]) {
       $(unresolvedTStamp2[refLocationIndex]).each(function(i, eventLink) {
-        Vex.LogDebug('extract_events() setting context for eventLink: [' + eventLink.getFirstId() + '...' + ']: refLocationIndex:' + refLocationIndex);
         var count = $(staffdef).attr('meter.count');
         var unit = $(staffdef).attr('meter.unit');
         var meter = { count:Number(count), unit:Number(unit) };
         eventLink.setContext( { layer:layer, meter:meter } );
-        Vex.LogDebug('extract_events() context set for eventLink: [' + eventLink.getFirstId() + '...' + eventLink.getLastId() + ']');
         //TODO: remove eventLink from the list
         unresolvedTStamp2[refLocationIndex][i] = null;
       });
@@ -581,7 +567,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   /*
-  * Extract <tie> or <slur> elements and create tie (EventLink) obejcts
+  * Extract <tie>, <slur> or <hairpin> elements and create EventLink obejcts
   */
   var extract_linkingElements = function (measure, element_name, eventlink_container) {
 
@@ -623,8 +609,15 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var link_elements = $(measure).find(element_name);
     $.each(link_elements, function(i, lnkelem) {
       
-      var eventLink = new MEI2VF.EventLink(null, null);    
-      // find first reference value (id/tstamp) of eventLink:
+      var eventLink = new MEI2VF.EventLink(null, null);
+      if (element_name === 'hairpin') {
+        var form = lnkelem.attrs().form;
+        if (!form) throw new  MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:extract_linkingElements', '@form is mandatory in <hairpin> - make sure the xml is valid.');
+        var place = lnkelem.attrs().place;
+        eventLink.setHairpinParams( { form:form, place:place });
+      }
+      // find startid for eventLink. if tstamp is provided in the element, 
+      // tstamp will be calculated.
       var startid = lnkelem.attrs().startid;
       if(startid) {
         eventLink.setFirstId(startid);
@@ -655,7 +648,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
             var tartget_measure_n = Number(measure_n) + measures_ahead;
             var refLocationIndex = tartget_measure_n.toString() + ':' + staffinfo.staff_n + ':' + staffinfo.layer_n;
             if (!unresolvedTStamp2[refLocationIndex]) unresolvedTStamp2[refLocationIndex] = new Array();
-            Vex.LogDebug('extract_linkingElements() {..} adding eventLink to refLocationIndex:' + refLocationIndex);
             unresolvedTStamp2[refLocationIndex].push(eventLink);
           } else {
             endid = local_tstamp2id(beat_partOf(tstamp2),lnkelem,measure);
@@ -670,7 +662,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
     });
   }
-  
 
   var make_tieslur = function(startid, endid, container) {
     var eventLink = new MEI2VF.EventLink(startid, endid);
