@@ -40,8 +40,10 @@ MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
 }
 
 MEI2VF.render_notation = function(score, target, width, height) {
-  width = width || 800;
-  height = height || 350;
+  var width = width || 800;
+  var height = height || 350;
+  var n_measures = $(score).find('measure').get().length;
+  var measure_width = Math.round(width / n_measures);
 
   var context;
   var measures = [];
@@ -50,7 +52,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var notes_by_id = {};
   var ties = [];
   var slurs = [];
-  unresolvedReferencesToMeasure = [];
+  var unresolvedReferencesToMeasure = [];
   
   var SYSTEM_SPACE = 20;
   var system_top = 0;
@@ -516,8 +518,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var extract_layers = function(i, staff_element, parent_measure) {
-    var n_measures = $(score).find('measure').get().length;
-    var measure_width = Math.round(width / n_measures);
     var staff, left, top;
     
     //get current staffDef
