@@ -414,8 +414,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
       var f_vexNote; if (f_note) f_vexNote = f_note.vexNote;
       var l_vexNote; if (l_note) l_vexNote = l_note.vexNote;
       
-      var place = mei2vexflowTables.positions[link.hairpinParams.place];
-      var type = mei2vexflowTables.hairpins[link.hairpinParams.form];        
+      var place = mei2vexflowTables.positions[link.params.place];
+      var type = mei2vexflowTables.hairpins[link.params.form];        
       var l_ho = 0;
       var r_ho = 0;
       var hairpin_options = {height: 10, y_shift:0, left_shift_px:l_ho, r_shift_px:r_ho};
@@ -614,8 +614,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
         var form = lnkelem.attrs().form;
         if (!form) throw new  MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:extract_linkingElements', '@form is mandatory in <hairpin> - make sure the xml is valid.');
         var place = lnkelem.attrs().place;
-        eventLink.setHairpinParams( { form:form, place:place });
-      }
+        eventLink.setParams({ form:form, place:place });
+      } 
       // find startid for eventLink. if tstamp is provided in the element, 
       // tstamp will be calculated.
       var startid = lnkelem.attrs().startid;
@@ -669,7 +669,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var start_tieslur = function(startid, linkCond, container) {
-    var eventLink = new MEI2VF.EventLink(startid, null, linkCond);
+    var eventLink = new MEI2VF.EventLink(startid, null);
+    eventLink.setParams({linkCond:linkCond});
     container.push(eventLink);
   }
   
@@ -680,7 +681,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     for(i=0; !found && i<ties.length;++i) {
       tie = ties[i];
       if (!tie.getLastId()) {
-        if (tie.linkCond === pname) {
+        if (tie.params.linkCond === pname) {
           found=true;
           tie.setLastId(endid);
         } else {
@@ -709,7 +710,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var i=0; var slur;
     for(i=0; !found && i<slurs.length;++i) {
       var slr=slurs[i];
-      if (slr && !slr.getLastId() && slr.linkCond === nesting_level) {
+      if (slr && !slr.getLastId() && slr.params.linkCond === nesting_level) {
         found=true;
         slr.setLastId(endid);
       }

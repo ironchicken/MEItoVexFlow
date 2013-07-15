@@ -10,17 +10,21 @@
 * 
 */
 
-MEI2VF.EventLink = function(first_id, last_id, link_cond) {
-  this.first_ref = new MEI2VF.EventReference(first_id);
-  this.last_ref = new MEI2VF.EventReference(last_id);
-  this.linkCond = link_cond;
+MEI2VF.EventLink = function(first_id, last_id) {
+  this.init(first_id, last_id);
 }
 
+MEI2VF.EventLink.prototype.init = function(first_id, last_id) {
+  this.first_ref = new MEI2VF.EventReference(first_id);
+  this.last_ref = new MEI2VF.EventReference(last_id);
+}
 /**
- * @param hairpinparams is an object { place, form }.
+ * @param params is an object. for ties and slurs { linkCond } to indicate the linking condition when 
+ *               parsing from attributes (pitch name for ties, nesting level for slurs); for hairpins
+ *               params it is an object { place, form }
  */
-MEI2VF.EventLink.prototype.setHairpinParams = function (hairpinparams) {
-  this.hairpinParams = hairpinparams;
+MEI2VF.EventLink.prototype.setParams = function (params) {
+  this.params = params;
 }
 
 MEI2VF.EventLink.prototype.setFirstRef = function (first_ref) {
