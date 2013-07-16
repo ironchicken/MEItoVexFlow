@@ -104,7 +104,15 @@
 								</layer>
 							</staff>
 						</measure>
-						<scoreDef key.pname="c" key.mode="major" meter.count="3" meter.unit="4" />
+						<scoreDef key.pname="c" key.mode="major">
+							<staffGrp>
+								<staffDef n="1" label="Voice" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+								<staffGrp barthru="true">
+									<staffDef n="2" label="Right hand" clef.line="2" clef.shape="G" meter.count="3" meter.unit="4"/>
+									<staffDef n="3" label="Left hand" clef.line="4" clef.shape="F" meter.count="4" meter.unit="4"/>
+								</staffGrp>
+							</staffGrp>
+						</scoreDef>
 						<measure n="3">
 							<staff n="1">
 								<layer>
