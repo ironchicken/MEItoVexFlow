@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei">
+	<meiHead>
+		<fileDesc>
+			<titleStmt>
+				<title/>
+			</titleStmt>
+			<pubStmt/>
+		</fileDesc>
+	</meiHead>
+    <music>
+        <body>
+            <mdiv>
+                <score>
+                    <scoreDef>
+                        <staffGrp>
+                            <staffDef n="1" lines="5" clef.line="4" clef.shape="F" meter.count="4" meter.unit="4"/>
+                        </staffGrp>
+                    </scoreDef>
+                    <section>
+                        <measure n="1">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e01-0" pname="c" oct="3" dur="8"/>
+                                    <note xml:id="e01-1" pname="d" oct="3" dur="8"/>
+                                    <note xml:id="e02-0" pname="e" oct="3" dur="8"/>
+                                    <note xml:id="e02-1" pname="f" oct="3" dur="8"/>
+                                    <note xml:id="e03-0" pname="g" oct="3" dur="8"/>
+                                    <note xml:id="e03-1" pname="a" oct="3" dur="8"/>
+                                    <note xml:id="e04-0" pname="b" oct="3" dur="8"/>
+                                    <note xml:id="e04-1" pname="c" oct="4" dur="8"/>
+                                    <note xml:id="e04-2" pname="d" oct="4" dur="8"/>
+                                    <note xml:id="e04-3" pname="e" oct="4" dur="8"/>
+                                    <note xml:id="e04-4" pname="f" oct="4" dur="8"/>
+                                    <note xml:id="e04-5" pname="b" oct="2" dur="8"/>
+                                    <note xml:id="e04-6" pname="a" oct="2" dur="8"/>
+                                    <note xml:id="e04-7" pname="g" oct="2" dur="8"/>
+                                    <note xml:id="e04-8" pname="f" oct="2" dur="8"/>
+                                    <note xml:id="e04-9" pname="e" oct="2" dur="8"/>
+                                    <note xml:id="e04-10" pname="d" oct="2" dur="8"/>
+                                    <note xml:id="e04-11" pname="c" oct="2" dur="8"/>
+                                    <note xml:id="e04-12" pname="b" oct="1" dur="8"/>
+                                    <note xml:id="e04-5" pname="a" oct="1" dur="8"/>
+                                    <note xml:id="e04-5" pname="g" oct="1" dur="8"/>
+                                </layer>
+                            </staff>
+                        </measure>
+	                    <scoreDef>
+	                        <staffGrp>
+	                            <staffDef n="1" lines="5" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+	                        </staffGrp>
+	                    </scoreDef>
+                        <measure n="2">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e05-0" pname="c" oct="5" dur="4"/>
+                                    <note xml:id="e05-1" pname="d" oct="5" dur="4"/>
+                                    <note xml:id="e06-0" pname="e" oct="5" dur="4"/>
+                                    <note xml:id="e06-1" pname="f" oct="5" dur="4"/>
+                                    <note xml:id="e07-0" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e07-1" pname="a" oct="4" dur="4"/>
+                                    <note xml:id="e08-0" pname="g" oct="4" dur="4"/>
+                                    <note xml:id="e08-1" pname="f" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                        </measure>
+                        <sb/>
+                    </section>
+                </score>
+            </mdiv>
+        </body>
+    </music>
+</mei>

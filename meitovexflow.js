@@ -247,7 +247,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       if (clef === 'treble') {
         return (vex_key_cmp('a/5', mei_note2vex_key(mei_note)) === 1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
       } else if (clef === 'bass') {
-        return (vex_key_cmp('c/4', mei_note2vex_key(mei_note)) === -1) ? Vex.Flow.StaveNote.STEM_UP : Vex.Flow.StaveNote.STEM_DOWN;
+        return (vex_key_cmp('c/3', mei_note2vex_key(mei_note)) === -1) ? Vex.Flow.StaveNote.STEM_DOWN : Vex.Flow.StaveNote.STEM_UP;
       }
     }
   };
@@ -286,7 +286,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   };
 
   var staff_clef = function(staff_n) {
-    var staffdef = $(score).find('staffDef[n=' + staff_n + ']')[0];
+    if (staff_n>=staffInfoArray.length) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.staff_clef():E01', 'No staff definition for staff n=' + staff_n);
+    var staffdef = staffInfoArray[staff_n].staffDef;
+//    var staffdef = $(score).find('staffDef[n=' + staff_n + ']')[0];
     return mei_staffdef2vex_clef(staffdef);
   };
 

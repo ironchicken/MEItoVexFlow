@@ -26,15 +26,20 @@ MEI2VF.StaffInfo.prototype.look4changes = function (current_staffDef, new_staffD
   } else if (!current_staffDef && !new_staffDef) {
     throw new MEI2VF_RUNTIME_ERROR('BadArgument', 'Cannot compare two undefined staff definitions.')
   }
+  
   var cmp_attr = function(e1, e2, attr_name) { return $(e1).attr(attr_name) === $(e2).attr(attr_name) };
+  
   if (!cmp_attr(current_staffDef, new_staffDef, 'clef.shape') || !cmp_attr(current_staffDef, new_staffDef, 'clef.line')) {
     result.clef = true;
   } 
-  if (!cmp_attr(current_staffDef, new_staffDef, 'key.pname') || !cmp_attr(current_staffDef, new_staffDef, 'key.accid')) {
+  if (  (!cmp_attr(current_staffDef, new_staffDef, 'key.pname') || 
+         !cmp_attr(current_staffDef, new_staffDef, 'key.accid') || 
+         !cmp_attr(current_staffDef, new_staffDef) )
+     ) {
     result.keysig = true;
   } 
   if (!cmp_attr(current_staffDef, new_staffDef, 'meter.count') || !cmp_attr(current_staffDef, new_staffDef, 'meter.unit')) {
-    result.keysig = true;
+    result.timesig = true;
   }
   return result;
 }
