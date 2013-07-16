@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei">
+    <meiHead>
+        <fileDesc>
+            <titleStmt>
+                <title>MEItoVexFlow tests - System Break Test</title>
+            </titleStmt>
+            <pubStmt>
+                <respStmt>
+                    <resp>Prepared by:</resp>
+                    <persName>Raffaele Viglianti</persName>
+                    <persName>Zoltan Komives</persName>
+                </respStmt>
+            </pubStmt>
+            <sourceDesc>
+                <source>
+                    <titleStmt>
+                        <title>System Break Test</title>
+                    </titleStmt>
+                    <pubStmt>
+                        <distributor>VexFlow</distributor>
+                    </pubStmt>
+                    <notesStmt>
+                        <annot label="URL">http://vexflow.com/tests/</annot>
+                    </notesStmt>
+                </source>
+            </sourceDesc>
+        </fileDesc>
+        <revisionDesc>
+            <change n="1">
+                <respStmt>
+                    <persName>Raffaele Viglianti</persName>
+                </respStmt>
+                <changeDesc>
+                    <p>Manually encoded from VexFlow tests</p>
+                </changeDesc>
+                <date>2013-07-09</date>
+            </change>
+        </revisionDesc>
+    </meiHead>
+    <music>
+        <body>
+            <mdiv>
+                <score>
+                    <scoreDef>
+                        <staffGrp>
+                            <staffDef n="1" lines="5" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+                        </staffGrp>
+                    </scoreDef>
+                    <section>
+                        <measure n="1">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e01" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e02" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e03" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e04" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="4" mm.dots="1" mm="80"/>
+                        </measure>
+                        <measure n="2">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e05" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e06" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e07" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e08" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="8" mm.dots="2" mm="90"/>
+                        </measure>
+                        <sb/>
+                        <measure n="3">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e09" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e10" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e11" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e12" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="16" mm.dots="1" mm="96"/>
+                        </measure>
+                        <measure n="4">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e13" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e14" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e15" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e16" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="32" mm="70"/>
+                        </measure>
+                        <sb/>
+                        <measure n="5">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e17" pname="c" oct="4" dur="8"/>
+                                    <note xml:id="e18" pname="d" oct="4" dur="8"/>
+                                    <note xml:id="e19" pname="g" oct="4" dur="8"/>
+                                    <note xml:id="e20" pname="e" oct="5" dur="8"/>
+                                    <note xml:id="e21" pname="c" oct="4" dur="8"/>
+                                    <note xml:id="e22" pname="d" oct="4" dur="8"/>
+                                    <note xml:id="e23" pname="g" oct="4" dur="8"/>
+                                    <note xml:id="e24" pname="e" oct="4" dur="8"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1">Andante</tempo>
+                        </measure>
+                        <measure n="6">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e25" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e26" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e27" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e28" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="1" mm="80"/>
+                        </measure>
+                        <sb/>
+                        <measure n="7">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e29" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e30" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e31" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e32" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="2" mm="90"/>
+                        </measure>
+                        <measure n="8">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e33" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e34" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e35" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e36" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="4" mm="96"/>
+                        </measure>
+                        <sb/>
+                        <measure n="9">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e38" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e39" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e40" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e41" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1" mm.unit="8" mm="70"/>
+                        </measure>
+                        <measure n="10">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e42" pname="c" oct="4" dur="8"/>
+                                    <note xml:id="e43" pname="d" oct="4" dur="8"/>
+                                    <note xml:id="e44" pname="g" oct="4" dur="8"/>
+                                    <note xml:id="e45" pname="e" oct="5" dur="8"/>
+                                    <note xml:id="e46" pname="c" oct="4" dur="8"/>
+                                    <note xml:id="e47" pname="d" oct="4" dur="8"/>
+                                    <note xml:id="e48" pname="g" oct="4" dur="8"/>
+                                    <note xml:id="e49" pname="e" oct="4" dur="8"/>
+                                </layer>
+                            </staff>
+                            <tempo place="above" staff="1" tstamp="1">Andante grazioso</tempo>
+                        </measure>
+                    </section>
+                </score>
+            </mdiv>
+        </body>
+    </music>
+</mei>

@@ -70,6 +70,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
     if (new_section) {
       nb_of_measures = 0;
       measure_left = 0;      
+      system_n += 1;
+      system_top = bottom_most + SYSTEM_SPACE;
       new_section = false;
       system_break = false;
       $.each(staffInfoArray, function(i,staff_info) { 
@@ -314,7 +316,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   //
-  // The Y coordinate of staff #staff_n (within the current system)
+  // The Y coordinate of staff #staff_n (from the top of the canvas)
   //
   var staff_top_abs = function(staff_n){
     var result = system_top + staff_top_rel(staff_n);
@@ -334,7 +336,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     move_to_next_measure();
 
-//    var staffdef = staffInfo.staffDef(staff_n);
     var staffdef = staffInfoArray[staff_n].staffDef;
         
     if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
@@ -359,25 +360,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     staff.setContext(context).draw();
     return staff;
   }
-
-  var initialise_staff = function(staffdef, with_clef, with_keysig, with_timesig, left, top, width) {
-    var staff = new Vex.Flow.Stave(left, top, width);
-    if (with_clef === true) {
-      staff.addClef(mei_staffdef2vex_clef(staffdef));
-    }
-    if (with_keysig === true) {
-      if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
-        staff.addKeySignature(mei_staffdef2vex_keyspec(staffdef));
-      }
-    }
-    if (with_timesig === true) {
-      if ($(staffdef).attr('meter.rend') === 'norm' || $(staffdef).attr('meter.rend') === undefined) {
-        staff.addTimeSignature(mei_staffdef2vex_timespec(staffdef));
-      }
-    }
-    staff.setContext(context).draw();
-    return staff;
-  };
 
   var render_measure_wise = function() {
     var scoredef = $(score).find('scoreDef')[0];
@@ -447,8 +429,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
         break;
       case 'scoreDef': process_scoreDef(child); break;
       case 'staffDef': process_staffDef(child); break;
+      case 'sb': process_systemBreak(child); break;
       default: throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <section>');
     } 
+  }
+  
+  var process_systemBreak = function(sb) {
+    system_break = true;
   }
   
   var process_scoreDef = function(scoredef) {
