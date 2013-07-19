@@ -42,8 +42,8 @@ MEI2VF.RUNTIME_ERROR.prototype.toString = function() {
 MEI2VF.render_notation = function(score, target, width, height) {
   var width = width || 800;
   var height = height || 350;
-  var n_measures = $(score).find('measure').get().length;
-  var measure_width = Math.round(width / n_measures);
+  var n_measures; // = $(score).find('measure').get().length;
+  var measure_width;// = Math.round(width / n_measures);
 
   var context;
   var measures = [];
@@ -66,12 +66,30 @@ MEI2VF.render_notation = function(score, target, width, height) {
   
   var staffInfoArray = new Array();
   
-  var move_to_next_measure = function() {
+  var count_measures_siblings_till_sb = function(element) {
+    Vex.Log('count_measures_siblings_till_sb() {}');
+    if (element.length === 0) return 0;
+    switch ($(element).prop('localName')) {
+      case 'measure': return 1 + count_measures_siblings_till_sb( $(element).next());
+      case 'sb': return 0; 
+      default: return count_measures_siblings_till_sb($(element).next());
+    }
+  }
+  
+  var update_measure_width = function (measure) {
+    n_measures = count_measures_siblings_till_sb(measure);
+    measure_width = Math.round(width / n_measures);    
+    Vex.LogDebug('update_measure_width(): ' + n_measures + ', width:' + measure_width);
+  }
+  
+  var startSystem = function(measure) {
+    update_measure_width(measure);
+    Vex.LogDebug('startSystem() {enter}');
     if (new_section) {
       nb_of_measures = 0;
       measure_left = 0;      
       system_n += 1;
-      system_top = bottom_most + SYSTEM_SPACE;
+      system_top = bottom_most + SYSTEM_SPACE*(system_top>0?1:0);
       new_section = false;
       system_break = false;
       $.each(staffInfoArray, function(i,staff_info) { 
@@ -80,7 +98,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
           staff_info.renderWith.keysig = true;
           staff_info.renderWith.timesig = true;          
         }
-      });
+      });      
       // staffInfo.renderWith.clef = true;
       // staffInfo.renderWith.keysig = true;
       // staffInfo.renderWith.timesig = true;
@@ -98,17 +116,25 @@ MEI2VF.render_notation = function(score, target, width, height) {
           staff_info.renderWith.keysig = true;
         }
       });
-    } else {
+    }  
+  }
+  
+  var moveOneMeasure = function() {
       if (measures[measures.length-1]) {
-        var previous_measure = measures[measures.length-1][0];
+      var previous_measure = measures[measures.length-1][0];
 
-        measure_left = previous_measure.x + previous_measure.width;      
-      } else {
-        measure_left = 0;
-      }
+      measure_left = previous_measure.x + previous_measure.width;      
+      Vex.LogDebug('moveOneMeasure(): measure_left:' + measure_left);
+    } else {
+      measure_left = 0;
     }
   }
 
+  
+  var atStartSystem = function () {
+    return (new_section || system_break );
+  }
+  
   var get_attr_value = function(element, attribute) {
     var result = get_attr_value_opt(element, attribute);
     if (!result) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.MissingAttribute', 'Attribute ' + attribute + ' is mandatory.');
@@ -335,12 +361,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
     if (!staff_n) {
       throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArgument', 'Cannot render staff without attribute "n".')
     }
-    
-    move_to_next_measure();
-
-    var staffdef = staffInfoArray[staff_n].staffDef;
         
-    if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
+    var staffdef = staffInfoArray[staff_n].staffDef;
+    
+    //removed because it's an insufficient solution, and when system breaks are supported it would introduce new problems:
+    //if (staffInfoArray[staff_n].renderWith.clef || staffInfoArray[staff_n].renderWith.keysig || staffInfoArray[staff_n].renderWith.timesig) width += 30;
     
     var staff = new Vex.Flow.Stave(measure_left, staff_top_abs(staff_n), width);
     if (staffInfoArray[staff_n].renderWith.clef) {
@@ -367,7 +392,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var scoredef = $(score).find('scoreDef')[0];
     if (!scoredef) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadMEIFile', 'No <scoreDef> found.')
     process_scoreDef(scoredef);
-    
     $(score).find('section').children().each(process_section_child);
     $.each(beams, function(i, beam) { beam.setContext(context).draw(); });
     //do ties, slurs and hairpins now!
@@ -424,6 +448,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var process_section_child = function(i, child) {
     switch ($(child).prop('localName')) {
       case 'measure': 
+        if (atStartSystem()) { 
+          startSystem(child);
+        } else {
+          moveOneMeasure();
+        }
         extract_staves(child);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
@@ -492,7 +521,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var extract_staves = function(measure) {
-    measures.push($(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get());
+    measures.push( $(measure).find('staff').map(function(i, staff) { return extract_layers(i, staff, measure); }).get() );
   };
 
   var extract_layers = function(i, staff_element, parent_measure) {
@@ -663,26 +692,34 @@ MEI2VF.render_notation = function(score, target, width, height) {
     container.push(eventLink);
   }
   
-  var terminate_tie = function(endid, pname) {
-    if (!pname) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:TermTie01', 'no pitch specified for the tie');
+  var terminate_tie = function(endid, linkCond) {
+    
+    var cmpLinkCond = function (lc1, lc2) {
+      return (lc1 && lc2 && 
+              lc1.pname === lc2.pname && 
+              lc1.oct === lc2.oct && 
+              lc1.system === lc2.system);
+    }
+    
+    if (!linkCond.pname || !linkCond.oct) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments:TermTie01', 'no pitch or specified for the tie');
     var found=false
     var i; var tie;
     for(i=0; !found && i<ties.length;++i) {
       tie = ties[i];
       if (!tie.getLastId()) {
-        if (tie.params.linkCond === pname) {
+        if (cmpLinkCond(tie.params.linkCond, linkCond)) {
           found=true;
           tie.setLastId(endid);
         } else {
           //in case there's no link condition set for the link, we have to retreive the pitch of the referenced note.
-          var note_id = tie.getFirstId();
-          if (note_id) {
-            var note = notes_by_id[note_id];
-            if (note && $(note.meiNote).attr('pname') === pname) {
-              found=true;
-              tie.setLastId(endid);
-            }
-          }        
+          // var note_id = tie.getFirstId();
+          // if (note_id) {
+          //   var note = notes_by_id[note_id];
+          //   if (note && cmpLinkCond(tie.params.linkCond, linkCond)) {
+          //     found=true;
+          //     tie.setLastId(endid);
+          //   }
+          // }        
         }
       }
     };
@@ -694,12 +731,18 @@ MEI2VF.render_notation = function(score, target, width, height) {
     }
   }
   
-  var terminate_slur = function(endid, nesting_level) {
+  var terminate_slur = function(endid, linkCond) {
+    
+    var cmpLinkCond = function (lc1, lc2) {
+      return lc1.nesting_level === lc2.nesting_level && 
+             lc1.system === lc2.system;
+    }
+    
     var found=false
     var i=0; var slur;
     for(i=0; !found && i<slurs.length;++i) {
       var slr=slurs[i];
-      if (slr && !slr.getLastId() && slr.params.linkCond === nesting_level) {
+      if (slr && !slr.getLastId() && cmpLinkCond(slr.params.linkCond, linkCond)) {
         found=true;
         slr.setLastId(endid);
       }
@@ -781,10 +824,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
       if (!mei_tie) mei_tie = "";
       var pname = $(element).attr('pname');
       if (!pname) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments', 'mei:note must have pname attribute');
+      var oct = $(element).attr('oct');
+      if (!oct) throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.BadArguments', 'mei:note must have oct attribute');
       for (var i=0; i<mei_tie.length; ++i) {
         switch (mei_tie[i]) {
-          case 'i': start_tieslur(xml_id, pname, ties); break;
-          case 't': terminate_tie(xml_id, pname); break;
+          case 'i': start_tieslur(xml_id, {pname:pname, oct:oct, system:system_n}, ties); break;
+          case 't': terminate_tie(xml_id, {pname:pname, oct:oct, system:system_n}); break;
         }
       }
 
@@ -794,8 +839,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
         var tokens = parse_slur_attribute(mei_slur);
         $.each(tokens, function(i, token) {
           switch (token.letter) {
-            case 'i': start_tieslur(xml_id, token.nesting_level, slurs); break;
-            case 't': terminate_slur(xml_id, token.nesting_level); break;
+            case 'i': start_tieslur(xml_id, {nesting_level:token.nesting_level, system:system_n}, slurs); break;
+            case 't': terminate_slur(xml_id, {nesting_level:token.nesting_level, system:system_n}); break;
           }
         });
       } 

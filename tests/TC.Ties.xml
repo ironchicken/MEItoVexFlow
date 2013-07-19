@@ -61,6 +61,17 @@
 							<tie staff="1" startid="v1e13" endid="v1e14" bulge="-1"/>
 							<tie staff="1" startid="v1e15" bulge="-1"/>
 						</measure>
+						<measure n="4">
+							<staff n="1">
+								<layer>
+									<note xml:id="v1e16" pname="c" oct="5" dur="4"/>
+									<note xml:id="v1e17" pname="c" oct="4" dur="2" tie="i"/>
+									<note xml:id="v1e18" pname="c" oct="5" dur="2" tie="i"/>
+									<note xml:id="v1e19" pname="c" oct="4" dur="2" tie="t"/>
+									<note xml:id="v1e20" pname="c" oct="5" dur="4" tie="t"/>
+								</layer>
+							</staff>
+						</measure>
 					</section>
 				</score>
 			</mdiv>
