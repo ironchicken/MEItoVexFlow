@@ -783,9 +783,12 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
       //Build a note object that keeps the xml:id
 
-      // Sanity check
+      // If xml:id is missing, create it
       var xml_id = $(element).attr('xml:id');
-      if (!xml_id) throw new Vex.RuntimeError("BadArguments", "mei:note must have a xml:id attribute.");
+      if (!xml_id) {
+        xml_id = MeiLib.createPseudoUUID();
+        $(element).attr('xml:id', xml_id);
+      }
 
       var mei_tie = $(element).attr('tie'); 
       if (!mei_tie) mei_tie = "";
