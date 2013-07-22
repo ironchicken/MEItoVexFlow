@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei meiversion="2013" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" xmlns:mei="http://www.music-encoding.org/ns/mei">
+	<meiHead>
+		<fileDesc>
+			<titleStmt>
+				<title/>
+			</titleStmt>
+			<pubStmt/>
+		</fileDesc>
+	</meiHead>
+	<music>
+		<body>
+			<mdiv>
+				<score>
+					<scoreDef key.pname="c" key.mode="major">
+						<staffGrp>
+							<staffGrp barthru="false">
+								<staffDef n="1" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+							</staffGrp>
+						</staffGrp>
+					</scoreDef>
+					<section>
+						<measure n="1">
+							<staff n="1">
+								<layer>
+									<beam>
+										<note pname="a" oct="4" dur="8" slur="i1 i2"/>
+										<note pname="c" oct="4" dur="8" slur="m1 m2"/>
+										<note pname="e" oct="4" dur="8" slur="m1 m2"/>
+										<note pname="a" oct="4" dur="8" slur="t1 m2"/>
+									</beam>
+									<note pname="g" oct="4" dur="4" slur="i1 m2"/>
+									<note pname="f" oct="4" dur="4" slur="t1 t2"/>
+								</layer>
+							</staff>
+							<slur staff="1" tstamp="1" tstamp2="2m+4"/>
+						</measure>
+						<measure n="2">
+							<staff n="1">
+								<layer>
+									<beam>
+										<note pname="e" oct="4" dur="8"/>
+										<note pname="a" oct="3" dur="8"/>
+										<note pname="c" oct="4" dur="8"/>
+										<note pname="f" oct="4" dur="8"/>
+									</beam>
+									<note pname="e" oct="4" dur="4"/>
+									<note pname="d" oct="4" dur="4"/>
+								</layer>
+							</staff>
+							<slur staff="1" tstamp="1" tstamp2="2.5"/>
+							<slur staff="1" tstamp="3" tstamp2="4"/>
+							<slur staff="1" tstamp="1" tstamp2="4"/>
+						</measure>
+						<measure n="3">
+							<staff n="1">
+								<layer>
+									<beam>
+										<note pname="e" oct="4" dur="8"/>
+										<note pname="a" oct="3" dur="8"/>
+										<note pname="c" oct="4" dur="8"/>
+										<note pname="f" oct="4" dur="8"/>
+									</beam>
+									<note pname="e" oct="4" dur="4"/>
+									<note pname="d" oct="4" dur="4"/>
+								</layer>
+							</staff>
+							<slur staff="1" tstamp="1" tstamp2="2.5"/>
+							<slur staff="1" tstamp="3" tstamp2="4"/>
+							<slur staff="1" tstamp="1" tstamp2="4"/>
+						</measure>
+					</section>
+				</score>
+			</mdiv>
+		</body>
+	</music>
+</mei>

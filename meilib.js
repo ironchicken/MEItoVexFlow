@@ -20,6 +20,9 @@ MeiLib.RuntimeError.prototype.toString = function() {
   return 'MeiLib.RuntimeError: ' + this.errorcode + ': ' + this.message?this.message:"";
 }
 
+MeiLib.createPseudoUUID = function() {
+  return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).substr(-4)
+}
 
 /*
 * Enumerate over the children events of node (node is a layer or a beam)
@@ -186,10 +189,13 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
   } else {
     winner = evnt;
   } 
-  var xmlid;
-  xmlid = $(winner).attr('xml:id');
-  if (!xmlid) throw new MeiLib.RuntimeError('MeiLib.tstamp2id:E001', 'No xml:id specified for element ' + winner);
-  return xmlid;
+  var xml_id;
+  xml_id = $(winner).attr('xml:id');
+  if (!xml_id) {
+    xml_id = MeiLib.createPseudoUUID();
+    $(winner).attr('xml:id', xml_id);
+  }
+  return xml_id;
 }
 
 /*
