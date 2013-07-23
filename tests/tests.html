@@ -22,7 +22,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../StaffInfo.js"></script>
 		<script type="text/JavaScript" src="../StaveConnector.js"></script>
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
-		<script type="text/JavaScript" src="runtest.js"></script>		
+		<script type="text/JavaScript" src="runtest.js"></script>   
 		<script type="text/JavaScript">
 			var testItem_html = "<h2><span class='test-title' property='dc:title'>Title of Test Comes Here</span></h2><div class='a'><canvas width='1031' height='450' style='border: none'></canvas></div>"
 			Vex.LogLevel = 5;
@@ -53,8 +53,8 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "Hairpins (startid/endid tstamp/tstamp2)", mei_xml: 'TC.Hairpins.xml'});
 				test_cases.push({ title: "System breaks: two systems", mei_xml: 'TC.SystemBreak.01.xml'});
 				test_cases.push({ title: "System breaks: many systems", mei_xml: 'TC.SystemBreak.xml'});
-				test_cases.push({ title: "System breaks: multi-staff", mei_xml: 'TC.SystemBreak.02.xml'});				
-				test_cases.push({ title: "System breaks: ties, slurs", mei_xml: 'TC.SystemBreak.03.xml'});				
+				test_cases.push({ title: "System breaks: multi-staff", mei_xml: 'TC.SystemBreak.02.xml'});        
+				test_cases.push({ title: "System breaks: ties, slurs", mei_xml: 'TC.SystemBreak.03.xml'});        
 				test_cases.push({ title: "Changing StaffDef: Clef", mei_xml: 'TC.StaffChange.01.xml'});
 				test_cases.push({ title: "Changing StaffDef: Celf+Key", mei_xml: 'TC.StaffChange.02.xml'});
 				test_cases.push({ title: "Changing StaffDef: Meter", mei_xml: 'TC.StaffChange.03.xml'});
@@ -76,7 +76,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 					$('div.test-page').append(testItem_html);
 					
 					//...and load them into canvas_elements and title_elements arrays
-					canvas_elements[index] = $("div.a canvas")[index] 
+					canvas_elements[index] = $("div.a canvas")[index]
 					title_elements[index] = $("span.test-title")[index];
 				})
 				
