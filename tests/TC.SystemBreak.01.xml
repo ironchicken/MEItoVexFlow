@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei xmlns="http://www.music-encoding.org/ns/mei">
+    <meiHead>
+        <fileDesc>
+            <titleStmt>
+                <title>MEItoVexFlow tests - System Break Test</title>
+            </titleStmt>
+            <pubStmt>
+                <respStmt>
+                    <resp>Prepared by:</resp>
+                    <persName>Raffaele Viglianti</persName>
+                </respStmt>
+            </pubStmt>
+            <sourceDesc>
+                <source>
+                    <titleStmt>
+                        <title>System Break Test</title>
+                    </titleStmt>
+                    <pubStmt>
+                        <distributor>MEI-to-VexFlow</distributor>
+                    </pubStmt>
+                </source>
+            </sourceDesc>
+        </fileDesc>
+        <revisionDesc>
+            <change n="1">
+                <respStmt>
+                    <persName>Raffaele Viglianti</persName>
+                </respStmt>
+                <changeDesc>
+                    <p>Manually encoded from VexFlow tests</p>
+                </changeDesc>
+                <date>2013-07-09</date>
+            </change>
+            <change n="2">
+                <respStmt>
+		            <persName>Zoltan Komives</persName>
+                </respStmt>
+                <changeDesc>
+                    <p></p>
+                    <p>Added @xml:id to note elements</p>
+                    <p>Added @meter.count and @meter.unit to staffDef</p>
+                </changeDesc>
+                <date>2013-07-13</date>
+            </change>
+        </revisionDesc>
+    </meiHead>
+    <music>
+        <body>
+            <mdiv>
+                <score>
+                    <scoreDef>
+                        <staffGrp>
+                            <staffDef n="1" lines="5" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+                        </staffGrp>
+                    </scoreDef>
+                    <section>
+                        <measure n="1">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e01" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e02" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e03" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e04" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                        </measure>
+                        <sb/>
+                        <measure n="2">
+                            <staff n="1">
+                                <layer n="1">
+                                    <note xml:id="e05" pname="c" oct="4" dur="4"/>
+                                    <note xml:id="e06" pname="d" oct="4" dur="4"/>
+                                    <note xml:id="e07" pname="b" oct="4" dur="4"/>
+                                    <note xml:id="e08" pname="c" oct="4" dur="4"/>
+                                </layer>
+                            </staff>
+                        </measure>
+                        <sb/>
+                    </section>
+                </score>
+            </mdiv>
+        </body>
+    </music>
+</mei>

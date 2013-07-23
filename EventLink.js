@@ -17,6 +17,7 @@ MEI2VF.EventLink = function(first_id, last_id) {
 MEI2VF.EventLink.prototype.init = function(first_id, last_id) {
   this.first_ref = new MEI2VF.EventReference(first_id);
   this.last_ref = new MEI2VF.EventReference(last_id);
+  this.params = {};
 }
 /**
  * @param params is an object. for ties and slurs { linkCond } to indicate the linking condition when 
