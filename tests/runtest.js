@@ -3,7 +3,7 @@ MEI2VF.RunTest = function(test_case, canvas, titleElem){
 
   $(titleElem).html(test_case.title);
   var canvas_width = test_case.canvas_width ? test_case.canvas_width : 1031;
-  var canvas_height = test_case.canvas_height ? test_case.canvas_height : 180;
+  var canvas_height = test_case.canvas_height ? test_case.canvas_height : 200;
   $(canvas).attr('width', canvas_width);
   $(canvas).attr('height', canvas_height);
   var score_width = canvas_width - 50;
