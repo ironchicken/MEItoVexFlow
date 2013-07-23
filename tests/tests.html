@@ -29,10 +29,10 @@ version="HTML+RDFa 1.0" xml:lang="en">
 			$(document).ready(function(){
 				var test_cases = new Array();
 				
-				//add test cases
-				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'TC.Prokofiev.xml'});
-				test_cases.push({ title: 'Prokofiev Op. 36 (with prefixes)', mei_xml: 'TC.Prokofiev.pref.xml'});
-				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml'});
+				// add test cases
+				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'TC.Prokofiev.xml', canvas_height:400});
+				test_cases.push({ title: 'Prokofiev Op. 36 (with prefixes)', mei_xml: 'TC.Prokofiev.pref.xml', canvas_height:400});
+				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml', canvas_height:250});
 				test_cases.push({ title: 'KeySpec.01 - default pitch and mode [C major]', mei_xml: 'TC.KeySpec.01.xml'});
 				test_cases.push({ title: 'KeySpec.02 - supplied pitch, default accid and mode [G major]', mei_xml: 'TC.KeySpec.02.xml'});
 				test_cases.push({ title: 'KeySpec.03 - supplied pitch and accid, default mode [G-flat major]', mei_xml: 'TC.KeySpec.03.xml'});
@@ -51,10 +51,10 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "Slurs with @tstamp", mei_xml: 'TC.Slurs.TStamps.xml'});
 				test_cases.push({ title: "Slurs with @tstamp (no xml:ids)", mei_xml: 'TC.Slurs.TStamps.NoIDs.xml'});
 				test_cases.push({ title: "Hairpins (startid/endid tstamp/tstamp2)", mei_xml: 'TC.Hairpins.xml'});
-				test_cases.push({ title: "System breaks: two systems", mei_xml: 'TC.SystemBreak.01.xml'});
-				test_cases.push({ title: "System breaks: many systems", mei_xml: 'TC.SystemBreak.xml'});
-				test_cases.push({ title: "System breaks: multi-staff", mei_xml: 'TC.SystemBreak.02.xml'});        
-				test_cases.push({ title: "System breaks: ties, slurs", mei_xml: 'TC.SystemBreak.03.xml'});        
+				test_cases.push({ title: "System breaks: two systems", mei_xml: 'TC.SystemBreak.01.xml', canvas_height:250});
+				test_cases.push({ title: "System breaks: many systems", mei_xml: 'TC.SystemBreak.xml', canvas_height:600});
+				test_cases.push({ title: "System breaks: multi-staff", mei_xml: 'TC.SystemBreak.02.xml', canvas_width:1300, canvas_height:700});        
+				test_cases.push({ title: "System breaks: ties, slurs", mei_xml: 'TC.SystemBreak.03.xml', canvas_height:450});        
 				test_cases.push({ title: "Changing StaffDef: Clef", mei_xml: 'TC.StaffChange.01.xml'});
 				test_cases.push({ title: "Changing StaffDef: Celf+Key", mei_xml: 'TC.StaffChange.02.xml'});
 				test_cases.push({ title: "Changing StaffDef: Meter", mei_xml: 'TC.StaffChange.03.xml'});
@@ -62,7 +62,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "StaveConnector - brace", mei_xml: 'TC.MultiStave.02.xml'});
 				test_cases.push({ title: "StaveConnector - bracket", mei_xml: 'TC.MultiStave.03.xml'});
 				test_cases.push({ title: "StaveConnector - none", mei_xml: 'TC.MultiStave.04.xml'});
-				test_cases.push({ title: "StaveConnector - multiple", mei_xml: 'TC.MultiStave.05.xml'});
+				test_cases.push({ title: "StaveConnector - multiple", mei_xml: 'TC.MultiStave.05.xml', canvas_height:600 });
 				
 				
 				//Test cases that are supposed to generate error messages on the console:
