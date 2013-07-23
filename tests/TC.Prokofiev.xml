@@ -13,9 +13,9 @@
 			<mdiv>
 				<score>
 					<mei:scoreDef key.pname="c" key.mode="major">
-						<staffGrp>
+						<staffGrp symbol="line">
 							<staffDef n="1" label="Voice" clef.line="2" clef.shape="G" meter.count="6" meter.unit="8"/>
-							<staffGrp barthru="true">
+							<staffGrp barthru="true" symbol="brace">
 								<staffDef n="2" label="Right hand" clef.line="2" clef.shape="G" meter.count="6" meter.unit="8"/>
 								<staffDef n="3" label="Left hand" clef.line="4" clef.shape="F" meter.count="6" meter.unit="8"/>
 							</staffGrp>

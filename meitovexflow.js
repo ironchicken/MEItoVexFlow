@@ -50,14 +50,16 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var beams = [];
   var notes = [];
   var notes_by_id = {};
+  var staves_by_n = [];
   var ties = [];
   var slurs = [];
   var hairpins = [];
   var unresolvedTStamp2 = [];
   
   var SYSTEM_SPACE = 20;
+  var system_left = 20;
   var system_top = 0;
-  var measure_left = 0;
+  var measure_left = system_left;
   var bottom_most = 0;
   var system_n = 0;
   var nb_of_measures = 0; //number of measures already rendered in the current system;
@@ -65,6 +67,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var new_section = true;
   
   var staffInfoArray = new Array();
+  var staveConnectors = {};
   
   var count_measures_siblings_till_sb = function(element) {
     Vex.Log('count_measures_siblings_till_sb() {}');
@@ -78,7 +81,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   
   var update_measure_width = function (measure) {
     n_measures = count_measures_siblings_till_sb(measure);
-    measure_width = Math.round(width / n_measures);    
+    measure_width = Math.round( (width-system_left)/n_measures);    
     Vex.LogDebug('update_measure_width(): ' + n_measures + ', width:' + measure_width);
   }
   
@@ -87,7 +90,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     Vex.LogDebug('startSystem() {enter}');
     if (new_section) {
       nb_of_measures = 0;
-      measure_left = 0;      
+      measure_left = system_left;      
       system_n += 1;
       system_top = bottom_most + SYSTEM_SPACE*(system_top>0?1:0);
       new_section = false;
@@ -104,7 +107,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       // staffInfo.renderWith.timesig = true;
     } else if (system_break) {
       nb_of_measures = 0;
-      measure_left = 0;
+      measure_left = system_left;
       system_n += 1;
       system_top = bottom_most + SYSTEM_SPACE;
       system_break = false;
@@ -116,7 +119,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
           staff_info.renderWith.keysig = true;
         }
       });
-    }  
+    }
   }
   
   var moveOneMeasure = function() {
@@ -126,7 +129,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       measure_left = previous_measure.x + previous_measure.width;      
       Vex.LogDebug('moveOneMeasure(): measure_left:' + measure_left);
     } else {
-      measure_left = 0;
+      measure_left = system_left;
     }
   }
 
@@ -434,7 +437,22 @@ MEI2VF.render_notation = function(score, target, width, height) {
       }, type).setContext(context).setRenderOptions(hairpin_options).setPosition(place).draw();
     });
   } 
-
+  
+  var draw_stave_connectors = function() {
+    for (var first_last in staveConnectors) {
+      var staveConn = staveConnectors[first_last];
+      var vexType = staveConn.vexType();
+      var top_staff = staves_by_n[staveConn.top_staff_n];
+      var bottom_staff = staves_by_n[staveConn.bottom_staff_n];
+      if (vexType && top_staff && bottom_staff) {
+        var vexConnector = new Vex.Flow.StaveConnector(top_staff, bottom_staff);
+        vexConnector.setType(staveConn.vexType());
+        vexConnector.setContext(context);
+        vexConnector.draw();
+      }
+    }
+  }
+  
   /*  MEI element <section> may contain (MEI v2.1.0):
   *    MEI.cmn: measure
   *    MEI.critapp: app
@@ -448,12 +466,19 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var process_section_child = function(i, child) {
     switch ($(child).prop('localName')) {
       case 'measure': 
-        if (atStartSystem()) { 
+        var need_connectors;
+        if (atStartSystem()) {  
           startSystem(child);
+          need_connectors = true;
         } else {
           moveOneMeasure();
-        }
+          need_connectors = false;
+        } 
         extract_staves(child);
+        if (need_connectors) { 
+          draw_stave_connectors();
+          need_connectors = false;
+        }
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
         extract_linkingElements(child, 'hairpin', hairpins);
@@ -491,7 +516,21 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_staffGrp = function(staffGrp) {
-    $(staffGrp).children().each(process_staffGrp_child);
+    var result = {};
+    var symbol = staffGrp.attrs().symbol;
+    $(staffGrp).children().each(function (i, child) {
+      var local_result = process_staffGrp_child(i, child); 
+      Vex.LogDebug('process_staffGrp() {1}.{a}: local_result.first_n:' + local_result.first_n + ' local_result.last_n:'+local_result.last_n);
+      if (i === 0) { 
+        result.first_n = local_result.first_n;
+        result.last_n = local_result.last_n;        
+      } else { 
+        result.last_n = local_result.last_n; 
+      }
+    });
+    Vex.LogDebug('process_staffGrp() {2}: symbol:' + symbol + ' result.first_n:' + result.first_n + ' result.last_n:'+result.last_n);
+    staveConnectors[result.first_n.toString()+':'+result.last_n.toString()] = new MEI2VF.StaveConnector(symbol, result.first_n, result.last_n);
+    return result;
   }
   
   
@@ -504,10 +543,13 @@ MEI2VF.render_notation = function(score, target, width, height) {
   */
   var process_staffGrp_child = function(i, child) {
     switch ($(child).prop('localName')) {
-      case 'staffDef': process_staffDef(child); break;
-      case 'staffGrp': process_staffGrp(child); break;
+      case 'staffDef': 
+        var staff_n = process_staffDef(child); 
+        return {first_n:staff_n, last_n:staff_n};
+        break;
+      case 'staffGrp': return process_staffGrp(child); break;
       default: throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.NotSupported', 'Element <' + $(child).prop('localName') + '> is not supported in <staffGrp>');
-    }    
+    }
   }
   
   var process_staffDef = function(staffDef) {
@@ -518,6 +560,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     } else {
       staffInfoArray[staff_n] = new MEI2VF.StaffInfo(staffDef, true, true, true);
     }
+    return staff_n;
   }
   
   var extract_staves = function(measure) {
@@ -530,7 +573,6 @@ MEI2VF.render_notation = function(score, target, width, height) {
     //get current staffDef
     var staff_n = Number(staff_element.attrs().n);
     staff = initialise_staff_n(staff_n, measure_width);
-
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
       return extract_events(i, layer, staff_element, parent_measure); 
     }).get();
@@ -549,6 +591,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
     var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
     $.each(voices, function(i, voice) { voice.draw(context, staff);});
+
+    staves_by_n[staff_n] = staff;    
 
     return staff;
   };

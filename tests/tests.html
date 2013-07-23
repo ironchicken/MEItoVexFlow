@@ -20,6 +20,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../EventLink.js"></script>
 		<script type="text/JavaScript" src="../EventReference.js"></script>
 		<script type="text/JavaScript" src="../StaffInfo.js"></script>
+		<script type="text/JavaScript" src="../StaveConnector.js"></script>
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
 		<script type="text/JavaScript" src="runtest.js"></script>		
 		<script type="text/JavaScript">
@@ -57,6 +58,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "Changing StaffDef: Clef", mei_xml: 'TC.StaffChange.01.xml'});
 				test_cases.push({ title: "Changing StaffDef: Celf+Key", mei_xml: 'TC.StaffChange.02.xml'});
 				test_cases.push({ title: "Changing StaffDef: Meter", mei_xml: 'TC.StaffChange.03.xml'});
+				test_cases.push({ title: "StaveConnector - line", mei_xml: 'TC.MultiStave.01.xml'});
+				test_cases.push({ title: "StaveConnector - brace", mei_xml: 'TC.MultiStave.02.xml'});
+				test_cases.push({ title: "StaveConnector - bracket", mei_xml: 'TC.MultiStave.03.xml'});
+				test_cases.push({ title: "StaveConnector - none", mei_xml: 'TC.MultiStave.04.xml'});
+				test_cases.push({ title: "StaveConnector - multiple", mei_xml: 'TC.MultiStave.05.xml'});
 				
 				
 				//Test cases that are supposed to generate error messages on the console:
