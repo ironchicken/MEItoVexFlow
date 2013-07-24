@@ -68,6 +68,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   
   var staffInfoArray = new Array();
   var staveConnectors = {};
+  var staveVoices = new MEI2VF.StaveVoices();
   
   var count_measures_siblings_till_sb = function(element) {
     Vex.Log('count_measures_siblings_till_sb() {}');
@@ -474,11 +475,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
           moveOneMeasure();
           need_connectors = false;
         } 
+        staveVoices.reset();
         extract_staves(child);
         if (need_connectors) { 
           draw_stave_connectors();
           need_connectors = false;
         }
+        staveVoices.format(measure_width);
+        staveVoices.draw(context, staves_by_n);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
         extract_linkingElements(child, 'hairpin', hairpins);
@@ -580,17 +584,21 @@ MEI2VF.render_notation = function(score, target, width, height) {
     // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
     var vex_layer_events = [];
     $(layer_events).each( function() { 
-      vex_layer_events.push({ 
-        events : $(this.events).get().map( function(events) { 
+      var events = $(this.events).get().map( function(events) { 
           return events.vexNote ? events.vexNote : events; 
-        }), 
-        layer: this.layer
-      })
+      });
+      staveVoices.addVoice(make_voice(null, events), staff_n);
+      // vex_layer_events.push({ 
+        // events : $(this.events).get().map( function(events) { 
+          // return events.vexNote ? events.vexNote : events; 
+        // }), 
+        // layer: this.layer
+      // })
     });
 
-    var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
-    var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
-    $.each(voices, function(i, voice) { voice.draw(context, staff);});
+    // var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
+    // var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
+    // $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
     staves_by_n[staff_n] = staff;    
 
