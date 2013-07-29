@@ -57,7 +57,7 @@
 						<measure n="4">
 							<staff n="1">
 								<layer n="1">
-									<note xml:id="e03" pname="b" oct="4" dur="1" slur="i"/>
+									<note xml:id="e03" pname="b" oct="4" dur="1" slur="i1"/>
 								</layer>
 								<layer n="2">
 									<note xml:id="e03.2" pname="f" oct="4" dur="1"/>
@@ -68,7 +68,7 @@
 						<measure n="5">
 							<staff n="1">
 								<layer n="1">
-									<note xml:id="e04" pname="c" oct="4" dur="1" slur="t"/>
+									<note xml:id="e04" pname="c" oct="4" dur="1" slur="t1"/>
 								</layer>
 								<layer n="2">
 									<note xml:id="e04.2" pname="a" oct="3" dur="1"/>
