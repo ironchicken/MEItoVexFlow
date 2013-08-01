@@ -983,7 +983,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var element_type = $(element).prop("localName");
     if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mrest') {
+    } else if (element_type === 'mRest') {
       return make_mrest(element, parent_layer, parent_staff_element, parent_measure);
     } else if (element_type === 'note') {
       return make_note(element, parent_layer, parent_staff_element, parent_measure);
