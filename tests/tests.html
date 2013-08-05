@@ -21,6 +21,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../EventReference.js"></script>
 		<script type="text/JavaScript" src="../StaffInfo.js"></script>
 		<script type="text/JavaScript" src="../StaveConnector.js"></script>
+<!--    <script type="text/JavaScript" src="../build/meitovexflow-min.js"></script> -->
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
 		<script type="text/JavaScript" src="runtest.js"></script>   
 		<script type="text/JavaScript">
@@ -64,6 +65,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "StaveConnector - bracket", mei_xml: 'TC.MultiStave.03.xml'});
 				test_cases.push({ title: "StaveConnector - none", mei_xml: 'TC.MultiStave.04.xml'});
 				test_cases.push({ title: "StaveConnector - multiple", mei_xml: 'TC.MultiStave.05.xml', canvas_height:600 });
+				test_cases.push({ title: "Demo: Stave Connectors", mei_xml: 'Demo.StaveConnectors.xml', canvas_width:600, canvas_height:550 });
+				test_cases.push({ title: "Demo: Hairpins", mei_xml: 'Demo.Hairpins.Ravel.M2.xml', canvas_width:600, canvas_height:250 });
+				test_cases.push({ title: "Demo: Hairpins", mei_xml: 'Demo.Hairpins.Ravel.M1-4.xml', canvas_width:1000, canvas_height:250 });
+				test_cases.push({ title: "Demo: Changing time signature, meter and clef", mei_xml: 'Demo.StaffDefChanges.xml', canvas_width:800, canvas_height:250 });
+				test_cases.push({ title: "Demo: System Breaks", mei_xml: 'Demo.BachCPrelude.xml', canvas_width:1500, canvas_height:800 });
 				
 				
 				//Test cases that are supposed to generate error messages on the console:

@@ -56,7 +56,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var hairpins = [];
   var unresolvedTStamp2 = [];
   
-  var SYSTEM_SPACE = 20;
+  var SYSTEM_SPACE = 50;
   var system_left = 20;
   var system_top = 0;
   var measure_left = system_left;
