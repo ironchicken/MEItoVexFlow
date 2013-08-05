@@ -309,6 +309,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
       return 'treble';
     } else if (clef_shape === 'F' && (!clef_line || clef_line === '4') ) {
       return 'bass';
+    } else if (clef_shape === 'C' && clef_line === '3') {
+        return 'alto';
+    } else if (clef_shape === 'C' && clef_line === '4') {
+        return 'tenor';
     } else {
       throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.NotSupported', 'Clef definition is not supported: [ clef.shape="' + clef_shape + '" ' + (clef_line?('clef.line="' + clef_line + '"'):'') + ' ]' );
     }
