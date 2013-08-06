@@ -67,6 +67,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var new_section = true;
   
   var staffInfoArray = new Array();
+  var staffXShift = 0;
   var staveConnectors = {};
   var staveVoices = new MEI2VF.StaveVoices();
   
@@ -389,6 +390,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
       staffInfoArray[staff_n].renderWith.timesig = false;
     }
     staff.setContext(context).draw();
+    staffXShift = staff.barXShift;
+    Vex.LogDebug('initialise_staff_n(): staffXShift=' + staffXShift);
     return staff;
   }
 
@@ -481,7 +484,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
           draw_stave_connectors();
           need_connectors = false;
         }
-        staveVoices.format(measure_width);
+        staveVoices.format(measure_width-staffXShift);
         staveVoices.draw(context, staves_by_n);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
