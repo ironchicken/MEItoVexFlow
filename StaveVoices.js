@@ -32,9 +32,7 @@ MEI2VF.StaveVoices.prototype.format = function(width) {
   var voices = $.map(this.all_voices, function(staffVoice, i) {
     return staffVoice.voice;
   });
-  var formatter = new Vex.Flow.Formatter();
-  //formatter.joinVoices(voices).format(voices, width);
-  formatter.format(voices, width);
+  new Vex.Flow.Formatter().format(voices, width);
 }
 
 MEI2VF.StaveVoices.prototype.draw = function (context, staves) {

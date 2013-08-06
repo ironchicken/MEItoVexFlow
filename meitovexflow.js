@@ -591,17 +591,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
           return events.vexNote ? events.vexNote : events; 
       });
       staveVoices.addVoice(make_voice(null, events), staff_n);
-      // vex_layer_events.push({ 
-        // events : $(this.events).get().map( function(events) { 
-          // return events.vexNote ? events.vexNote : events; 
-        // }), 
-        // layer: this.layer
-      // })
     });
-
-    // var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
-    // var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
-    // $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
     staves_by_n[staff_n] = staff;    
 
