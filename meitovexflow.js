@@ -488,7 +488,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
           draw_stave_connectors();
           need_connectors = false;
         }
-        staveVoices.format(measure_width-staffXShift);
+        staveVoices.format(measure_width-staffXShift-20);
         staveVoices.draw(context, staves_by_n);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
