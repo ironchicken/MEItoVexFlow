@@ -22,6 +22,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../StaffInfo.js"></script>
 		<script type="text/JavaScript" src="../StaveConnector.js"></script>
 <!--    <script type="text/JavaScript" src="../build/meitovexflow-min.js"></script> -->
+		<script type="text/JavaScript" src="../StaveVoices.js"></script>
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
 		<script type="text/JavaScript" src="runtest.js"></script>   
 		<script type="text/JavaScript">
@@ -34,7 +35,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: 'Prokofiev Op. 36', mei_xml: 'TC.Prokofiev.xml', canvas_height:400});
 				test_cases.push({ title: 'Prokofiev Op. 36 (with prefixes)', mei_xml: 'TC.Prokofiev.pref.xml', canvas_height:400});
 				test_cases.push({ title: 'Bartok Duo No.23', mei_xml: 'Bartok-WeddingSong-altered.xml', canvas_height:500});
-				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml', canvas_height:250});
+				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.One-measure.xml', canvas_width:1100, canvas_height:450});
 				test_cases.push({ title: 'KeySpec.01 - default pitch and mode [C major]', mei_xml: 'TC.KeySpec.01.xml'});
 				test_cases.push({ title: 'KeySpec.02 - supplied pitch, default accid and mode [G major]', mei_xml: 'TC.KeySpec.02.xml'});
 				test_cases.push({ title: 'KeySpec.03 - supplied pitch and accid, default mode [G-flat major]', mei_xml: 'TC.KeySpec.03.xml'});
@@ -70,6 +71,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "Demo: Hairpins", mei_xml: 'Demo.Hairpins.Ravel.M1-4.xml', canvas_width:1000, canvas_height:250 });
 				test_cases.push({ title: "Demo: Changing time signature, meter and clef", mei_xml: 'Demo.StaffDefChanges.xml', canvas_width:800, canvas_height:250 });
 				test_cases.push({ title: "Demo: System Breaks", mei_xml: 'Demo.BachCPrelude.xml', canvas_width:1500, canvas_height:800 });
+				test_cases.push({ title: "Adjusting Voices", mei_xml: 'TC.StaveVoices.xml', canvas_height:400});
 				
 				
 				//Test cases that are supposed to generate error messages on the console:
