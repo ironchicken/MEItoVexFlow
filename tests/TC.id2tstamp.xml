@@ -83,11 +83,11 @@
 										<note xml:id="v1e27" pname="f" oct="4"/>
 										<note xml:id="v1e28" pname="b" oct="4"/>
 									</chord>
-									<note xml:id="v1e32" pname="c" oct="5" dur="4"/>
+									<note xml:id="v1e29" pname="c" oct="5" dur="4"/>
 									<chord>
-										<note xml:id="v1e29" pname="g" oct="3" dur="4"/>
-										<note xml:id="v1e30" pname="e" oct="4" dur="4"/>
-										<note xml:id="v1e31" pname="c" oct="5" dur="4"/>
+										<note xml:id="v1e30" pname="g" oct="3" dur="4"/>
+										<note xml:id="v1e31" pname="e" oct="4" dur="4"/>
+										<note xml:id="v1e32" pname="c" oct="5" dur="4"/>
 									</chord>
 								</layer>
 							</staff>

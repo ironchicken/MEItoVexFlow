@@ -336,7 +336,7 @@ MeiLib.sumUpUntil = function(eventid, layer, meter) {
         //... or find the longest note in the chord ????
         var chord_dur = node.attr('dur'); 
         if (chord_dur) { 
-          if (node.find("[xml\\:id='" + eventid + "']")) {
+          if (node.find("[xml\\:id='" + eventid + "']").length) {
             return { beats:0, found:true };
           } else {
             return { beats:MeiLib.dur2beats(chord_dur, meter), found:found };

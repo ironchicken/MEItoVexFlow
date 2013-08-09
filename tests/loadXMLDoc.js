@@ -8,5 +8,7 @@ function loadXMLDoc(xmlDoc) {
   }
   xmlhttp.open("GET",xmlDoc,false);
   xmlhttp.send();
-  return xmlhttp.responseXML;
+  var result = xmlhttp.responseXML; 
+  if (!result) throw "Error loading xml document: '" + xmlDoc + "' cannot be loaded!"
+  return result;
 }

@@ -5,31 +5,32 @@ MeiLibTest = function(){
   var mei_xml = 'TC.tstamp2id.xml'
   //load the xml file...
   xmlDoc=loadXMLDoc(mei_xml);
-  if (xmlDoc) { 
-    console.log('MEI-XML loaded.'); 
-  } else {
-    //TODO: throw exception
-  }
+  console.log('MEI-XML loaded.'); 
 
-  //... and render it onto the canvas
   var score = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   console.log('Start');
 
   Vex.LogLevel = 4;
 
+  console.log('******************************************************************');
+  console.log('********* TEST: id2tstamp() **************************************');
+  var id2ts_xmlDoc = loadXMLDoc('TC.id2tstamp.xml');
+  console.log('MEI-XML loaded.'); 
+  var id2ts_score = id2ts_xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
 
   var context = [];
   var meter = { count:4, unit:4};
-  // $(score).find('layer').each(function(i, layer) {
-  //   context.push({layer:layer, meter:meter});
-  // });  
-  // 
-  // for (var i=32; i<=32; ++i) {
-  //   var id = 'v1e' + ((i<10)?'0':'') + i.toString();
-  //   console.log(id + ': ' + MeiLib.id2tstamp(id, context));
-  // }
+  $(id2ts_score).find('layer').each(function(i, layer) {
+    context.push({layer:layer, meter:meter});
+  });  
+  
+  for (var i=1; i<=32; ++i) {
+    var id = 'v1e' + ((i<10)?'0':'') + i.toString();
+    console.log(id + ': ' + MeiLib.id2tstamp(id, context));
+  }
   
 
+  console.log('******************************************************************');
   console.log('********* TEST: EventEnumerator and durationOf() ****************');
   
   $(score).find('layer').each(function(i, layer) {
