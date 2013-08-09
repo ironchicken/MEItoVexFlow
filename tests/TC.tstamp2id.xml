@@ -69,7 +69,7 @@
 										<note xml:id="v1e19" pname="c" oct="4" dur="16"/>
 									</beam>
 									<rest xml:id="v1e20" dur="8"/>
-									<chord xml:id="v1e:ch21-23">
+									<chord xml:id="v1e-ch21-23">
 										<note xml:id="v1e21" pname="a" oct="3" dur="8"/>
 										<note xml:id="v1e22" pname="f" oct="4" dur="8"/>
 										<note xml:id="v1e23" pname="c" oct="5" dur="8"/>
@@ -82,14 +82,14 @@
 							<staff n="1">
 								<layer>
 									<rest xml:id="v1e25" dur="8"/>
-									<chord xml:id="v1e:ch26-28" dur="8">
+									<chord xml:id="v1e-ch26-28" dur="8">
 										<note xml:id="v1e26" pname="g" oct="3"/>
 										<note xml:id="v1e27" pname="f" oct="4"/>
 										<note xml:id="v1e28" pname="b" oct="4"/>
 									</chord>
 									<note xml:id="v1e32" pname="c" oct="5" dur="4"/>
 									<space xml:id="v1e33" dur="4"/>
-									<chord xml:id="v1e:ch29-31">
+									<chord xml:id="v1e-ch29-31">
 										<note xml:id="v1e29" pname="g" oct="3" dur="4" layer="2"/>
 										<note xml:id="v1e30" pname="e" oct="4" dur="8"/>
 										<note xml:id="v1e31" pname="c" oct="5" dur="8"/>

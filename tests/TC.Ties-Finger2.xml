@@ -194,7 +194,7 @@
                                 <layer n="5">
                                     <rest xml:id="t2er13"  dur="2"/>
                                     <rest xml:id="t2er14"  dur="8"/>
-                                    <note xml:id="t2e01" dur="4" dots="1" pname="f" accid.ges="s" oct="2"/>
+                                    <note xml:id="t2e38" dur="4" dots="1" pname="f" accid.ges="s" oct="2"/>
                                 </layer>
                             </staff>
               <!-- x-layer tie -->

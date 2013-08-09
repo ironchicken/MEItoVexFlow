@@ -40,8 +40,8 @@
                                     <note xml:id="e04-10" pname="d" oct="2" dur="8"/>
                                     <note xml:id="e04-11" pname="c" oct="2" dur="8"/>
                                     <note xml:id="e04-12" pname="b" oct="1" dur="8"/>
-                                    <note xml:id="e04-5" pname="a" oct="1" dur="8"/>
-                                    <note xml:id="e04-5" pname="g" oct="1" dur="8"/>
+                                    <note xml:id="e04-13" pname="a" oct="1" dur="8"/>
+                                    <note xml:id="e04-14" pname="g" oct="1" dur="8"/>
                                 </layer>
                             </staff>
                         </measure>

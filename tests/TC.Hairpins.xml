@@ -53,7 +53,7 @@
 							<slur staff="1" tstamp="3" tstamp2="4"/>
 							<slur staff="1" tstamp="1" tstamp2="4"/>
 							<hairpin xml:id="v1_lnk03" startid="v1e07" tstamp2="2.5" form="cres" place="below" staff="1"/>
-							<hairpin xml:id="v1_lnk03" tstamp="3" tstamp2="1m+4" form="dim" staff="1"/>
+							<hairpin xml:id="v1_lnk04" tstamp="3" tstamp2="1m+4" form="dim" staff="1"/>
 						</measure>
 						<measure n="3">
 							<staff n="1">

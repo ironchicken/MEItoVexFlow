@@ -56,7 +56,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var hairpins = [];
   var unresolvedTStamp2 = [];
   
-  var SYSTEM_SPACE = 20;
+  var SYSTEM_SPACE = 50;
   var system_left = 20;
   var system_top = 0;
   var measure_left = system_left;
@@ -67,7 +67,9 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var new_section = true;
   
   var staffInfoArray = new Array();
+  var staffXShift = 0;
   var staveConnectors = {};
+  var staveVoices = new MEI2VF.StaveVoices();
   
   var count_measures_siblings_till_sb = function(element) {
     Vex.Log('count_measures_siblings_till_sb() {}');
@@ -309,6 +311,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
       return 'treble';
     } else if (clef_shape === 'F' && (!clef_line || clef_line === '4') ) {
       return 'bass';
+    } else if (clef_shape === 'C' && clef_line === '3') {
+        return 'alto';
+    } else if (clef_shape === 'C' && clef_line === '4') {
+        return 'tenor';
     } else {
       throw new MEI2VF.RUNTIME_ERROR('MEI2VF.RERR.NotSupported', 'Clef definition is not supported: [ clef.shape="' + clef_shape + '" ' + (clef_line?('clef.line="' + clef_line + '"'):'') + ' ]' );
     }
@@ -388,6 +394,8 @@ MEI2VF.render_notation = function(score, target, width, height) {
       staffInfoArray[staff_n].renderWith.timesig = false;
     }
     staff.setContext(context).draw();
+    staffXShift = staff.barXShift;
+    Vex.LogDebug('initialise_staff_n(): staffXShift=' + staffXShift);
     return staff;
   }
 
@@ -474,11 +482,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
           moveOneMeasure();
           need_connectors = false;
         } 
+        staveVoices.reset();
         extract_staves(child);
         if (need_connectors) { 
           draw_stave_connectors();
           need_connectors = false;
         }
+        staveVoices.format(measure_width-staffXShift-20);
+        staveVoices.draw(context, staves_by_n);
         extract_linkingElements(child, 'tie', ties);
         extract_linkingElements(child, 'slur', slurs);
         extract_linkingElements(child, 'hairpin', hairpins);
@@ -580,17 +591,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
     // rebuild object by extracting vexNotes before rendering the voice TODO: put in independent function??
     var vex_layer_events = [];
     $(layer_events).each( function() { 
-      vex_layer_events.push({ 
-        events : $(this.events).get().map( function(events) { 
+      var events = $(this.events).get().map( function(events) { 
           return events.vexNote ? events.vexNote : events; 
-        }), 
-        layer: this.layer
-      })
+      });
+      staveVoices.addVoice(make_voice(null, events), staff_n);
     });
-
-    var voices = $.map(vex_layer_events, function(events) { return make_voice(null, events.events); });
-    var formatter = new Vex.Flow.Formatter().joinVoices(voices).format(voices, measure_width).formatToStave(voices, staff);
-    $.each(voices, function(i, voice) { voice.draw(context, staff);});
 
     staves_by_n[staff_n] = staff;    
 
@@ -983,7 +988,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     var element_type = $(element).prop("localName");
     if (element_type === 'rest') {
       return make_rest(element, parent_layer, parent_staff_element, parent_measure);
-    } else if (element_type === 'mrest') {
+    } else if (element_type === 'mRest') {
       return make_mrest(element, parent_layer, parent_staff_element, parent_measure);
     } else if (element_type === 'note') {
       return make_note(element, parent_layer, parent_staff_element, parent_measure);
