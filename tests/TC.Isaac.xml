@@ -6,15 +6,15 @@
 				<title/>
 			</titleStmt>
 			<pubStmt/>
-				<sourceDesc>
-						<source xml:id="A"></source>
-						<source xml:id="BQ18"></source>
-						<source xml:id="FC2439"></source>
-						<source xml:id="Lo31922"></source>
-						<source xml:id="SG461"></source>
-						<source xml:id="CF59"></source>
-						<source xml:id="HK17"></source>
-				</sourceDesc>
+			<sourceDesc>
+				<source xml:id="A"></source>
+				<source xml:id="BQ18"></source>
+				<source xml:id="FC2439"></source>
+				<source xml:id="Lo31922"></source>
+				<source xml:id="SG461"></source>
+				<source xml:id="CF59"></source>
+				<source xml:id="HK17"></source>
+			</sourceDesc>
 		</fileDesc>
 	</meiHead>
 	<music>
