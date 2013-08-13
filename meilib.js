@@ -10,6 +10,7 @@
 
 
 var MeiLib = {};
+var MeiLib.JSON = {};
 
 MeiLib.RuntimeError = function (errorcode, message) {
   this.errorcode = errorcode;
@@ -87,6 +88,28 @@ MeiLib.EventEnumerator.prototype.step_ahead = function () {
   }
 }
 
+
+/*
+ * Find the event with the minimum distance from the location tstamp refers to.
+ * 
+ * @param meiHead is an XML DOM object, containing the <meiHead> element
+ * @return a container of all <source> elements, stored as strings and indexed by xml:id
+ */
+MeiLib.parseSourceList = function(meiHead) {
+  var srcs = $(meiHead).find('sourceDesc').children();
+  console.log(srcs.length);
+  var sources = {};
+  $.map(srcs, function (src, i) { 
+    var xml_id = $(src).attr('xml:id');
+    var serializer = new XMLSerializer();
+    sources[xml_id] = serializer.serializeToString(src);;
+  });
+  return sources;
+}
+
+MeiLib.JSON.parseSourceList = function (meiHead) {
+  return JSON.stringify(MeiLib.parseSourceList(meiHead));
+}
 
 
 /*
