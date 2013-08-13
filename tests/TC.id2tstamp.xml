@@ -92,6 +92,25 @@
 								</layer>
 							</staff>
 						</measure>
+						<measure n="5">
+							<staff n="1">
+								<layer>
+									<rest xml:id="v1e33" dur="8" dots="1"/>
+									<chord dur="16">
+										<note xml:id="v1e34" pname="g" oct="3"/>
+										<note xml:id="v1e35" pname="f" oct="4"/>
+										<note xml:id="v1e36" pname="b" oct="4"/>
+									</chord>
+									<note xml:id="v1e37" pname="c" oct="5" dur="4" dots="2"/>
+									<chord>
+										<note xml:id="v1e38" pname="g" oct="3" dur="16"/>
+										<note xml:id="v1e39" pname="e" oct="4" dur="16"/>
+										<note xml:id="v1e40" pname="c" oct="5" dur="16"/>
+									</chord>
+									<rest xml:id="v1e41" dur="4"/>
+								</layer>
+							</staff>
+						</measure>
 					</section>
 				</score>
 			</mdiv>

@@ -10,7 +10,7 @@ MeiLibTest = function(){
   var score = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   console.log('Start');
 
-  Vex.LogLevel = 4;
+  Vex.LogLevel = 5;
 
   console.log('******************************************************************');
   console.log('********* TEST: id2tstamp() **************************************');
@@ -24,7 +24,7 @@ MeiLibTest = function(){
     context.push({layer:layer, meter:meter});
   });  
   
-  for (var i=1; i<=32; ++i) {
+  for (var i=1; i<=41; ++i) {
     var id = 'v1e' + ((i<10)?'0':'') + i.toString();
     console.log(id + ': ' + MeiLib.id2tstamp(id, context));
   }
@@ -32,7 +32,7 @@ MeiLibTest = function(){
 
   console.log('******************************************************************');
   console.log('********* TEST: EventEnumerator and durationOf() ****************');
-  
+  context = [];
   $(score).find('layer').each(function(i, layer) {
     console.log('<<<<measure ' + (i+1).toString());
     context.push({layer:layer, meter:meter});
@@ -48,7 +48,7 @@ MeiLibTest = function(){
   
   console.log('******************************************************************');
   console.log('********* TEST: tstamp2id() **************************************');
-  
+  context = [];
   $(score).find('layer').each(function(i, layer) {
     context.push({layer:layer, meter:meter});
   });
@@ -58,7 +58,9 @@ MeiLibTest = function(){
     tstamp2id:[ { name:'TEST: simple', measure:1 }, 
                 { name:'TEST: with beams', measure:2 }, 
                 { name:'TEST: mRest', measure:3 },
-                { name:'TEST: chords', measure:5 } ]
+                { name:'TEST: beams and chord', measure:4 },
+                { name:'TEST: chords', measure:5 },
+                { name:'TEST: dots', measure:6 } ]
   }
 
   for (var k=0; k<TCs.tstamp2id.length; ++k) {

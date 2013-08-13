@@ -87,12 +87,31 @@
 										<note xml:id="v1e27" pname="f" oct="4"/>
 										<note xml:id="v1e28" pname="b" oct="4"/>
 									</chord>
-									<note xml:id="v1e32" pname="c" oct="5" dur="4"/>
-									<space xml:id="v1e33" dur="4"/>
+									<note xml:id="v1e29" pname="c" oct="5" dur="4"/>
+									<space xml:id="v1e30" dur="4"/>
 									<chord xml:id="v1e-ch29-31">
-										<note xml:id="v1e29" pname="g" oct="3" dur="4" layer="2"/>
-										<note xml:id="v1e30" pname="e" oct="4" dur="8"/>
-										<note xml:id="v1e31" pname="c" oct="5" dur="8"/>
+										<note xml:id="v1e31" pname="g" oct="3" dur="4" layer="2"/>
+										<note xml:id="v1e32" pname="e" oct="4" dur="8"/>
+										<note xml:id="v1e33" pname="c" oct="5" dur="8"/>
+									</chord>
+								</layer>
+							</staff>
+						</measure>
+						<measure n="6">
+							<staff n="1">
+								<layer>
+									<rest xml:id="v1e34" dur="8" dots="1"/>
+									<chord xml:id="v1e-ch35-37" dur="16">
+										<note xml:id="v1e35" pname="g" oct="3"/>
+										<note xml:id="v1e36" pname="f" oct="4"/>
+										<note xml:id="v1e37" pname="b" oct="4"/>
+									</chord>
+									<note xml:id="v1e38" pname="c" oct="5" dur="4" dots="2"/>
+									<space xml:id="v1e39" dur="16"/>
+									<chord xml:id="v1e-ch40-42">
+										<note xml:id="v1e40" pname="g" oct="3" dur="8" layer="2"/>
+										<note xml:id="v1e41" pname="e" oct="4" dur="4"/>
+										<note xml:id="v1e42" pname="c" oct="5" dur="4"/>
 									</chord>
 								</layer>
 							</staff>
