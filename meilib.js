@@ -99,24 +99,30 @@ MeiLib.durationOf = function (evnt, meter) {
   }
 
   var durationOf_SimpleEvent = function(simple_evnt, meter) {
-    var dur = $(evnt).attr('dur');
-    if (!dur) throw new MeiLib.RuntimeError('MeiLib.durationOf:E04', '@dur of <note> or <rest> must be specified.');
-    return MeiLib.dur2beats(Number(dur), meter);    
+    var dur = $(simple_evnt).attr('dur');
+    if (!dur) throw new MeiLib.RuntimeError('MeiLib.durationOf:E04', '@dur of <note>, <rest> or <space> must be specified.');
+    return MeiLib.dotsMult(simple_evnt) * MeiLib.dur2beats(Number(dur), meter);    
   }
   
   var durationOf_Chord = function(chord, meter, layer_no) {
     if (!layer_no) layer_no = "1";
     var dur = $(chord).attr('dur');
-    if (dur) return MeiLib.dur2beats(Number(dur), meter);
+    var dotsMult = MeiLib.dotsMult(chord);
+    if (dur) return dotsMult * MeiLib.dur2beats(Number(dur), meter);
     $(chord).find('note').each(function(){ 
       lyr_n = $(this).attr('layer');
       if (!lyr_n || lyr_n === layer_no) {
         var dur_note = $(this).attr('dur');
-        if (!dur && dur_note) dur = dur_note;
-        else if (dur && dur != dur_note) throw new MeiLib.RuntimeError('MeiLib.durationOf:E05', 'duration of <chord> is ambiguous.');        
+        var dotsMult_note = MeiLib.dotsMult(chord);
+        if (!dur && dur_note) { 
+          dur = dur_note; 
+          dotsMult = dotsMult_note;
+        } else if (dur && dur != dur_note) {
+          throw new MeiLib.RuntimeError('MeiLib.durationOf:E05', 'duration of <chord> is ambiguous.');
+        }
       }
     });
-    if (dur) return MeiLib.dur2beats(Number(dur), meter);
+    if (dur) return dotsMult * MeiLib.dur2beats(Number(dur), meter);
     throw new MeiLib.RuntimeError('MeiLib.durationOf:E06', '@dur of chord must be specified either in <chord> or in at least one of its <note> elements.');
   }
 
@@ -177,7 +183,7 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
     prev_evnt = evnt;
     prev_dist = dist;
     evnt = eventList.nextEvent();
-    dist = distF();
+    dist = distF();    
     ts_acc += MeiLib.durationOf(evnt, meter);
   }
 
@@ -199,41 +205,6 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
 }
 
 /*
-* Find the event with the minimum distance from the location tstamp refers to.
-* 
-* @param tstamp: timestamp to match against events in the given context.
-* @param context: is an array of layer obejcts that belong to a single logical layer --> all events are properly ordered.
-*/
-MeiLib.tstamp2idInContext = function ( tstamp, context ) {
-  //calculate tstamp for every event in context, and compare to tstamp.
-  //perform minimum-search (can exit when the value is greater than the value before, since values are properly ordered.)
-
-
-  //get first event -> current_event;
-  //current_tstamp_1 = 0; //
-  //distance = tstamp;
-  //min_dist distance;
-  //do
-  //  if distance < min_dist then min_dist <-- distance 
-  //  if distance > min_dist then 
-  //  
-  //
-  
-
-
-
-  var meter;
-  var found = false;
-  for (var i=0; i<context.length && !found; ++i) {   
-    Vex.LogDebug('<<<< Measure ' + i + " >>>>");
-    if (context[i].meter) meter = context[i].meter;
-    if (i===0 && !meter) throw new MeiLib.RuntimeError('MeiLib.tstamp2id:E001', 'No time signature specified');
-  }
-  throw new MeiLib.RuntimeError('MeiLib.E002', 'No event with xml:id="' + eventid + '" was found in the given MEI context.');  
-  
-}
-
-/*
 * Calculates a timestamp value for an event in a given context.
 * 
 * @param eventid: is the xml:id of the event
@@ -246,7 +217,6 @@ MeiLib.id2tstamp = function (eventid, context) {
   var meter;
   var found = false;
   for (var i=0; i<context.length && !found; ++i) {   
-    Vex.LogDebug('<<<< Measure ' + i + " >>>>");
     if (context[i].meter) meter = context[i].meter;
     if (i===0 && !meter) throw new MeiLib.RuntimeError('MeiLib.id2tstamp:E001', 'No time signature specified');
 
@@ -282,6 +252,13 @@ MeiLib.beats2dur = function(beats, meter) {
   return (meter.unit/beats);
 }
 
+MeiLib.dotsMult = function(node) {
+  var dots = $(node).attr('dots');
+  dots = Number(dots || "0");
+  var mult = 1;
+  for (;dots>0;--dots) { mult += (1/Math.pow(2,dots)) };  
+  return mult;
+}
 
 /*
 * 
@@ -298,15 +275,15 @@ MeiLib.sumUpUntil = function(eventid, layer, meter) {
     var node = $(node_elem);
     var node_name = node.prop('localName');
     if (node_name === 'note' || node_name === 'rest') { 
-      //TODO: dotted value!
       if (node.attr('xml:id') === eventid) {
         return { beats:0, found:true };
       } else {
         var dur = Number(node.attr('dur'));
         if (!dur) throw new MeiLib.RuntimeError('MeiLib.sumUpUntil:E001', "Duration is not a number ('breve' and 'long' are not supported).");
-        var dots = Number(node.attr('dots'));
-        //TODO: dots
-        var beats = MeiLib.dur2beats(dur, meter);
+        var dots = node.attr('dots');
+        dots = Number(dots || "0");
+        var beats = MeiLib.dotsMult(node) * MeiLib.dur2beats(dur, meter);
+        
         return { beats:beats, found:false };
       }
     } else if (node_name === 'mRest') {
