@@ -10,7 +10,7 @@
 
 
 var MeiLib = {};
-var MeiLib.JSON = {};
+MeiLib.JSON = {};
 
 MeiLib.RuntimeError = function (errorcode, message) {
   this.errorcode = errorcode;

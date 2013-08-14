@@ -72,10 +72,19 @@ MeiLibTest = function(){
     }
   }
   
+  console.log('******************************************************************');
+  console.log('********* TEST: parseSourceList() **************************************');
 
-  // $.each(layers, function(i, layer) {
-  //   context.push({layer:layer, meter:meter});
-  // });
+  var variant_mei = loadXMLDoc('TC.Variants.xml');
+  console.log('MEI-XML loaded.'); 
+  var head = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'meiHead');
+  
+  var sources = MeiLib.parseSourceList(head);
+  console.log('JS obejct:');
+  console.log(sources);
+  var sourcesJSON = MeiLib.JSON.parseSourceList(head);
+  console.log('JSON:');
+  console.log(sourcesJSON);
   
   
 
