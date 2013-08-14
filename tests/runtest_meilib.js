@@ -87,7 +87,16 @@ MeiLibTest = function(){
   console.log(sourcesJSON);
   
   
+  console.log('******************************************************************');
+  console.log('********* TEST: parseAPPs() **************************************');
 
+  var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
+  var Apps = MeiLib.parseAPPs(score);
+  console.log('JS Object:');
+  console.log(Apps);
+  var AppsJSON = MeiLib.JSON.parseAPPs(score);
+  console.log('JSON:');
+  console.log(AppsJSON);
 
 
 

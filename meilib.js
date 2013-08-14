@@ -88,7 +88,6 @@ MeiLib.EventEnumerator.prototype.step_ahead = function () {
   }
 }
 
-
 /*
  * Find the event with the minimum distance from the location tstamp refers to.
  * 
@@ -99,16 +98,53 @@ MeiLib.parseSourceList = function(meiHead) {
   var srcs = $(meiHead).find('sourceDesc').children();
   console.log(srcs.length);
   var sources = {};
-  $.map(srcs, function (src, i) { 
+  var i
+  for(i=0;i<srcs.length;++i) {
+    var src = srcs[i];
     var xml_id = $(src).attr('xml:id');
     var serializer = new XMLSerializer();
-    sources[xml_id] = serializer.serializeToString(src);;
-  });
+    sources[xml_id] = serializer.serializeToString(src);    
+  }
   return sources;
 }
 
-MeiLib.JSON.parseSourceList = function (meiHead) {
+MeiLib.JSON.parseSourceList = function(meiHead) {
   return JSON.stringify(MeiLib.parseSourceList(meiHead));
+}
+
+MeiLib.App = function(xmlID) {
+  this.xmlID = xmlID;
+  this.variants = [];
+}
+
+MeiLib.Variant = function(tagname, xmlID, source){
+  this.tagname = tagname;
+  this.xmlID = xmlID;
+  this.source = source;
+}
+
+
+MeiLib.parseAPPs = function(score) {  
+  var allApps = [];
+  var apps = $(score).find('app');
+  var i
+  allApps = $.map(apps, function(app, i){
+    var xml_id = MeiLib.XMLID(app);
+    var variants = $(app).find('rdg');
+    var AppsItem = new MeiLib.App(xml_id);
+    AppsItem.variants = $.map(variants, function(variant) {
+      var tagname = $(variant).prop('localName');
+      var xmlID = MeiLib.XMLID(variant);
+      var source = $(variant).attr('source');
+      return new MeiLib.Variant(tagname, xmlID, source);
+    })
+    return AppsItem;
+  })
+  return allApps;
+}
+
+MeiLib.JSON.parseAPPs = function(score) {
+  return JSON.stringify(MeiLib.parseAPPs(score));
 }
 
 
@@ -223,6 +259,15 @@ MeiLib.tstamp2id = function ( tstamp, layer, meter ) {
   if (!xml_id) {
     xml_id = MeiLib.createPseudoUUID();
     $(winner).attr('xml:id', xml_id);
+  }
+  return xml_id;
+}
+
+MeiLib.XMLID = function(elem) {
+  xml_id = $(elem).attr('xml:id');
+  if (!xml_id) {
+    xml_id = MeiLib.createPseudoUUID();
+    $(elem).attr('xml:id', xml_id);
   }
   return xml_id;
 }
