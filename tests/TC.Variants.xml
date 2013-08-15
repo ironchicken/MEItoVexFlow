@@ -39,7 +39,11 @@
 						<mei:measure n="2">
 							<staff n="1">
 								<layer>
-									<app xml:id="app01.l1n1m2">
+									<app xml:id="app01.l1s1m2">
+										<lem>
+											<note pname="e" oct="4" dur="2"/>
+											<note pname="e" oct="3" dur="2"/>
+										</lem>
 										<rdg xml:id="A_abcd" source="A">
 											<note pname="a" oct="4" dur="2"/>
 											<note pname="a" oct="3" dur="2"/>
@@ -57,6 +61,12 @@
 						<mei:measure n="3">
 							<staff n="1">
 								<layer>
+									<app xml:id="app02.l1s1m3">
+										<lem/>
+										<rdg xml:id="A" source="A">
+											<rest dur="2"/>
+										</rdg>
+									</app>
 								</layer>
 							</staff>
 						</mei:measure>

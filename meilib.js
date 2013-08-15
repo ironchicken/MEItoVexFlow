@@ -88,6 +88,75 @@ MeiLib.EventEnumerator.prototype.step_ahead = function () {
   }
 }
 
+MeiLib.AppReplacement = function(tagname, xmlID) {
+  this.tagname = tagname;
+  this.xmlID = xmlID;
+}
+
+/**
+ * Create a single-variant-path MEI from a variant-MEI. A single-variant-path MEI contains no <app> element, 
+ * and instead of each <app> element it contains the content of one its children <rdg> or <lem>. 
+ * It's called a variant-path, because the <rdg> and <lem> whose contents are included, are not necessarily 
+ * from a single source.
+ * 
+ * @param variant_score {MEI XML node}
+ * @param appReplacements an indexed container of { tagname, xmlID } objects
+ */
+MeiLib.createSingleVariantPathScore = function(variant_score, appReplacements, xmlDoc) {
+  
+  // Make a copy of variant-mei. We don't want to remove nodes from the original object.
+  var score_copy = variant_score[0].cloneNode(true);
+
+  // Transform score_copy into single-variant-mei:
+  //   1. replace every <app> with a single variant-instance
+
+  // SOLUTION #1: 
+  // Let's assume we have the structure: replace app_xml_id with the content of rdg_xml_id
+  // Where rdg_xml_id points to an <rdg> within <app> referenced by app_xml_id
+  
+  // itereate through all <app> elements;
+  // if there's replacement defined for the app (by appReplacements[app.xmlID]),
+  // then realise that replacement, if there's nothing defined, make default selection:
+  //   content of first lem or first rdg!
+
+  var apps = $(score_copy).find('app');
+  
+  var var_instance2insert;
+  var rdg_xml_id
+  $(apps).each(function(i, app){
+    var app_xml_id = $(app).attr('xml:id');
+    var replacement = appReplacements[app_xml_id];
+    if (replacement) {
+      rdg_xml_id = replacement.xmlID;
+      var tagname = replacement.tagname;
+      var rdg_inst = $(score_copy).find(tagname + '[xml\\:id="' + rdg_xml_id +'"]')[0];
+      if (!rdg_inst) throw new MeiLib.RuntimeError('MeiLib.createSingleVariantPathScore():E01', "Cannot find <lem> or <rdg> with @xml:id '" + rdg_xml_id + "'.");
+      var_instance2insert = rdg_inst.childNodes;      
+    } else {
+      var lem = $(app).find('lem')[0];
+      if (lem) {
+        rdg_xml_id = MeiLib.XMLID(lem);
+        var_instance2insert = lem.childNodes;
+      } else {
+        var rdg = $(app).find('rdg')[0];
+        rdg_xml_id = MeiLib.XMLID(rdg);
+        var_instance2insert = rdg.childNodes;
+      }
+    }
+    var parent = app.parentNode;
+    var PIStart = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgStart="' + rdg_xml_id + '"');
+    parent.insertBefore(PIStart, app);
+    $.each(var_instance2insert, function () { 
+       parent.insertBefore(this.cloneNode(true), app); 
+     });
+     var PIEnd = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgEnd="' + rdg_xml_id + '"');
+     parent.insertBefore(PIEnd, app);
+     parent.removeChild(app);
+  })
+
+  return score_copy;
+}
+
 /*
  * Find the event with the minimum distance from the location tstamp refers to.
  * 
@@ -96,7 +165,6 @@ MeiLib.EventEnumerator.prototype.step_ahead = function () {
  */
 MeiLib.parseSourceList = function(meiHead) {
   var srcs = $(meiHead).find('sourceDesc').children();
-  console.log(srcs.length);
   var sources = {};
   var i
   for(i=0;i<srcs.length;++i) {
@@ -127,10 +195,9 @@ MeiLib.Variant = function(tagname, xmlID, source){
 MeiLib.parseAPPs = function(score) {  
   var allApps = [];
   var apps = $(score).find('app');
-  var i
   allApps = $.map(apps, function(app, i){
     var xml_id = MeiLib.XMLID(app);
-    var variants = $(app).find('rdg');
+    var variants = $(app).find('rdg, lem');
     var AppsItem = new MeiLib.App(xml_id);
     AppsItem.variants = $.map(variants, function(variant) {
       var tagname = $(variant).prop('localName');
