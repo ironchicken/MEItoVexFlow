@@ -102,8 +102,9 @@ MeiLib.AppReplacement = function(tagname, xmlID) {
  * @param variant_score {MEI XML node}
  * @param appReplacements an indexed container of { tagname, xmlID } objects
  */
-MeiLib.createSingleVariantPathScore = function(variant_score, appReplacements, xmlDoc) {
+MeiLib.createSingleVariantPathScore = function(appReplacements, xmlDoc) {
   
+  var variant_score = variant_page_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   // Make a copy of variant-mei. We don't want to remove nodes from the original object.
   var score_copy = variant_score[0].cloneNode(true);
 
@@ -192,7 +193,8 @@ MeiLib.Variant = function(tagname, xmlID, source){
 }
 
 
-MeiLib.parseAPPs = function(score) {  
+MeiLib.parseAPPs = function(variant_mei) {
+  var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   var allApps = [];
   var apps = $(score).find('app');
   allApps = $.map(apps, function(app, i){
