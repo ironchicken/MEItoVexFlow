@@ -12,7 +12,8 @@ version="HTML+RDFa 1.0" xml:lang="en">
 	<head>
 		<title>MEI-to-VexFlow Test Page</title>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<!--		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script> -->
+		<script src="../support/jquery-1.7.1.min.js"></script>
 		<script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-min.js"></script>
 		<script type="text/JavaScript" src="../tables.js"></script>
 		<script type="text/JavaScript" src="../meilib.js"></script>
@@ -21,48 +22,87 @@ version="HTML+RDFa 1.0" xml:lang="en">
 		<script type="text/JavaScript" src="../EventReference.js"></script>
 		<script type="text/JavaScript" src="../StaffInfo.js"></script>
 		<script type="text/JavaScript" src="../StaveConnector.js"></script>
+		<script type="text/JavaScript" src="../StaveVoices.js"></script>
 		<script type="text/JavaScript" src="loadxmldoc.js"></script>
 		<script type="text/JavaScript" src="runtest.js"></script>   
 		<script type="text/JavaScript">
-			var testItem_html = "<h2><span class='test-title' property='dc:title'>Title of Test Comes Here</span></h2><div class='a'><canvas width='1031' height='450' style='border: none'></canvas></div>"
+
+			DisplayMainMEI = function(test_case, canvas, titleElem, codeElem){
+				$(titleElem).html(test_case.title);
+				var canvas_width = test_case.canvas_width ? test_case.canvas_width : 1031;
+				var canvas_height = test_case.canvas_height ? test_case.canvas_height : 180;
+				$(canvas).attr('width', canvas_width);
+				$(canvas).attr('height', canvas_height);
+				var score_width = canvas_width - 50;
+				var score_height = canvas_height - 50;
+
+				//load the xml file...
+				// Vex.LogInfo("Displaying : '" + test_case.title + "' MEI-XML: '" + test_case.mei_xml + "'...");
+				// xmlDoc=loadXMLDoc(test_case.mei_xml);
+				// if (xmlDoc) { 
+				// 	Vex.LogInfo('MEI-XML loaded.'); 
+				// } else {
+				// 	throw "Cannot load MEI file."
+				// }
+
+				//... and render it onto the canvas
+				Vex.LogInfo('Rendering... ');
+				MEI2VF.render_notation(test_case.mei_score, canvas, score_width, score_height);
+
+				var serializer = new XMLSerializer();
+				var strMEI = serializer.serializeToString($(test_case.mei_score).get(0));
+				var strMEI_rplc1 = strMEI.replace(/</g, '&lt;');
+				var strMEI_rplc2 = strMEI_rplc1.replace(/>/g, '&gt;');
+				$(codeElem).html(strMEI_rplc2);
+
+
+				Vex.LogInfo('Done (' + test_case.title + ')');
+
+			}
+
+
+
+			var testItem_html = ""
 			Vex.LogLevel = 5;
 			$(document).ready(function(){
-				var test_cases = new Array();
-				
-				// add test cases
-				test_cases.push({ title: 'One-measure piece (Isaac-Rogamus te piissima virgo Maria)', mei_xml: 'TC.Isaac.xml', canvas_width:1300, canvas_height:2000});
-				
-				
-				//Test cases that are supposed to generate error messages on the console:
-				//  test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC.MissingAttribute.xml'});
-				//  test_cases.push({ title: "Clef - Tenor clef not supported", mei_xml: 'TC.VexClef.05.xml'});
 
-				var canvas_elements = new Array();
-				var title_elements = new Array();
-				//create as many canvases and title elements as test cases... 
-				$(test_cases).each( function(index) {
-					$('div.test-page').append(testItem_html);
-					
-					//...and load them into canvas_elements and title_elements arrays
-					canvas_elements[index] = $("div.a canvas")[index]
-					title_elements[index] = $("span.test-title")[index];
-				})
-				
-				//render test cases
-				var i;
-				for (i=0;i<test_cases.length;i++) {
-					Vex.LogInfo('Starting Test Case #' + i.toString());
-					try {
-						MEI2VF.RunTest(test_cases[i], canvas_elements[i], title_elements[i]);
-					} catch(e) {
-						Vex.LogError('Error during rendering test case #' + i.toString() + " title: " + test_cases[i].title + ". Error Message: " +  e.toString());
-					}
-				}
+			  var variant_mei = loadXMLDoc('TC.Isaac.xml');
+				var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
+				var Apps = MeiLib.parseAPPs(score);
+				console.log('JS Object:');
+				console.log(Apps);
+
+
+				var appReplacements = {};
+				// appReplacements['app.m3.tie'] = new MeiLib.AppReplacement('rdg', 'rdg1.app.m3.tie');
+				// appReplacements['app.n1l1s1m8'] = new MeiLib.AppReplacement('rdg', 'rdg.app.n1l1s1m8');
+				// appReplacements['app01.m8'] = new MeiLib.AppReplacement('rdg', 'rdg1.n1l1s4m8');
+				// appReplacements['app.n1l1s2m27'] = new MeiLib.AppReplacement('rdg', 'rdg1.app.n1l1s2m27');
+				var single_path_score = MeiLib.createSingleVariantPathScore(score, appReplacements, variant_mei);
+
+				var canvas = $('div.test-canvas canvas')[0];
+				var titleElem = $('span.test-title')[0];
+				var codeElem = $('code.xmlview')[0];
+				DisplayMainMEI( { 
+						title: 'Henricus Isaac: Rogamus te piissima virgo Maria....', 
+						mei_score: single_path_score, 
+						canvas_width:1300, 
+						canvas_height:3000,
+					}, 
+					canvas, titleElem, codeElem);
 			});
 		</script>
 	</head>
 	<body>
 		<div class="test-page">
+			<div class='demoitem'>
+				<h1><span class='test-title' property='dc:title'>Title Comes Here</span></h1>
+				<div class='desc'><p>Description</p></div>
+				<div class='test-canvas'>
+					<canvas width='1031' height='450' style='border: none'></canvas>
+				</div>
+			</div>
 		</div>
+		<pre><code class="xmlview"></code></pre>
 	</body>
 </html>
