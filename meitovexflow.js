@@ -48,6 +48,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   var context;
   var measures = [];
+  var measures_by_n = [];
   var beams = [];
   var notes = [];
   var notes_by_id = {};
@@ -584,6 +585,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     //get current staffDef
     var staff_n = Number(staff_element.attrs().n);
+    var measure_n = Number(parent_measure.attrs().n);
     staff = initialise_staff_n(staff_n, measure_width);
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
       return extract_events(i, layer, staff_element, parent_measure); 
@@ -599,6 +601,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
     });
 
     staves_by_n[staff_n] = staff;    
+    if (measures_by_n[measure_n] === undefined) {
+      measures_by_n[measure_n] = [];
+    }
+    measures_by_n[measure_n][staff_n] = staff;
 
     return staff;
   };
@@ -1018,6 +1024,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   initialise_score(target);
   render_measure_wise();
+  MEI2VF.rendered_measures = measures_by_n;
 };
 
 

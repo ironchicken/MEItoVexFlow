@@ -90,7 +90,15 @@ version="HTML+RDFa 1.0" xml:lang="en">
 						canvas_height:3000,
 					}, 
 					canvas, titleElem, codeElem);
+
+					for (var i=1; i<MEI2VF.rendered_measures.length;i++) {
+						for (var j=1;j<MEI2VF.rendered_measures[i].length;j++) {
+							var rendered_staff = MEI2VF.rendered_measures[i][j];
+							console.log(rendered_staff.x + ', ' + rendered_staff.y + ', width: ' + rendered_staff.width);
+						}
+					}
 			});
+			
 		</script>
 	</head>
 	<body>
