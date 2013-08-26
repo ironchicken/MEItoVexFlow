@@ -104,7 +104,7 @@ MeiLib.AppReplacement = function(tagname, xmlID) {
  */
 MeiLib.createSingleVariantPathScore = function(appReplacements, xmlDoc) {
   
-  var variant_score = variant_page_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
+  var variant_score = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   // Make a copy of variant-mei. We don't want to remove nodes from the original object.
   var score_copy = variant_score[0].cloneNode(true);
 
