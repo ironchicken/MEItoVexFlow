@@ -380,8 +380,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     var staff = new Vex.Flow.Stave(measure_left, staff_top_abs(staff_n), width);
     if (staffInfoArray[staff_n].renderWith.clef) {
-      staff.addClef(mei_staffdef2vex_clef(staffdef));
-      staffInfoArray[staff_n].renderWith.clef = false;
+      if ($(staffdef).attr('clef.visible') === 'true' || $(staffdef).attr('clef.visible') === undefined) {
+        staff.addClef(mei_staffdef2vex_clef(staffdef));
+        staffInfoArray[staff_n].renderWith.clef = false;
+      }
     }
     if (staffInfoArray[staff_n].renderWith.keysig) {
       if ($(staffdef).attr('key.sig.show') === 'true' || $(staffdef).attr('key.sig.show') === undefined) {
