@@ -60,13 +60,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 
 			}
 
-
-
 			var testItem_html = ""
 			Vex.LogLevel = 5;
 			$(document).ready(function(){
 
-			  var variant_mei = loadXMLDoc('TC.Isaac.xml');
+				var variant_mei = loadXMLDoc('TC.Isaac.xml');
 				var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
 				var Apps = MeiLib.parseAPPs(score);
 				console.log('JS Object:');
