@@ -44,6 +44,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var height = height || 350;
   var n_measures; // = $(score).find('measure').get().length;
   var measure_width;// = Math.round(width / n_measures);
+  var ANNOT_FONT_SIZE = 13;
 
   var context;
   var measures = [];
@@ -824,11 +825,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
     //Support for annotations (lyrics, directions, etc.)
     var make_annot_below = function(text) {
-      return (new Vex.Flow.Annotation(text)).setFont("Times").setBottom(true);
+      return (new Vex.Flow.Annotation(text)).setFont("Times", ANNOT_FONT_SIZE).setBottom(true);
     };
 
     var make_annot_above = function(text) {
-      return (new Vex.Flow.Annotation(text)).setFont("Times");
+      return (new Vex.Flow.Annotation(text)).setFont("Times", ANNOT_FONT_SIZE);
     };
 
     try {
