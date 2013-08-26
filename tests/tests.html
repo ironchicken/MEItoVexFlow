@@ -73,10 +73,11 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				test_cases.push({ title: "Demo: System Breaks", mei_xml: 'Demo.BachCPrelude.xml', canvas_width:1500, canvas_height:800 });
 				test_cases.push({ title: "Adjusting Voices", mei_xml: 'TC.StaveVoices.xml', canvas_height:400});
 				
+				test_cases.push({ title: "Clef - Tenor clef", mei_xml: 'TC.VexClef.05.xml'});
+				test_cases.push({ title: "Plain Staff", mei_xml: 'TC.PlainStaff.xml'});
 				
 				//Test cases that are supposed to generate error messages on the console:
 				//  test_cases.push({ title: 'Missing_Attribute_Test_Case', mei_xml: 'TC.MissingAttribute.xml'});
-				//  test_cases.push({ title: "Clef - Tenor clef not supported", mei_xml: 'TC.VexClef.05.xml'});
 
 				var canvas_elements = new Array();
 				var title_elements = new Array();

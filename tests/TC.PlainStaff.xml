@@ -14,7 +14,7 @@
 				<score>
 					<scoreDef>
 						<staffGrp>
-							<staffDef n="1" label="Voice" clef.line="4" clef.shape="C" meter.count="6" meter.unit="8"/>
+							<staffDef n="1" label="Voice" clef.line="4" clef.shape="C" meter.count="4" meter.unit="4" meter.rend="invis" clef.visible="false"/>
 						</staffGrp>
 					</scoreDef>
 					<section>
