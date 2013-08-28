@@ -65,8 +65,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 			$(document).ready(function(){
 
 				var variant_mei = loadXMLDoc('TC.Isaac.xml');
-				var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
-				var Apps = MeiLib.parseAPPs(score);
+				var Apps = MeiLib.parseAPPs(variant_mei);
 				console.log('JS Object:');
 				console.log(Apps);
 
@@ -76,7 +75,7 @@ version="HTML+RDFa 1.0" xml:lang="en">
 				// appReplacements['app.n1l1s1m8'] = new MeiLib.AppReplacement('rdg', 'rdg.app.n1l1s1m8');
 				// appReplacements['app01.m8'] = new MeiLib.AppReplacement('rdg', 'rdg1.n1l1s4m8');
 				// appReplacements['app.n1l1s2m27'] = new MeiLib.AppReplacement('rdg', 'rdg1.app.n1l1s2m27');
-				var single_path_score = MeiLib.createSingleVariantPathScore(score, appReplacements, variant_mei);
+				var single_path_score = MeiLib.createSingleVariantPathScore(appReplacements, variant_mei);
 
 				var canvas = $('div.test-canvas canvas')[0];
 				var titleElem = $('span.test-title')[0];
