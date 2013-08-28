@@ -158,9 +158,7 @@ MeiLib.createSingleVariantPathScore = function(appReplacements, xmlDoc) {
   return score_copy;
 }
 
-/*
- * Find the event with the minimum distance from the location tstamp refers to.
- * 
+/** 
  * @param meiHead is an XML DOM object, containing the <meiHead> element
  * @return a container of all <source> elements, stored as strings and indexed by xml:id
  */
