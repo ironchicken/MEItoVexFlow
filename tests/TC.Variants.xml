@@ -38,7 +38,7 @@
 						</mei:measure>
 						<mei:measure n="2">
 							<staff n="1">
-								<layer>
+								<layer xml:id="l1s1m1">
 									<app xml:id="app01.l1s1m2">
 										<lem>
 											<note pname="e" oct="4" dur="2"/>

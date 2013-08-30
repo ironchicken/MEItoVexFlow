@@ -88,132 +88,6 @@ MeiLib.EventEnumerator.prototype.step_ahead = function () {
   }
 }
 
-MeiLib.AppReplacement = function(tagname, xmlID) {
-  this.tagname = tagname;
-  this.xmlID = xmlID;
-}
-
-/**
- * Create a single-variant-path MEI from a variant-MEI. A single-variant-path MEI contains no <app> element, 
- * and instead of each <app> element it contains the content of one its children <rdg> or <lem>. 
- * It's called a variant-path, because the <rdg> and <lem> whose contents are included, are not necessarily 
- * from a single source.
- * 
- * @param variant_score {MEI XML node}
- * @param appReplacements an indexed container of { tagname, xmlID } objects
- */
-MeiLib.createSingleVariantPathScore = function(appReplacements, xmlDoc) {
-  
-  var variant_score = xmlDoc.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
-  // Make a copy of variant-mei. We don't want to remove nodes from the original object.
-  var score_copy = variant_score[0].cloneNode(true);
-
-  // Transform score_copy into single-variant-mei:
-  //   1. replace every <app> with a single variant-instance
-
-  // SOLUTION #1: 
-  // Let's assume we have the structure: replace app_xml_id with the content of rdg_xml_id
-  // Where rdg_xml_id points to an <rdg> within <app> referenced by app_xml_id
-  
-  // itereate through all <app> elements;
-  // if there's replacement defined for the app (by appReplacements[app.xmlID]),
-  // then realise that replacement, if there's nothing defined, make default selection:
-  //   content of first lem or first rdg!
-
-  var apps = $(score_copy).find('app');
-  
-  var var_instance2insert;
-  var rdg_xml_id
-  $(apps).each(function(i, app){
-    var app_xml_id = $(app).attr('xml:id');
-    var replacement = appReplacements[app_xml_id];
-    if (replacement) {
-      rdg_xml_id = replacement.xmlID;
-      var tagname = replacement.tagname;
-      var rdg_inst = $(score_copy).find(tagname + '[xml\\:id="' + rdg_xml_id +'"]')[0];
-      if (!rdg_inst) throw new MeiLib.RuntimeError('MeiLib.createSingleVariantPathScore():E01', "Cannot find <lem> or <rdg> with @xml:id '" + rdg_xml_id + "'.");
-      var_instance2insert = rdg_inst.childNodes;      
-    } else {
-      var lem = $(app).find('lem')[0];
-      if (lem) {
-        rdg_xml_id = MeiLib.XMLID(lem);
-        var_instance2insert = lem.childNodes;
-      } else {
-        var rdg = $(app).find('rdg')[0];
-        rdg_xml_id = MeiLib.XMLID(rdg);
-        var_instance2insert = rdg.childNodes;
-      }
-    }
-    var parent = app.parentNode;
-    var PIStart = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgStart="' + rdg_xml_id + '"');
-    parent.insertBefore(PIStart, app);
-    $.each(var_instance2insert, function () { 
-       parent.insertBefore(this.cloneNode(true), app); 
-     });
-     var PIEnd = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgEnd="' + rdg_xml_id + '"');
-     parent.insertBefore(PIEnd, app);
-     parent.removeChild(app);
-  })
-
-  return score_copy;
-}
-
-/** 
- * @param meiHead is an XML DOM object, containing the <meiHead> element
- * @return a container of all <source> elements, stored as strings and indexed by xml:id
- */
-MeiLib.parseSourceList = function(meiHead) {
-  var srcs = $(meiHead).find('sourceDesc').children();
-  var sources = {};
-  var i
-  for(i=0;i<srcs.length;++i) {
-    var src = srcs[i];
-    var xml_id = $(src).attr('xml:id');
-    var serializer = new XMLSerializer();
-    sources[xml_id] = serializer.serializeToString(src);    
-  }
-  return sources;
-}
-
-MeiLib.JSON.parseSourceList = function(meiHead) {
-  return JSON.stringify(MeiLib.parseSourceList(meiHead));
-}
-
-MeiLib.App = function(xmlID) {
-  this.xmlID = xmlID;
-  this.variants = [];
-}
-
-MeiLib.Variant = function(tagname, xmlID, source){
-  this.tagname = tagname;
-  this.xmlID = xmlID;
-  this.source = source;
-}
-
-
-MeiLib.parseAPPs = function(variant_mei) {
-  var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
-  var allApps = [];
-  var apps = $(score).find('app');
-  allApps = $.map(apps, function(app, i){
-    var xml_id = MeiLib.XMLID(app);
-    var variants = $(app).find('rdg, lem');
-    var AppsItem = new MeiLib.App(xml_id);
-    AppsItem.variants = $.map(variants, function(variant) {
-      var tagname = $(variant).prop('localName');
-      var xmlID = MeiLib.XMLID(variant);
-      var source = $(variant).attr('source');
-      return new MeiLib.Variant(tagname, xmlID, source);
-    })
-    return AppsItem;
-  })
-  return allApps;
-}
-
-MeiLib.JSON.parseAPPs = function(score) {
-  return JSON.stringify(MeiLib.parseAPPs(score));
-}
-
 
 /*
 * Calculate the duration of an event (number of beats) according to the given meter.
@@ -470,5 +344,226 @@ MeiLib.sumUpUntil = function(eventid, layer, meter) {
 
 
   return sumUpUntil_inNode(layer);  
+}
+
+
+MeiLib.App = function(xmlID, parentID) {
+  this.xmlID = xmlID;
+  this.variants = [];
+  this.parentID = parentID;
+}
+
+MeiLib.AppReplacement = function(tagname, xmlID) {
+  this.tagname = tagname;
+  this.xmlID = xmlID;
+}
+
+
+MeiLib.Variant = function(xmlID, tagname, source){
+  this.xmlID = xmlID;
+  this.tagname = tagname;
+  this.sources = source;
+}
+
+MeiLib.VariantMei = function(variant_mei) {
+  this.init(variant_mei);
+}
+
+MeiLib.VariantMei.prototype.init = function(variant_mei) {
+  this.head = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'meiHead');
+  this.score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
+  this.parseSourceList();
+  this.parseAPPs();
+}
+
+MeiLib.VariantMei.prototype.getVariantScore = function() {
+  return this.score;
+}
+
+MeiLib.VariantMei.prototype.getAPPs = function() {
+  return this.APPs;
+}
+
+MeiLib.VariantMei.prototype.getSourceList = function() {
+  return this.sourceList;
+}
+
+MeiLib.VariantMei.prototype.parseSourceList = function() {
+  var srcs = $(this.head).find('sourceDesc').children();
+  this.sourceList = {};
+  var i
+  for(i=0;i<srcs.length;++i) {
+    var src = srcs[i];
+    var xml_id = $(src).attr('xml:id');
+    var serializer = new XMLSerializer();
+    this.sourceList[xml_id] = serializer.serializeToString(src);    
+  }
+  return this.sourceList;
+}
+
+MeiLib.VariantMei.prototype.parseAPPs = function() {
+  this.APPs = {};
+  var apps = $(this.score).find('app');
+  for (var i=0;i<apps.length; i++) {
+    var app = apps[i];
+    var parent = app.parentNode;
+    var variants = $(app).find('rdg, lem');
+    var AppsItem = new MeiLib.App(MeiLib.XMLID(app), MeiLib.XMLID(parent));
+    AppsItem.variants = {};
+    for (var j=0;j<variants.length;j++) {
+      var variant = variants[j];
+      var source = $(variant).attr('source');
+      var tagname = $(variant).prop('localName');
+      var varXMLID = MeiLib.XMLID(variant);
+      AppsItem.variants[varXMLID] = new MeiLib.Variant(varXMLID, tagname, source);
+    }
+    this.APPs[MeiLib.XMLID(app)] = AppsItem;
+  }
+}
+
+
+MeiLib.SingleVariantPathScore = function(variantMEI, appReplacements){
+  this.init(variantMEI, appReplacements);
+}
+
+/**
+ * Create a single-variant-path score from a variant-MEI. A single-variant-path score contains no <app> element, 
+ * and instead of each <app> element it contains the content of one its children <rdg> or <lem>. 
+ * It's called a variant-path, because the <rdg> and <lem> whose contents are included, are not necessarily 
+ * from a single source.
+ * 
+ * @param xmlDoc The XML Document obejct representation of the MEI file containing all variants.
+ * @param appReplacements an indexed container of { tagname, xmlID } objects
+ */
+MeiLib.SingleVariantPathScore.prototype.init = function(variantMEI, appReplacements) {
+
+  appReplacements = appReplacements || {};
+
+  this.variant_score = variantMEI.score[0];
+  this.APPs = variantMEI.APPs;
+  this.score = this.variant_score.cloneNode(true);
+  this.variantPath = {};
+  
+  // Make a copy of variant-mei. We don't want to remove nodes from the original object.
+  // Transform this.score into a single-variant-score:
+  //   1. replace every <app> with a single variant-instance
+  
+  // itereate through all <app> elements;
+  // if there's replacement defined for the app (by appReplacements[app.xmlID]),
+  // then apply that replacement, if there's nothing defined, make default selection:
+  // insert the content of first lem or first rdg!
+
+  var apps = $(this.score).find('app');
+  
+  var var_instance2insert;
+  var rdg_xml_id
+  var this_score = this.score;
+  var this_variantPath = this.variantPath;
+  var this_APPs = this.APPs;
+  $(apps).each(function(i, app){
+    var app_xml_id = MeiLib.XMLID(app);
+    var replacement = appReplacements[app_xml_id];
+    if (replacement) {
+      rdg_xml_id = replacement.xmlID;
+      var tagname = replacement.tagname;
+      var rdg_inst = $(this_score).find(tagname + '[xml\\:id="' + rdg_xml_id +'"]')[0];
+      if (!rdg_inst) throw new MeiLib.RuntimeError('MeiLib.SingleVariantPathScore.prototype.init():E01', "Cannot find <lem> or <rdg> with @xml:id '" + rdg_xml_id + "'.");
+      var_instance2insert = rdg_inst.childNodes;      
+    } else {
+      var lem = $(app).find('lem')[0];
+      if (lem) {
+        rdg_xml_id = MeiLib.XMLID(lem);
+        var_instance2insert = lem.childNodes;
+      } else {
+        var rdg = $(app).find('rdg')[0];
+        rdg_xml_id = MeiLib.XMLID(rdg);
+        var_instance2insert = rdg.childNodes;
+      }
+    }
+    var parent = app.parentNode;
+    var PIStart = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgStart="' + app_xml_id + '"');
+    parent.insertBefore(PIStart, app);
+    $.each(var_instance2insert, function () { 
+       parent.insertBefore(this.cloneNode(true), app); 
+     });
+     var PIEnd = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgEnd="' + app_xml_id + '"');
+     parent.insertBefore(PIEnd, app);
+     parent.removeChild(app);
+     
+     this_variantPath[app_xml_id] = this_APPs[app_xml_id].variants[rdg_xml_id];
+  })
+
+  return this.score;
+}
+
+/**
+ * @param variantPathUpdate {object} variantPathUpdate[appXmlID] = varInstXmlID is the xml:id of 
+ *                                   the of the <rdg> or <lem> element to be inserted in place of the 
+ *                                   original <app> element with xml:id=appXmlID.
+ */
+MeiLib.SingleVariantPathScore.prototype.updateVariantPath = function(variantPathUpdate) {
+  for (appID in variantPathUpdate) {
+    var variant2insert = this.APPs[appID].variants[variantPathUpdate[appID]];
+    this.replaceVariantInstance({appXmlID:appID, replaceWith:variant2insert});
+  }
+}
+
+/**
+ * Replace a variant instance in the score and the current variant path obejct (this.variantPath)
+ * 
+ * @param var_inst_update {object}
+ * @return the updated score
+ */
+MeiLib.SingleVariantPathScore.prototype.replaceVariantInstance = function(var_inst_update) {
+  
+  var replaceWith_xmlID = var_inst_update.replaceWith.xmlID;
+  var var_inst_elem = $(this.variant_score).find(var_inst_update.replaceWith.tagname + '[xml\\:id="' + replaceWith_xmlID +'"]')[0];
+  var app_xml_id = var_inst_update.appXmlID;
+  var var_instance2insert = var_inst_elem.childNodes;
+  
+  var match_pseudo_attrValues = function(data1, data2) {
+    data1 = data1.replace("'", '"');
+    data2 = data2.replace("'", '"');
+    return data1 === data2;
+  }
+  
+  var parent = $(this.score).find('[xml\\:id=' + this.APPs[app_xml_id].parentID +']')[0];
+  var children = parent.childNodes;
+  var inside_inst = false;
+  var found = false;
+  var insert_before_this = null;
+  $(children).each( function() {
+    var child = this;
+    if (child.nodeType === 7) {
+      if (child.nodeName === 'MEI2VF' && match_pseudo_attrValues(child.nodeValue, 'rdgStart="' + app_xml_id + '"')) {
+        inside_inst = true;     
+        found = true;   
+      } else if (child.nodeName === 'MEI2VF' && match_pseudo_attrValues(child.nodeValue, 'rdgEnd="' + app_xml_id + '"')) {
+        inside_inst = false;                
+        insert_before_this = child;
+      }
+    } else if (inside_inst) {
+      console.log('removing: ' + child.toString());
+      parent.removeChild(child);
+    } 
+  });
+
+  if (!found) throw "processing instruction not found"; 
+  if (inside_inst) throw "Unmatched <?MEI2VF rdgStart?>";
+    
+  var insert_method; 
+  if (insert_before_this) { 
+    insert_method = function (elem) { parent.insertBefore(elem, insert_before_this) };
+  } else {
+    insert_method = function (elem) { parent.appendChild(elem) };
+  }
+
+  $.each(var_instance2insert, function () { 
+     insert_method(this.cloneNode(true)); 
+  });  
+   
+  this.variantPath[app_xml_id] = var_inst_update.replaceWith;
+   
+  return this.score;
 }
 

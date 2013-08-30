@@ -1,6 +1,14 @@
 
 MeiLibTest = function(){
 
+  var print_xml = function(xml) {
+    var serializer = new XMLSerializer();
+    var strXML = serializer.serializeToString($(xml).get(0));
+    var strMEI_rplc1 = strXML.replace(/</g, '&lt;');
+    var strMEI_rplc2 = strMEI_rplc1.replace(/>/g, '&gt;');
+    var code = '<pre><code>'+ strMEI_rplc2 +'</code></pre>';
+    document.write(code);
+  }
 
   var mei_xml = 'TC.tstamp2id.xml'
   //load the xml file...
@@ -73,51 +81,41 @@ MeiLibTest = function(){
   }
   
   console.log('******************************************************************');
-  console.log('********* TEST: parseSourceList() ********************************');
+  console.log('********* TEST: MeiLib.VariantMei ********************************');
+  var xmlDoc_variant_mei = loadXMLDoc('TC.Variants.xml');
 
-  var variant_mei = loadXMLDoc('TC.Variants.xml');
-  console.log('MEI-XML loaded.'); 
-  var head = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'meiHead');
-  
-  var sources = MeiLib.parseSourceList(head);
-  console.log('JS obejct:');
-  console.log(sources);
-  var sourcesJSON = MeiLib.JSON.parseSourceList(head);
-  console.log('JSON:');
-  console.log(sourcesJSON);
+  var variantMEI = new MeiLib.VariantMei(xmlDoc_variant_mei);
+  print_xml(variantMEI.score);
+  console.log(variantMEI.sourceList);
+  console.log(variantMEI.APPs);
   
   
   console.log('******************************************************************');
-  console.log('********* TEST: parseAPPs() **************************************');
-
-  var score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
-  var Apps = MeiLib.parseAPPs(score);
-  console.log('JS Object:');
-  console.log(Apps);
-  var AppsJSON = MeiLib.JSON.parseAPPs(score);
-  console.log('JSON:');
-  console.log(AppsJSON);
-
-  console.log('******************************************************************');
-  console.log('********* TEST: createSingleVariantPathScore() *******************');
+  console.log('********* TEST: new MeiLib.SingleVariantPathScore() *******************');
 
   var appReplacements = {};
-  appReplacements['app01.l1s1m2'] = new MeiLib.AppReplacement('rdg', 'A_abcd');
+  // appReplacements['app01.l1s1m2'] = new MeiLib.AppReplacement('rdg', 'A_abcd');
   // appReplacements['app02.l1s1m3'] = new MeiLib.AppReplacement('rdg', 'A');
-  var single_path_score = MeiLib.createSingleVariantPathScore(score, appReplacements, variant_mei);
+  // var single_path_score = new MeiLib.SingleVariantPathScore(xmlDoc_variant_mei,appReplacements);
+  var single_path_score = new MeiLib.SingleVariantPathScore(variantMEI);
 
-  var print_xml = function(xml) {
-    var serializer = new XMLSerializer();
-    var strXML = serializer.serializeToString($(xml).get(0));
-    var strMEI_rplc1 = strXML.replace(/</g, '&lt;');
-    var strMEI_rplc2 = strMEI_rplc1.replace(/>/g, '&gt;');
-    var code = '<pre><code>'+ strMEI_rplc2 +'</code></pre>';
-    document.write(code);
-  }
-  print_xml(single_path_score);
+  print_xml(single_path_score.score);
+  console.log(JSON.stringify(single_path_score.variantPath));
+
+  console.log('******************************************************************');
+  console.log('********* TEST: updateSingleVariantPathScore() *******************');
+
+  var variantPathUpdate = {};
+  variantPathUpdate['app01.l1s1m2'] = 'B_xyz';
+  single_path_score.updateVariantPath(variantPathUpdate);
+  
+  print_xml(single_path_score.score);
+  console.log(JSON.stringify(single_path_score.variantPath));
 
 
   console.log('Done');
+  
+
 	
 }
 
