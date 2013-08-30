@@ -362,7 +362,7 @@ MeiLib.AppReplacement = function(tagname, xmlID) {
 MeiLib.Variant = function(xmlID, tagname, source){
   this.xmlID = xmlID;
   this.tagname = tagname;
-  this.sources = source;
+  this.source = source;
 }
 
 MeiLib.VariantMei = function(variant_mei) {
