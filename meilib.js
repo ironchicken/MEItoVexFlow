@@ -370,6 +370,7 @@ MeiLib.VariantMei = function(variant_mei) {
 }
 
 MeiLib.VariantMei.prototype.init = function(variant_mei) {
+  this.xmlDoc = variant_mei;
   this.head = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'meiHead');
   this.score = variant_mei.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score');
   this.parseSourceList();
@@ -452,7 +453,7 @@ MeiLib.SingleVariantPathScore.prototype.init = function(variantMEI, appReplaceme
   // if there's replacement defined for the app (by appReplacements[app.xmlID]),
   // then apply that replacement, if there's nothing defined, make default selection:
   // insert the content of first lem or first rdg!
-
+  
   var apps = $(this.score).find('app');
   
   var var_instance2insert;
@@ -460,6 +461,7 @@ MeiLib.SingleVariantPathScore.prototype.init = function(variantMEI, appReplaceme
   var this_score = this.score;
   var this_variantPath = this.variantPath;
   var this_APPs = this.APPs;
+  var xmlDoc = variantMEI.xmlDoc;
   $(apps).each(function(i, app){
     var app_xml_id = MeiLib.XMLID(app);
     var replacement = appReplacements[app_xml_id];
@@ -484,13 +486,13 @@ MeiLib.SingleVariantPathScore.prototype.init = function(variantMEI, appReplaceme
     var PIStart = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgStart="' + app_xml_id + '"');
     parent.insertBefore(PIStart, app);
     $.each(var_instance2insert, function () { 
-       parent.insertBefore(this.cloneNode(true), app); 
-     });
-     var PIEnd = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgEnd="' + app_xml_id + '"');
-     parent.insertBefore(PIEnd, app);
-     parent.removeChild(app);
-     
-     this_variantPath[app_xml_id] = this_APPs[app_xml_id].variants[rdg_xml_id];
+      parent.insertBefore(this.cloneNode(true), app); 
+    });
+    var PIEnd = xmlDoc.createProcessingInstruction('MEI2VF', 'rdgEnd="' + app_xml_id + '"');
+    parent.insertBefore(PIEnd, app);
+    parent.removeChild(app);
+
+    this_variantPath[app_xml_id] = this_APPs[app_xml_id].variants[rdg_xml_id];
   })
 
   return this.score;
@@ -567,3 +569,89 @@ MeiLib.SingleVariantPathScore.prototype.replaceVariantInstance = function(var_in
   return this.score;
 }
 
+
+
+MeiLib.SingleVariantPathScore.prototype.getSlice = function(params) {
+  return MeiLib.SliceMEI(this.score, params);
+}
+
+
+/**
+ * Returns a slice of the MEI. The slice is specified by the number of the starting and ending measures.
+ * @param params {obejct} like { start_n:NUMBER, end_n:NUMBER, noKey:BOOLEAN, noClef:BOOLEAN, noMeter:BOOLEAN, staves:[NUMBER] }; 
+ *                             noKey, noClef and noMeter are optional. Staves is optional. If Staves is set, it contains 
+ *                             staff numbers that should be included in the result.
+ */
+MeiLib.SliceMEI = function(MEI, params) {
+  
+  var setVisibles = function(elements, params) {
+    $.each(elements, function (i, elem) {
+      if (params.noClef) $(elem).attr('clef.visible', 'false');
+      if (params.noKey) $(elem).attr('key.sig.show', 'false');
+      if (params.noMeter) $(elem).attr('meter.rend', 'false');
+    }); 
+  }
+  
+  var slice = MEI.cloneNode(true);
+  var scoreDefs;
+  if (params.noClef || params.noKey || params.noMeter) {
+    var staffDefs = $(slice).find('staffDef');
+    var scoreDefs = $(slice).find('scoreDef');
+    setVisibles(scoreDefs, params);
+    setVisibles(staffDefs, params);
+  }
+  var section = $(slice).find('section')[0];
+  var inside_slice = false;
+  var found = false;
+
+  var paramsStaves = params.Staves;
+  if (paramsStaves) {
+    var staffSelector = '';
+    var commaspace = '';
+    for (var i=0;i<paramsStaves.length;i++){
+      staffSelector += commaspace + 'staff[n="' + paramsStaves[i] + '"]';
+      if (i === 0) commaspace = ', ';
+    }
+  }
+
+  /** 
+   * Iterate through each child of the seciont and remove everything outside the slice.
+   * Remove  
+   */ 
+  var section_children = section.childNodes;
+  $(section_children).each( function() {
+    var child = this;
+
+    if (!inside_slice) {
+      if (child.localName === 'measure' && Number($(child).attr('n')) === params.start_n) {
+        inside_slice = true;
+        found = true;
+      } else {
+        section.removeChild(child);
+      } 
+    } 
+
+    if (inside_slice) {
+      //remove unwanted staff
+      if (paramsStaves) {
+        var staves = $(child).find('staff');
+        $(staves).each(function() {
+          var staff = this;
+          if ($.inArray(Number($(staff).attr('n')), paramsStaves) === -1) {
+            var parent = this.parentNode;
+            parent.removeChild(this);
+          } 
+        })
+      }
+      
+      //finish inside_slice state if it's the end of slice.
+      if (child.localName === 'measure' && Number($(child).attr('n')) === params.end_n) {
+        inside_slice = false;
+      }
+    }
+
+    console.log('removing: ' + child.toString());
+  });
+
+  return slice;
+}

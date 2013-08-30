@@ -91,7 +91,7 @@ MeiLibTest = function(){
   
   
   console.log('******************************************************************');
-  console.log('********* TEST: new MeiLib.SingleVariantPathScore() *******************');
+  console.log('********* TEST: MeiLib.SingleVariantPathScore() *******************');
 
   var appReplacements = {};
   // appReplacements['app01.l1s1m2'] = new MeiLib.AppReplacement('rdg', 'A_abcd');
@@ -102,8 +102,7 @@ MeiLibTest = function(){
   print_xml(single_path_score.score);
   console.log(JSON.stringify(single_path_score.variantPath));
 
-  console.log('******************************************************************');
-  console.log('********* TEST: updateSingleVariantPathScore() *******************');
+  console.log('********* updateVariantPath() *******************');
 
   var variantPathUpdate = {};
   variantPathUpdate['app01.l1s1m2'] = 'B_xyz';
@@ -112,10 +111,23 @@ MeiLibTest = function(){
   print_xml(single_path_score.score);
   console.log(JSON.stringify(single_path_score.variantPath));
 
+  console.log('********* getSlice() *******************');
+
+  var sliceXML = single_path_score.getSlice({start_n:2, end_n:3, noClef:true, noKey:true, noMeter:true, Staves:[1,2]} );
+  print_xml(sliceXML);
+
+
+  console.log('******************************************************************');
+  console.log('********* TEST: MeiLib.SliceMEI() ********************************');
+
+  var xmlDoc_slice = loadXMLDoc('TC.Slice.xml');
+  var score2slice = xmlDoc_slice.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score')[0];
+  var slice  = MeiLib.SliceMEI(score2slice, {start_n:1, end_n:8, noClef:true, noKey:true, noMeter:true, Staves:[1]});
+  print_xml(slice);
+
 
   console.log('Done');
   
 
 	
 }
-
