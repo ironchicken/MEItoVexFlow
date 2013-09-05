@@ -69,6 +69,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var new_section = true;
   
   var staffInfoArray = new Array();
+  var staffDefList = [];
   var staffXShift = 0;
   var staveConnectors = {};
   var staveVoices = new MEI2VF.StaveVoices();
@@ -350,7 +351,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var staff_top_rel = function(staff_n) {
     var result = 0;
     var i;
-    for (i=0;i<staff_n-1;i++) result += staff_height(i);
+    for (i=0, exit=0; i<staffDefList.length && !exit;i++) {
+      if ($(staffDefList[i]).attr('n') !== staff_n.toString()) { 
+        result += staff_height(i);
+      } else {
+        exit = true;
+      }
+    }
+//    for (i=0;i<staff_n-1;i++) result += staff_height(i);
     return result;
   }
   
@@ -510,6 +518,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_scoreDef = function(scoredef) {
+    staffDefList.length = 0;
     $(scoredef).children().each(process_scoredef_child);
   }
 
@@ -575,6 +584,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     } else {
       staffInfoArray[staff_n] = new MEI2VF.StaffInfo(staffDef, true, true, true);
     }
+    staffDefList.push(staffDef);
     return staff_n;
   }
   
