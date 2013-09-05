@@ -545,7 +545,6 @@ MeiLib.SingleVariantPathScore.prototype.replaceVariantInstance = function(var_in
         insert_before_this = child;
       }
     } else if (inside_inst) {
-      console.log('removing: ' + child.toString());
       parent.removeChild(child);
     } 
   });
@@ -650,7 +649,6 @@ MeiLib.SliceMEI = function(MEI, params) {
       }
     }
 
-    console.log('removing: ' + child.toString());
   });
 
   return slice;
