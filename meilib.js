@@ -578,7 +578,7 @@ MeiLib.SingleVariantPathScore.prototype.getSlice = function(params) {
 /**
  * Returns a slice of the MEI. The slice is specified by the number of the starting and ending measures.
  * @param params {obejct} like { start_n:NUMBER, end_n:NUMBER, noKey:BOOLEAN, noClef:BOOLEAN, noMeter:BOOLEAN, staves:[NUMBER] }; 
- *                             noKey, noClef and noMeter are optional. Staves is optional. If Staves is set, it contains 
+ *                             noKey, noClef and noMeter are optional. Staves is optional. If staves is set, it contains 
  *                             staff numbers that should be included in the result.
  */
 MeiLib.SliceMEI = function(MEI, params) {
@@ -590,10 +590,22 @@ MeiLib.SliceMEI = function(MEI, params) {
       if (params.noMeter) $(elem).attr('meter.rend', 'false');
     }); 
   }
+
+  var paramsStaves = params.staves;
+  if (paramsStaves) {
+    var staffDefSelector = '';
+    var commaspace = '';
+    for (var i=0;i<paramsStaves.length;i++){
+      staffDefSelector += commaspace + '[n="' + paramsStaves[i] + '"]';
+      if (i === 0) commaspace = ', ';
+    }
+  }
+
   
   var slice = MEI.cloneNode(true);
   var scoreDefs;
   if (params.noClef || params.noKey || params.noMeter) {
+    var staffDefs2remove = $(slice).find('staffDef').remove(':not(' + staffDefSelector + ')');
     var staffDefs = $(slice).find('staffDef');
     var scoreDefs = $(slice).find('scoreDef');
     setVisibles(scoreDefs, params);
@@ -602,16 +614,6 @@ MeiLib.SliceMEI = function(MEI, params) {
   var section = $(slice).find('section')[0];
   var inside_slice = false;
   var found = false;
-
-  var paramsStaves = params.Staves;
-  if (paramsStaves) {
-    var staffSelector = '';
-    var commaspace = '';
-    for (var i=0;i<paramsStaves.length;i++){
-      staffSelector += commaspace + 'staff[n="' + paramsStaves[i] + '"]';
-      if (i === 0) commaspace = ', ';
-    }
-  }
 
   /** 
    * Iterate through each child of the seciont and remove everything outside the slice.
