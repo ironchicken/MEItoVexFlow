@@ -605,7 +605,7 @@ MeiLib.SliceMEI = function(MEI, params) {
   var slice = MEI.cloneNode(true);
   var scoreDefs;
   if (params.noClef || params.noKey || params.noMeter) {
-    var staffDefs2remove = $(slice).find('staffDef').remove(':not(' + staffDefSelector + ')');
+    if (paramsStaves) $(slice).find('staffDef').remove(':not(' + staffDefSelector + ')');
     var staffDefs = $(slice).find('staffDef');
     var scoreDefs = $(slice).find('scoreDef');
     setVisibles(scoreDefs, params);
