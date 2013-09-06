@@ -366,7 +366,7 @@ MeiLib.Variant = function(xmlID, tagname, source){
 }
 
 MeiLib.VariantMei = function(variant_mei) {
-  this.init(variant_mei);
+  if (variant_mei) this.init(variant_mei);
 }
 
 MeiLib.VariantMei.prototype.init = function(variant_mei) {
@@ -422,6 +422,16 @@ MeiLib.VariantMei.prototype.parseAPPs = function() {
   }
 }
 
+MeiLib.VariantMei.prototype.getSlice = function(params) {
+  var slice = new MeiLib.VariantMei();
+  slice.xmlDoc = this.xmlDoc;
+  slice.head = this.head;
+  slice.score = [MeiLib.SliceMEI(this.score[0], params)];
+  slice.sourceList = this.sourceList;
+  slice.APPs = this.APPs;
+  return slice;
+}
+
 
 MeiLib.SingleVariantPathScore = function(variantMEI, appReplacements){
   this.init(variantMEI, appReplacements);
@@ -433,7 +443,7 @@ MeiLib.SingleVariantPathScore = function(variantMEI, appReplacements){
  * It's called a variant-path, because the <rdg> and <lem> whose contents are included, are not necessarily 
  * from a single source.
  * 
- * @param xmlDoc The XML Document obejct representation of the MEI file containing all variants.
+ * @param variantMEI 
  * @param appReplacements an indexed container of { tagname, xmlID } objects
  */
 MeiLib.SingleVariantPathScore.prototype.init = function(variantMEI, appReplacements) {

@@ -128,6 +128,21 @@ MeiLibTest = function(){
   var sliceAllStaves  = MeiLib.SliceMEI(score2slice, {start_n:1, end_n:8, noClef:true, noKey:true, noMeter:true});
   print_xml(sliceAllStaves);
 
+  console.log('******************************************************************');
+  console.log('********* TEST: MeiLib.VariantMei.prototype.getSlice() ***********');
+
+  var sliceMEI = variantMEI.getSlice({start_n:2, end_n:2, noClef:true, noKey:true, noMeter:true});
+  var lem = new MeiLib.SingleVariantPathScore(sliceMEI);
+  var rdg1 = new MeiLib.SingleVariantPathScore(sliceMEI, {
+    'app01.l1s1m2': new MeiLib.AppReplacement('rdg', 'A_abcd'),
+  });
+  var rdg2 = new MeiLib.SingleVariantPathScore(sliceMEI, {
+    'app01.l1s1m2': new MeiLib.AppReplacement('rdg', 'B_xyz'),
+  });
+  
+  console.log(lem.score);
+  console.log(rdg1.score);
+  console.log(rdg2.score);
 
   console.log('Done');
   
