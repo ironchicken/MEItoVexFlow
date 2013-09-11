@@ -406,7 +406,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       staffInfoArray[staff_n].renderWith.timesig = false;
     }
     staff.setContext(context).draw();
-    staffXShift = staff.barXShift;
+    staffXShift = staff.bar_x_shift;
     Vex.LogDebug('initialise_staff_n(): staffXShift=' + staffXShift);
     return staff;
   }
