@@ -13,7 +13,7 @@
 			<mdiv>
 				<score>
 					<mei:scoreDef key.pname="c" key.mode="major">
-						<staffGrp>
+						<staffGrp symbol="line">
 							<staffGrp barthru="false">
 								<staffDef n="1" label="Supremus" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
 								<staffDef n="2" label="Supremus" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>

@@ -621,6 +621,9 @@ MeiLib.SliceMEI = function(MEI, params) {
     setVisibles(scoreDefs, params);
     setVisibles(staffDefs, params);
   }
+  if (params.noConnectors) {
+    $(slice).find('staffGrp').removeAttr('symbol');
+  }
   var section = $(slice).find('section')[0];
   var inside_slice = false;
   var found = false;
