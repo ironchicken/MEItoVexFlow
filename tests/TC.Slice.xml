@@ -40,6 +40,8 @@
 							</staff>
 							<staff n="4">
 							</staff>
+							<tie staff="1" tstamp="1" tstamp2="2"/>
+							<slur staff="2" tstamp="1" tstamp2="2"/>
 						</mei:measure>
 						<mei:measure n="2">
 							<staff n="1">

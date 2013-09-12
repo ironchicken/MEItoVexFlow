@@ -122,7 +122,7 @@ MeiLibTest = function(){
 
   var xmlDoc_slice = loadXMLDoc('TC.Slice.xml');
   var score2slice = xmlDoc_slice.getElementsByTagNameNS("http://www.music-encoding.org/ns/mei", 'score')[0];
-  var slice  = MeiLib.SliceMEI(score2slice, {start_n:1, end_n:8, noClef:true, noKey:true, noMeter:true, staves:[3], noConnectors:true});
+  var slice  = MeiLib.SliceMEI(score2slice, {start_n:1, end_n:8, noClef:true, noKey:true, noMeter:true, staves:[1, 3], noConnectors:true});
   print_xml(slice);
   
   var sliceAllStaves  = MeiLib.SliceMEI(score2slice, {start_n:1, end_n:8, noClef:true, noKey:true, noMeter:true});

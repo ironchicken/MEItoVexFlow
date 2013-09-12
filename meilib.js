@@ -604,9 +604,11 @@ MeiLib.SliceMEI = function(MEI, params) {
   var paramsStaves = params.staves;
   if (paramsStaves) {
     var staffDefSelector = '';
+    var staffNSelector = '';
     var commaspace = '';
     for (var i=0;i<paramsStaves.length;i++){
       staffDefSelector += commaspace + '[n="' + paramsStaves[i] + '"]';
+      staffNSelector += commaspace + '[staff="' + paramsStaves[i] + '"]'
       if (i === 0) commaspace = ', ';
     }
   }
@@ -648,6 +650,7 @@ MeiLib.SliceMEI = function(MEI, params) {
     if (inside_slice) {
       //remove unwanted staff
       if (paramsStaves) {
+        $(child).find('[staff]').remove(':not(' + staffNSelector + ')');
         var staves = $(child).find('staff');
         $(staves).each(function() {
           var staff = this;
