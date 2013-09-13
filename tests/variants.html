@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html
+xmlns="http://www.w3.org/1999/xhtml"
+xmlns:mei="http://www.music-encoding.org/ns/mei"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:foaf="http://xmlns.com/foaf/0.1/"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:mo="http://purl.org/ontology/mo/"
+xmlns:mo-i="http://purl.org/ontology/mo-imaginary/"
+xmlns:event="http://purl.org/NET/c4dm/event.owl"
+version="HTML+RDFa 1.0" xml:lang="en">
+	<head>
+		<title>MEI-to-VexFlow Test Page</title>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<!--		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script> -->
+		<script src="../support/jquery-1.7.1.min.js"></script>
+		<script type="text/JavaScript" src="../../vexflow/build/vexflow/vexflow-min.js"></script>
+		<script type="text/JavaScript" src="../tables.js"></script>
+		<script type="text/JavaScript" src="../meilib.js"></script>
+		<script type="text/JavaScript" src="../meitovexflow.js"></script>
+		<script type="text/JavaScript" src="../EventLink.js"></script>
+		<script type="text/JavaScript" src="../EventReference.js"></script>
+		<script type="text/JavaScript" src="../StaffInfo.js"></script>
+		<script type="text/JavaScript" src="../StaveConnector.js"></script>
+		<script type="text/JavaScript" src="../StaveVoices.js"></script>
+		<script type="text/JavaScript" src="loadxmldoc.js"></script>
+		<script type="text/JavaScript" src="runtest.js"></script>   
+		<script type="text/JavaScript">
+
+			DisplayMainMEI = function(test_case, canvas, titleElem, codeElem){
+				$(titleElem).html(test_case.title);
+				var canvas_width = test_case.canvas_width ? test_case.canvas_width : 1031;
+				var canvas_height = test_case.canvas_height ? test_case.canvas_height : 180;
+				$(canvas).attr('width', canvas_width);
+				$(canvas).attr('height', canvas_height);
+				var score_width = canvas_width - 50;
+				var score_height = canvas_height - 50;
+
+				//load the xml file...
+				// Vex.LogInfo("Displaying : '" + test_case.title + "' MEI-XML: '" + test_case.mei_xml + "'...");
+				// xmlDoc=loadXMLDoc(test_case.mei_xml);
+				// if (xmlDoc) { 
+				// 	Vex.LogInfo('MEI-XML loaded.'); 
+				// } else {
+				// 	throw "Cannot load MEI file."
+				// }
+
+				//... and render it onto the canvas
+				Vex.LogInfo('Rendering... ');
+				MEI2VF.render_notation(test_case.mei_score, canvas, score_width, score_height);
+
+				var serializer = new XMLSerializer();
+				var strMEI = serializer.serializeToString($(test_case.mei_score).get(0));
+				var strMEI_rplc1 = strMEI.replace(/</g, '&lt;');
+				var strMEI_rplc2 = strMEI_rplc1.replace(/>/g, '&gt;');
+				$(codeElem).html(strMEI_rplc2);
+
+
+				Vex.LogInfo('Done (' + test_case.title + ')');
+
+			}
+
+			var testItem_html = ""
+			Vex.LogLevel = 5;
+			$(document).ready(function(){
+
+				var variant_mei = loadXMLDoc('TC.Isaac.xml');
+				var Apps = MeiLib.parseAPPs(variant_mei);
+				console.log('JS Object:');
+				console.log(Apps);
+
+
+				var appReplacements = {};
+				// appReplacements['app.m3.tie'] = new MeiLib.AppReplacement('rdg', 'rdg1.app.m3.tie');
+				// appReplacements['app.n1l1s1m8'] = new MeiLib.AppReplacement('rdg', 'rdg.app.n1l1s1m8');
+				// appReplacements['app01.m8'] = new MeiLib.AppReplacement('rdg', 'rdg1.n1l1s4m8');
+				// appReplacements['app.n1l1s2m27'] = new MeiLib.AppReplacement('rdg', 'rdg1.app.n1l1s2m27');
+				var single_path_score = MeiLib.createSingleVariantPathScore(appReplacements, variant_mei);
+
+				var canvas = $('div.test-canvas canvas')[0];
+				var titleElem = $('span.test-title')[0];
+				var codeElem = $('code.xmlview')[0];
+				DisplayMainMEI( { 
+						title: 'Henricus Isaac: Rogamus te piissima virgo Maria....', 
+						mei_score: single_path_score, 
+						canvas_width:1300, 
+						canvas_height:3000,
+					}, 
+					canvas, titleElem, codeElem);
+
+					for (var i=1; i<MEI2VF.rendered_measures.length;i++) {
+						for (var j=1;j<MEI2VF.rendered_measures[i].length;j++) {
+							var rendered_staff = MEI2VF.rendered_measures[i][j];
+							console.log(rendered_staff.x + ', ' + rendered_staff.y + ', width: ' + rendered_staff.width);
+						}
+					}
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div class="test-page">
+			<div class='demoitem'>
+				<h1><span class='test-title' property='dc:title'>Title Comes Here</span></h1>
+				<div class='desc'><p>Description</p></div>
+				<div class='test-canvas'>
+					<canvas width='1031' height='450' style='border: none'></canvas>
+				</div>
+			</div>
+		</div>
+		<pre><code class="xmlview"></code></pre>
+	</body>
+</html>

@@ -44,9 +44,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var height = height || 350;
   var n_measures; // = $(score).find('measure').get().length;
   var measure_width;// = Math.round(width / n_measures);
+  var ANNOT_FONT_SIZE = 13;
 
   var context;
   var measures = [];
+  var measures_by_n = [];
   var beams = [];
   var notes = [];
   var notes_by_id = {};
@@ -67,6 +69,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var new_section = true;
   
   var staffInfoArray = new Array();
+  var staffDefList = [];
   var staffXShift = 0;
   var staveConnectors = {};
   var staveVoices = new MEI2VF.StaveVoices();
@@ -348,7 +351,14 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var staff_top_rel = function(staff_n) {
     var result = 0;
     var i;
-    for (i=0;i<staff_n-1;i++) result += staff_height(i);
+    for (i=0, exit=0; i<staffDefList.length && !exit;i++) {
+      if ($(staffDefList[i]).attr('n') !== staff_n.toString()) { 
+        result += staff_height(i);
+      } else {
+        exit = true;
+      }
+    }
+//    for (i=0;i<staff_n-1;i++) result += staff_height(i);
     return result;
   }
   
@@ -396,7 +406,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
       staffInfoArray[staff_n].renderWith.timesig = false;
     }
     staff.setContext(context).draw();
-    staffXShift = staff.barXShift;
+    staffXShift = staff.bar_x_shift;
     Vex.LogDebug('initialise_staff_n(): staffXShift=' + staffXShift);
     return staff;
   }
@@ -508,6 +518,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
   }
   
   var process_scoreDef = function(scoredef) {
+    staffDefList.length = 0;
     $(scoredef).children().each(process_scoredef_child);
   }
 
@@ -573,6 +584,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     } else {
       staffInfoArray[staff_n] = new MEI2VF.StaffInfo(staffDef, true, true, true);
     }
+    staffDefList.push(staffDef);
     return staff_n;
   }
   
@@ -585,6 +597,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
     
     //get current staffDef
     var staff_n = Number(staff_element.attrs().n);
+    var measure_n = Number(parent_measure.attrs().n);
     staff = initialise_staff_n(staff_n, measure_width);
     var layer_events = $(staff_element).find('layer').map(function(i, layer) { 
       return extract_events(i, layer, staff_element, parent_measure); 
@@ -600,6 +613,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
     });
 
     staves_by_n[staff_n] = staff;    
+    if (measures_by_n[measure_n] === undefined) {
+      measures_by_n[measure_n] = [];
+    }
+    measures_by_n[measure_n][staff_n] = staff;
 
     return staff;
   };
@@ -826,11 +843,11 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
     //Support for annotations (lyrics, directions, etc.)
     var make_annot_below = function(text) {
-      return (new Vex.Flow.Annotation(text)).setFont("Times").setBottom(true);
+      return (new Vex.Flow.Annotation(text)).setFont("Times", ANNOT_FONT_SIZE).setBottom(true);
     };
 
     var make_annot_above = function(text) {
-      return (new Vex.Flow.Annotation(text)).setFont("Times");
+      return (new Vex.Flow.Annotation(text)).setFont("Times", ANNOT_FONT_SIZE);
     };
 
     try {
@@ -1019,6 +1036,7 @@ MEI2VF.render_notation = function(score, target, width, height) {
 
   initialise_score(target);
   render_measure_wise();
+  MEI2VF.rendered_measures = measures_by_n;
 };
 
 

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mei meiversion="2013" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" xmlns:mei="http://www.music-encoding.org/ns/mei">
+	<meiHead>
+		<fileDesc>
+			<titleStmt>
+				<title/>
+			</titleStmt>
+			<pubStmt/>
+		</fileDesc>
+	</meiHead>
+	<music>
+		<body>
+			<mdiv>
+				<score>
+					<mei:scoreDef key.pname="c" key.mode="major">
+						<staffGrp symbol="line">
+							<staffGrp barthru="false">
+								<staffDef n="1" label="Supremus" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+								<staffDef n="2" label="Supremus" clef.line="2" clef.shape="G" meter.count="4" meter.unit="4"/>
+								<staffDef n="3" label="Supremus" clef.line="3" clef.shape="C" meter.count="4" meter.unit="4"/>
+								<staffDef n="4" label="Supremus" clef.line="4" clef.shape="F" meter.count="4" meter.unit="4"/>
+							</staffGrp>
+						</staffGrp>
+					</mei:scoreDef>
+					<section>
+						<mei:measure n="1">
+							<staff n="1">
+								<layer>
+									<note pname="a" oct="4" dur="4"/>
+									<beam>
+										<note pname="b" oct="4" dur="8"/>
+										<note pname="c" oct="4" dur="8"/>
+									</beam>
+									<note pname="d" oct="4" dur="2"/>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+							<tie staff="1" tstamp="1" tstamp2="2"/>
+							<slur staff="2" tstamp="1" tstamp2="2"/>
+						</mei:measure>
+						<mei:measure n="2">
+							<staff n="1">
+								<layer xml:id="l1s1m1">
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="3">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="4">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="5">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<sb/>
+						<mei:measure n="6">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="7">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="8">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+						<mei:measure n="9">
+							<staff n="1">
+								<layer>
+								</layer>
+							</staff>
+							<staff n="2">
+							</staff>
+							<staff n="3">
+							</staff>
+							<staff n="4">
+							</staff>
+						</mei:measure>
+					</section>
+				</score>
+			</mdiv>
+		</body>
+	</music>
+</mei>
