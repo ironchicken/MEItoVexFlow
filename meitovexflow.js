@@ -218,7 +218,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var mei_dur2vex_dur = function(mei_dur) {
     mei_dur = String(mei_dur);
     //if (mei_dur === 'long') return ;
-    //if (mei_dur === 'breve') return ;
+    if (mei_dur === 'breve') {
+      if (Vex.Flow.durationToTicks.durations['0'] != undefined) return '0';
+      return 'w';
+    } 
     if (mei_dur === '1') return 'w';
     if (mei_dur === '2') return 'h';
     if (mei_dur === '4') return 'q';
@@ -310,7 +313,10 @@ MEI2VF.render_notation = function(score, target, width, height) {
   var mei_staffdef2vex_clef = function(mei_staffdef) {
     var clef_shape = get_attr_value(mei_staffdef, 'clef.shape');
     var clef_line = get_attr_value_opt(mei_staffdef, 'clef.line');
+    var clef_dis = get_attr_value_opt(mei_staffdef, 'clef.dis');
+    var clef_dis_place = get_attr_value_opt(mei_staffdef, 'clef.dis.place');
     if (clef_shape === 'G' && (!clef_line || clef_line === '2')) {
+      if (clef_dis === '8' && clef_dis_place === 'below' && Vex.Flow.clefProperties.values['octave'] != undefined) return 'octave';
       return 'treble';
     } else if (clef_shape === 'F' && (!clef_line || clef_line === '4') ) {
       return 'bass';
